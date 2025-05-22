@@ -1,0 +1,96 @@
+/* src/style/index.css */
+:root {
+	font-family: 'Helvetica Neue', arial, sans-serif;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+
+	/* Default Light Theme */
+	color: #333; /* Texto oscuro para fondo claro */
+	background: #fafafa; /* Fondo claro */
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		color: #e0e0e0; /* Texto claro para fondo oscuro */
+		background: #121212; /* Fondo oscuro general */
+	}
+
+    /* Puedes añadir estilos específicos para elementos comunes en tema oscuro */
+    body {
+        color: #e0e0e0;
+        background-color: #121212;
+    }
+
+    a {
+        color: #bb86fc; /* Un color de enlace que contraste bien en oscuro */
+    }
+
+    a:hover {
+        color: #9e66d4;
+    }
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	min-height: 100vh;
+    /* Asegurar que los estilos de :root se apliquen si es necesario */
+    color: var(--text-color, #333); /* Usar variables CSS si las defines */
+    background-color: var(--background-color, #fafafa);
+}
+
+/* Este #app > main podría no estar siendo tan efectivo como esperas si el
+   contenido de las rutas no está directamente dentro de un <main> hijo de #app.
+   La estructura actual es <div id="app"> <Header/> <Router/> </div>
+   Las páginas se renderizan dentro de <Router>.
+*/
+#app {
+    /* Mueve los estilos de #app > main directamente a #app si es el contenedor principal real */
+    display: flex;
+    flex-direction: column; /* Para que Header y Router se apilen */
+    min-height: 100vh;
+}
+
+/* Contenedor para el contenido de las rutas, si decides añadir uno */
+.page-content {
+    flex-grow: 1;
+    padding: 20px; /* Añade padding general a las páginas */
+    max-width: 1000px; /* O el ancho que prefieras */
+    margin: 0 auto; /* Centrar el contenido */
+    width: 100%;
+}
+
+/* Estilos para el Header (ya tienes un style.css para él, pero como referencia) */
+/* Asegúrate de que el header también tenga buen contraste */
+/* GOPH/mi-gestor-frontend/src/components/header/style.css */
+.header {
+    background-color: #1f1f1f; /* Un poco más claro que el fondo de la página */
+    color: white;
+    padding: 15px 30px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    color: #e0e0e0;
+}
+
+.header nav {
+    margin-top: 10px;
+}
+
+.header nav a {
+    color: #bb86fc; /* Color de enlace sugerido para tema oscuro */
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.header nav a:hover,
+.header nav a.active { /* activeClassName de preact-router */
+    color: #f0f0f0;
+    text-decoration: underline;
+}

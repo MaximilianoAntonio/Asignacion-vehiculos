@@ -1,0 +1,50 @@
+.vehiculosPage, .conductoresPage { /* Asegúrate de que el contenedor principal tenga color de texto */
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    color: #e0e0e0; /* Color de texto base para la página */
+}
+
+.vehiculosPage h1, .conductoresPage h1 {
+    color: #f5f5f5; /* Título de la página más brillante */
+}
+
+.vehiculosPage table, .conductoresPage table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.vehiculosPage th, .conductoresPage th,
+.vehiculosPage td, .conductoresPage td {
+    border: 1px solid #555; /* Borde más visible */
+    padding: 10px;
+    text-align: left;
+    color: #c5c5c5; /* Color de texto para celdas */
+}
+
+.vehiculosPage th, .conductoresPage th {
+    background-color: #3a3a3a; /* Fondo más oscuro para cabeceras de tabla */
+    color: #f0f0f0; /* Texto más brillante para cabeceras */
+    font-weight: bold;
+}
+
+/* Estilo para el botón de agregar, si no lo tienes ya */
+.addButton {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.addButton:hover {
+    background-color: #45a049;
+}

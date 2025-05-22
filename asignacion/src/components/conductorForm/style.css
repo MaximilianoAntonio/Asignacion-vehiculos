@@ -1,0 +1,92 @@
+.formContainer {
+    border: 1px solid #555; /* Borde más visible en tema oscuro */
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    background-color: #2e2e2e; /* Un fondo ligeramente más claro que el negro puro */
+    color: #e0e0e0; /* Color de texto claro para el contenedor del formulario */
+}
+
+.formContainer h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    color: #e0e0e0; /* Asegurar que el título del formulario sea visible */
+}
+
+.formGroup {
+    margin-bottom: 15px;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #c5c5c5; /* Color de etiqueta más claro */
+}
+
+/* Estilos específicos para inputs para asegurar legibilidad */
+.formGroup input[type="text"],
+.formGroup input[type="date"],
+.formGroup input[type="tel"],
+.formGroup input[type="email"],
+.formGroup input[type="number"],
+.formGroup select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #3a3a3a; /* Fondo del input */
+    color: #e0e0e0; /* Color del texto dentro del input */
+    font-size: 16px;
+}
+
+/* Para que el placeholder también sea visible (si lo usas) */
+.formGroup input::placeholder {
+  color: #999;
+}
+
+.formActions {
+    margin-top: 20px;
+    text-align: right;
+}
+
+.formActions button {
+    padding: 10px 15px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.submitButton {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
+
+.submitButton:disabled {
+    background-color: #555;
+    color: #999;
+}
+
+.cancelButton {
+    background-color: #f44336; /* Red */
+    color: white;
+}
+.cancelButton:disabled {
+    background-color: #555;
+    color: #999;
+}
+
+.error {
+    color: #ffcdd2; /* Texto de error más claro */
+    background-color: #b71c1c; /* Fondo oscuro para el error */
+    border: 1px solid #ef5350;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}

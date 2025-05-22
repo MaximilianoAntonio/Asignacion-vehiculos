@@ -1,0 +1,45 @@
+/* src/routes/asignaciones/style.css */
+.asignacionesPage {
+    padding: 20px;
+    color: #e0e0e0;
+}
+.asignacionesPage h1 {
+    color: #f5f5f5;
+}
+
+.dataTable { /* Nombre genérico para tablas */
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.dataTable th, .dataTable td {
+    border: 1px solid #555;
+    padding: 10px;
+    text-align: left;
+    color: #c5c5c5;
+}
+
+.dataTable th {
+    background-color: #3a3a3a;
+    color: #f0f0f0;
+    font-weight: bold;
+}
+
+.addButton {
+    background-color: #007bff; /* Blue */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+}
+.addButton:hover {
+    background-color: #0069d9;
+}
