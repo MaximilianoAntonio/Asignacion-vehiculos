@@ -1,50 +1,92 @@
-.vehiculosPage, .conductoresPage { /* Asegúrate de que el contenedor principal tenga color de texto */
-    padding: 20px;
-    max-width: 900px;
-    margin: 0 auto;
-    color: #e0e0e0; /* Color de texto base para la página */
+.conductoresPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
-.vehiculosPage h1, .conductoresPage h1 {
-    color: #f5f5f5; /* Título de la página más brillante */
+.encabezado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.vehiculosPage table, .conductoresPage table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+.tableContainer {
+  width: 90%;
+  max-width: 1000px;
+  overflow-x: auto;
 }
 
-.vehiculosPage th, .conductoresPage th,
-.vehiculosPage td, .conductoresPage td {
-    border: 1px solid #555; /* Borde más visible */
-    padding: 10px;
-    text-align: left;
-    color: #c5c5c5; /* Color de texto para celdas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.vehiculosPage th, .conductoresPage th {
-    background-color: #3a3a3a; /* Fondo más oscuro para cabeceras de tabla */
-    color: #f0f0f0; /* Texto más brillante para cabeceras */
-    font-weight: bold;
+table th,
+table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
 }
 
-/* Estilo para el botón de agregar, si no lo tienes ya */
+table th {
+  background-color: #333;
+  color: white;
+}
+
 .addButton {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
+  padding: 0.75rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  margin-bottom: 1rem;
 }
 
 .addButton:hover {
-    background-color: #45a049;
+  background-color: #218838;
+}
+
+.editButton {
+  padding: 0.5rem 1rem;
+  background-color: #673ab8;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.editButton:hover {
+  background-color: #5e35b1;
+}
+
+.deleteButton {
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.deleteButton:hover {
+  background-color: #c82333;
 }

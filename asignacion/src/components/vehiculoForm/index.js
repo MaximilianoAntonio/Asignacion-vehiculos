@@ -12,6 +12,8 @@ class VehiculoForm extends Component {
         capacidad_pasajeros: 4,
         error: null,
         submitting: false,
+        foto: null,
+        fotoPreview: null,
     };
 
     componentDidMount() {
@@ -22,7 +24,8 @@ class VehiculoForm extends Component {
                 modelo: vehiculo.modelo || '',
                 patente: vehiculo.patente || '',
                 tipo_vehiculo: vehiculo.tipo_vehiculo || 'auto_funcionario',
-                capacidad_pasajeros: vehiculo.capacidad_pasajeros || 4
+                capacidad_pasajeros: vehiculo.capacidad_pasajeros || 4,
+                fotoPreview: vehiculo.foto_url || null
             });
         }
     }
@@ -31,17 +34,35 @@ class VehiculoForm extends Component {
         const value = e.target.type === 'number' ? parseInt(e.target.value, 10) : e.target.value;
         this.setState({ [e.target.name]: value });
     };
+    handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            this.setState({
+                foto: file,
+                fotoPreview: URL.createObjectURL(file)
+            });
+        }
+    };
+
 
     handleSubmit = (e) => {
         e.preventDefault();
         this.setState({ submitting: true, error: null });
 
-        const { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros } = this.state;
-        const vehiculoData = { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros };
+        const { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, foto } = this.state;
+        const formData = new FormData();
+        formData.append('marca', marca);
+        formData.append('modelo', modelo);
+        formData.append('patente', patente);
+        formData.append('tipo_vehiculo', tipo_vehiculo);
+        formData.append('capacidad_pasajeros', capacidad_pasajeros);
+        if (foto) {
+            formData.append('foto', foto);
+        }
 
         const promise = this.props.vehiculo
-            ? updateVehiculo(this.props.vehiculo.id, vehiculoData)
-            : createVehiculo(vehiculoData);
+            ? updateVehiculo(this.props.vehiculo.id, formData)
+            : createVehiculo(formData);
 
         promise
             .then(() => {
@@ -63,7 +84,7 @@ class VehiculoForm extends Component {
             });
     };
 
-    render(props, { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, error, submitting }) {
+    render(props, { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, fotoPreview, error, submitting }) {
         const tipoVehiculoChoices = [
             { value: 'auto_funcionario', label: 'Auto para Funcionarios' },
             { value: 'furgon_insumos', label: 'Furgón para Insumos' },
@@ -104,6 +125,16 @@ class VehiculoForm extends Component {
                         <label for="capacidad_pasajeros">Capacidad Pasajeros:</label>
                         <input type="number" name="capacidad_pasajeros" id="capacidad_pasajeros" value={capacidad_pasajeros} onInput={this.handleChange} min="1" required />
                     </div>
+                    <div class={style.formGroup}>
+                        <label for="foto">Foto del vehículo:</label>
+                        <input type="file" name="foto" id="foto" accept="image/*" onChange={this.handleFileChange} />
+                    </div>
+                    {fotoPreview && (
+                        <div class={style.imagePreview}>
+                            <img src={fotoPreview} alt="Vista previa" style="max-width: 200px; margin-top: 1rem;" />
+                        </div>
+                    )}
+
                     <div class={style.formActions}>
                         <button type="submit" disabled={submitting} class={style.submitButton}>
                             {submitting

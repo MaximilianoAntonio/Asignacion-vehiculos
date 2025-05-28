@@ -35,7 +35,7 @@ table td {
 }
 
 table th {
-  background-color: #673ab8;
+  background-color: #333;
   color: white;
 }
 
@@ -99,7 +99,7 @@ table th {
 
 .editButton {
   padding: 0.5rem 1rem;
-  background-color: #007bff; /* Azul estilo Bootstrap */
+  background-color: #673ab8; /* Azul estilo Bootstrap */
   color: white;
   font-size: 0.95rem;
   font-weight: bold;
@@ -110,6 +110,23 @@ table th {
 }
 
 .editButton:hover {
-  background-color: #0056b3;
+  background-color: #673ab8;
+}
+
+.deleteButton {
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.deleteButton:hover {
+  background-color: #c82333;
 }
 

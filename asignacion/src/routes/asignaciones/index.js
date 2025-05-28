@@ -5,6 +5,7 @@ import { getVehiculos } from '../../services/vehicleService'; // Para select de 
 import { getConductores } from '../../services/conductorService'; // Para select de conductores
 import AsignacionForm from '../../components/asignacionForm'; // Crearemos este
 import style from './style.css';
+import { deleteAsignacion } from '../../services/asignacionService';
 
 class AsignacionesPage extends Component {
     state = {
@@ -14,6 +15,7 @@ class AsignacionesPage extends Component {
         loading: true,
         error: null,
         showForm: false,
+        asignacionEditando: null,
     };
 
     componentDidMount() {
@@ -47,6 +49,26 @@ class AsignacionesPage extends Component {
     handleShowForm = () => this.setState({ showForm: true });
     handleHideForm = () => this.setState({ showForm: false });
 
+    handleEditAsignacion = (asignacion) => {
+        this.setState({
+            showForm: true,
+            asignacionEditando: asignacion
+        });
+    };
+
+    handleDeleteAsignacion = (asignacion) => {
+        const confirmado = window.confirm(`¿Estás seguro de que deseas eliminar la asignación #${asignacion.id}?`);
+        if (confirmado) {
+            deleteAsignacion(asignacion.id)
+                .then(() => this.cargarDatos()) // Refresca lista después de borrar
+                .catch(error => {
+                    console.error('Error al eliminar la asignación:', error);
+                    alert('Ocurrió un error al intentar eliminar la asignación.');
+                });
+         }   
+    };
+
+
     handleAsignacionCreada = () => {
         this.setState({ showForm: false });
         this.cargarDatos(); // Recargar la lista
@@ -76,6 +98,7 @@ class AsignacionesPage extends Component {
 
                 {showForm && (
                     <AsignacionForm
+                        asignacion={this.state.asignacionEditando}
                         onAsignacionCreada={this.handleAsignacionCreada}
                         onCancel={this.handleHideForm}
                         vehiculosDisponibles={vehiculos} // Pasar vehículos al form
@@ -97,6 +120,7 @@ class AsignacionesPage extends Component {
                                 <th>F. Solicitud</th>
                                 <th>F. Requerida Inicio</th>
                                 <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,6 +134,14 @@ class AsignacionesPage extends Component {
                                     <td>{this.formatDateTime(a.fecha_hora_solicitud)}</td>
                                     <td>{this.formatDateTime(a.fecha_hora_requerida_inicio)}</td>
                                     <td>{a.estado}</td>
+                                    <td>
+                                        <button onClick={() => this.handleEditAsignacion(a)} className={style.editButton}>
+                                            ✏️ Editar
+                                        </button>
+                                        <button onClick={() => this.handleDeleteAsignacion(a)} className={style.deleteButton}>
+                                            🗑️ Eliminar
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

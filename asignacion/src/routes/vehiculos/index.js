@@ -3,6 +3,7 @@ import { h, Component } from 'preact';
 import { getVehiculos } from '../../services/vehicleService';
 import style from './style.css';
 import VehiculoForm from '../../components/vehiculoForm'; // Importar el formulario
+import { deleteVehiculo } from '../../services/vehicleService';
 
 class VehiculosPage extends Component {
   state = {
@@ -65,6 +66,17 @@ class VehiculosPage extends Component {
     });
   };
 
+  handleDeleteVehiculo = (vehiculo) => {
+    const confirmado = window.confirm(`¿Estás seguro de que deseas eliminar el vehículo ${vehiculo.patente}?`);
+    if (confirmado) {
+      deleteVehiculo(vehiculo.id)
+        .then(() => this.cargarVehiculos())
+        .catch(error => {
+          console.error('Error al eliminar el vehículo:', error);
+          alert('Ocurrió un error al eliminar el vehículo.');
+        });
+    }
+  };
 
   render(_, { vehiculos, loading, error, showForm, selectedImage }) {
     if (loading && !showForm) {
@@ -130,6 +142,9 @@ class VehiculosPage extends Component {
                     <button onClick={() => this.handleEditVehiculo(v)} className={style.editButton}>
                       ✏️ Editar
                     </button>
+                    <button onClick={() => this.handleDeleteVehiculo(v)} className={style.deleteButton}>
+                      🗑️ Eliminar
+                      </button>
                   </td>
                 </tr>
               ))}

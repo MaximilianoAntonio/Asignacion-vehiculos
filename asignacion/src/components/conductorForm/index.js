@@ -1,7 +1,7 @@
 // src/components/conductorForm/index.js
 import { h, Component } from 'preact';
-import { createConductor } from '../../services/conductorService';
-import style from './style.css'; // Crearemos este archivo
+import { createConductor, updateConductor } from '../../services/conductorService';
+import style from './style.css';
 
 class ConductorForm extends Component {
     state = {
@@ -11,10 +11,23 @@ class ConductorForm extends Component {
         fecha_vencimiento_licencia: '',
         telefono: '',
         email: '',
-        // No incluimos 'activo' y 'tipos_vehiculo_habilitados' para simplificar el formulario inicial
         error: null,
         submitting: false,
     };
+
+    componentDidMount() {
+        const { conductor } = this.props;
+        if (conductor) {
+            this.setState({
+                nombre: conductor.nombre || '',
+                apellido: conductor.apellido || '',
+                numero_licencia: conductor.numero_licencia || '',
+                fecha_vencimiento_licencia: conductor.fecha_vencimiento_licencia?.slice(0, 10) || '',
+                telefono: conductor.telefono || '',
+                email: conductor.email || '',
+            });
+        }
+    }
 
     handleChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
@@ -29,45 +42,45 @@ class ConductorForm extends Component {
             nombre,
             apellido,
             numero_licencia,
-            fecha_vencimiento_licencia, // Asegúrate que el formato de fecha sea YYYY-MM-DD
-            telefono: telefono || null, // Envía null si está vacío
-            email: email || null,       // Envía null si está vacío
+            fecha_vencimiento_licencia,
+            telefono: telefono || null,
+            email: email || null,
         };
 
-        createConductor(conductorData)
+        const { conductor } = this.props;
+        const request = conductor
+            ? updateConductor(conductor.id, conductorData)
+            : createConductor(conductorData);
+
+        request
             .then(() => {
-                this.setState({
-                    nombre: '',
-                    apellido: '',
-                    numero_licencia: '',
-                    fecha_vencimiento_licencia: '',
-                    telefono: '',
-                    email: '',
-                    submitting: false,
-                });
                 if (this.props.onConductorCreado) {
                     this.props.onConductorCreado();
                 }
             })
             .catch(error => {
-                console.error("Error creating conductor:", error.response);
-                let errorMessage = 'Error al crear el conductor.';
+                console.error("Error al guardar el conductor:", error.response);
+                let errorMessage = conductor ? 'Error al editar el conductor.' : 'Error al crear el conductor.';
                 if (error.response && error.response.data) {
-                    // Intenta obtener mensajes de error específicos del backend
                     const errors = error.response.data;
                     const messages = Object.keys(errors)
                         .map(key => `${key}: ${errors[key].join ? errors[key].join(', ') : errors[key]}`)
                         .join(' ');
                     if (messages) errorMessage += ` Detalles: ${messages}`;
                 }
-                this.setState({ error: errorMessage, submitting: false });
+                this.setState({ error: errorMessage });
+            })
+            .finally(() => {
+                this.setState({ submitting: false });
             });
     };
 
     render(props, { nombre, apellido, numero_licencia, fecha_vencimiento_licencia, telefono, email, error, submitting }) {
+        const esEdicion = !!props.conductor;
+
         return (
             <div class={style.formContainer}>
-                <h3>Agregar Nuevo Conductor</h3>
+                <h3>{esEdicion ? 'Editar Conductor' : 'Agregar Nuevo Conductor'}</h3>
                 {error && <p class={style.error}>{error}</p>}
                 <form onSubmit={this.handleSubmit}>
                     <div class={style.formGroup}>
@@ -83,10 +96,10 @@ class ConductorForm extends Component {
                         <input type="text" name="numero_licencia" id="numero_licencia" value={numero_licencia} onInput={this.handleChange} required />
                     </div>
                     <div class={style.formGroup}>
-                        <label for="fecha_vencimiento_licencia">Fecha Vencimiento Licencia:</label>
+                        <label for="fecha_vencimiento_licencia">Fecha de Vencimiento de Licencia:</label>
                         <input type="date" name="fecha_vencimiento_licencia" id="fecha_vencimiento_licencia" value={fecha_vencimiento_licencia} onInput={this.handleChange} required />
                     </div>
-                     <div class={style.formGroup}>
+                    <div class={style.formGroup}>
                         <label for="telefono">Teléfono (opcional):</label>
                         <input type="tel" name="telefono" id="telefono" value={telefono} onInput={this.handleChange} />
                     </div>
@@ -94,9 +107,12 @@ class ConductorForm extends Component {
                         <label for="email">Email (opcional):</label>
                         <input type="email" name="email" id="email" value={email} onInput={this.handleChange} />
                     </div>
+
                     <div class={style.formActions}>
                         <button type="submit" disabled={submitting} class={style.submitButton}>
-                            {submitting ? 'Agregando...' : 'Agregar Conductor'}
+                            {submitting
+                                ? (esEdicion ? 'Guardando...' : 'Agregando...')
+                                : (esEdicion ? 'Guardar Cambios' : 'Agregar Conductor')}
                         </button>
                         <button type="button" onClick={props.onCancel} class={style.cancelButton} disabled={submitting}>
                             Cancelar
