@@ -24,7 +24,23 @@ class AsignacionForm extends Component {
         submitting: false,
     };
 
-    state = { ...this.initialState };
+    state = {
+    ...this.initialState,
+    ...(this.props.asignacion && {
+        vehiculo_id: this.props.asignacion.vehiculo?.id || '',
+        conductor_id: this.props.asignacion.conductor?.id || '',
+        tipo_servicio: this.props.asignacion.tipo_servicio || 'funcionarios',
+        destino_descripcion: this.props.asignacion.destino_descripcion || '',
+        origen_descripcion: this.props.asignacion.origen_descripcion || '',
+        fecha_hora_requerida_inicio: this.props.asignacion.fecha_hora_requerida_inicio?.slice(0, 16) || '',
+        req_pasajeros: this.props.asignacion.req_pasajeros || 1,
+        req_carga_kg: this.props.asignacion.req_carga_kg || '',
+        req_tipo_vehiculo_preferente: this.props.asignacion.req_tipo_vehiculo_preferente || '',
+        req_caracteristicas_especiales: this.props.asignacion.req_caracteristicas_especiales || '',
+        observaciones: this.props.asignacion.observaciones || ''
+    })
+};
+
 
     handleChange = (e) => {
         const { name, value, type } = e.target;

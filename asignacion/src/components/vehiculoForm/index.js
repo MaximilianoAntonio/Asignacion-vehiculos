@@ -1,58 +1,78 @@
 // src/components/vehiculoForm/index.js
 import { h, Component } from 'preact';
-import { createVehiculo } from '../../services/vehicleService';
-import style from './style.css'; // Puedes usar el mismo estilo de ConductorForm o crear uno nuevo
+import { createVehiculo, updateVehiculo } from '../../services/vehicleService';
+import style from './style.css';
 
 class VehiculoForm extends Component {
     state = {
         marca: '',
         modelo: '',
         patente: '',
-        tipo_vehiculo: 'auto_funcionario', // Valor por defecto
-        capacidad_pasajeros: 4, // Valor por defecto
-        // 'foto', 'capacidad_carga_kg', 'caracteristicas_adicionales' se omiten para simplificar
+        tipo_vehiculo: 'auto_funcionario',
+        capacidad_pasajeros: 4,
         error: null,
         submitting: false,
+        foto: null,
+        fotoPreview: null,
     };
+
+    componentDidMount() {
+        const { vehiculo } = this.props;
+        if (vehiculo) {
+            this.setState({
+                marca: vehiculo.marca || '',
+                modelo: vehiculo.modelo || '',
+                patente: vehiculo.patente || '',
+                tipo_vehiculo: vehiculo.tipo_vehiculo || 'auto_funcionario',
+                capacidad_pasajeros: vehiculo.capacidad_pasajeros || 4,
+                fotoPreview: vehiculo.foto_url || null
+            });
+        }
+    }
 
     handleChange = (e) => {
         const value = e.target.type === 'number' ? parseInt(e.target.value, 10) : e.target.value;
         this.setState({ [e.target.name]: value });
     };
+    handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            this.setState({
+                foto: file,
+                fotoPreview: URL.createObjectURL(file)
+            });
+        }
+    };
+
 
     handleSubmit = (e) => {
         e.preventDefault();
         this.setState({ submitting: true, error: null });
 
-        const { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros } = this.state;
-        const vehiculoData = {
-            marca,
-            modelo,
-            patente,
-            tipo_vehiculo,
-            capacidad_pasajeros,
-            // estado por defecto es 'disponible' en el backend
-        };
-        // Nota: Para subir FOTO, necesitarías usar FormData y un input type="file"
-        // y modificar createVehiculo en vehicleService.js para enviar FormData.
+        const { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, foto } = this.state;
+        const formData = new FormData();
+        formData.append('marca', marca);
+        formData.append('modelo', modelo);
+        formData.append('patente', patente);
+        formData.append('tipo_vehiculo', tipo_vehiculo);
+        formData.append('capacidad_pasajeros', capacidad_pasajeros);
+        if (foto) {
+            formData.append('foto', foto);
+        }
 
-        createVehiculo(vehiculoData)
+        const promise = this.props.vehiculo
+            ? updateVehiculo(this.props.vehiculo.id, formData)
+            : createVehiculo(formData);
+
+        promise
             .then(() => {
-                this.setState({
-                    marca: '',
-                    modelo: '',
-                    patente: '',
-                    tipo_vehiculo: 'auto_funcionario',
-                    capacidad_pasajeros: 4,
-                    submitting: false,
-                });
                 if (this.props.onVehiculoCreado) {
-                    this.props.onVehiculoCreado();
+                    this.props.onVehiculoCreado(); // También sirve para "actualizado"
                 }
             })
             .catch(error => {
-                console.error("Error creating vehiculo:", error.response);
-                 let errorMessage = 'Error al crear el vehículo.';
+                console.error("Error en el formulario:", error.response);
+                let errorMessage = 'Error al procesar el vehículo.';
                 if (error.response && error.response.data) {
                     const errors = error.response.data;
                     const messages = Object.keys(errors)
@@ -64,8 +84,8 @@ class VehiculoForm extends Component {
             });
     };
 
-    render(props, { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, error, submitting }) {
-        const tipoVehiculoChoices = [ // Deberían coincidir con el backend
+    render(props, { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, fotoPreview, error, submitting }) {
+        const tipoVehiculoChoices = [
             { value: 'auto_funcionario', label: 'Auto para Funcionarios' },
             { value: 'furgon_insumos', label: 'Furgón para Insumos' },
             { value: 'ambulancia', label: 'Ambulancia para Pacientes' },
@@ -74,9 +94,11 @@ class VehiculoForm extends Component {
             { value: 'otro', label: 'Otro' },
         ];
 
+        const esEdicion = !!props.vehiculo;
+
         return (
-            <div class={style.formContainer}> {/* Reutiliza la clase o crea una nueva */}
-                <h3>Agregar Nuevo Vehículo</h3>
+            <div class={style.formContainer}>
+                <h3>{esEdicion ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</h3>
                 {error && <p class={style.error}>{error}</p>}
                 <form onSubmit={this.handleSubmit}>
                     <div class={style.formGroup}>
@@ -103,11 +125,23 @@ class VehiculoForm extends Component {
                         <label for="capacidad_pasajeros">Capacidad Pasajeros:</label>
                         <input type="number" name="capacidad_pasajeros" id="capacidad_pasajeros" value={capacidad_pasajeros} onInput={this.handleChange} min="1" required />
                     </div>
+                    <div class={style.formGroup}>
+                        <label for="foto">Foto del vehículo:</label>
+                        <input type="file" name="foto" id="foto" accept="image/*" onChange={this.handleFileChange} />
+                    </div>
+                    {fotoPreview && (
+                        <div class={style.imagePreview}>
+                            <img src={fotoPreview} alt="Vista previa" style="max-width: 200px; margin-top: 1rem;" />
+                        </div>
+                    )}
+
                     <div class={style.formActions}>
                         <button type="submit" disabled={submitting} class={style.submitButton}>
-                            {submitting ? 'Agregando...' : 'Agregar Vehículo'}
+                            {submitting
+                                ? (esEdicion ? 'Guardando...' : 'Agregando...')
+                                : (esEdicion ? 'Guardar Cambios' : 'Agregar Vehículo')}
                         </button>
-                         <button type="button" onClick={props.onCancel} class={style.cancelButton} disabled={submitting}>
+                        <button type="button" onClick={props.onCancel} class={style.cancelButton} disabled={submitting}>
                             Cancelar
                         </button>
                     </div>

@@ -12,15 +12,15 @@ export const getVehiculoById = (id) => {
     return axios.get(`${VEHICULOS_API_URL}${id}/`);
 };
 
-export const createVehiculo = (vehiculoData) => {
-    // Nota: para POST, PUT, DELETE con archivos (como la foto), necesitarás usar FormData.
-    // Por ahora, un ejemplo simple sin manejo de archivos.
-    return axios.post(VEHICULOS_API_URL, vehiculoData);
-};
+export const createVehiculo = (data) =>
+  axios.post(`${API_BASE_URL}/vehiculos/`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
-export const updateVehiculo = (id, vehiculoData) => {
-    return axios.put(`${VEHICULOS_API_URL}${id}/`, vehiculoData);
-};
+export const updateVehiculo = (id, data) =>
+  axios.put(`${API_BASE_URL}/vehiculos/${id}/`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
 export const deleteVehiculo = (id) => {
     return axios.delete(`${VEHICULOS_API_URL}${id}/`);

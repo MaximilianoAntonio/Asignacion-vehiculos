@@ -1,41 +1,14 @@
 import { h } from 'preact';
 import style from './style.css';
+import logoSSVQ from '../../assets/logo-ssvq.jpg'; // asegúrate que esté en esa ruta
 
-const Home = () => {
-	return (
-		<div class={style.home}>
-			<a href="https://preactjs.com">
-				<img src="../../assets/preact-logo.svg" alt="Preact Logo" height="160" width="160" />
-			</a>
-			<h1>Get Started Building PWAs with Preact-CLI</h1>
-			<section>
-				<Resource
-					title="Learn Preact"
-					description="If you're new to Preact, try the interactive tutorial to learn important concepts"
-					link="https://preactjs.com/tutorial/"
-				/>
-				<Resource
-					title="Differences to React"
-					description="If you're coming from React, check out our docs for where Preact differs"
-					link="https://preactjs.com/guide/v10/differences-to-react"
-				/>
-				<Resource
-					title="Learn Preact-CLI"
-					description="To learn more about Preact-CLI, read through the ReadMe & Wiki"
-					link="https://github.com/preactjs/preact-cli#preact-cli--"
-				/>
-			</section>
-		</div>
-	);
-};
-
-const Resource = props => {
-	return (
-		<a href={props.link} class={style.resource}>
-			<h2>{props.title}</h2>
-			<p>{props.description}</p>
-		</a>
-	);
-};
+const Home = () => (
+  <div class={style.homeContainer}>
+    <img src={logoSSVQ} alt="Logo SSVQ" class={style.logo} />
+    <h1>Bienvenido al Gestor de Vehículos</h1>
+    <h2>Servicio de Salud Valparaíso - San Antonio</h2>
+    <span class={style.carEmoji}>🚗</span>
+  </div>
+);
 
 export default Home;
