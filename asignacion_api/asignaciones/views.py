@@ -1,4 +1,4 @@
-# GOPH/gestor_vehiculos/asignaciones/views.py
+# asignaciones/views.py
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
@@ -21,9 +21,11 @@ class VehiculoViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['estado', 'marca', 'tipo_vehiculo', 'capacidad_pasajeros'] # CORREGIDO: 'capacidad' a 'capacidad_pasajeros', añadido 'tipo_vehiculo'
-    search_fields = ['patente', 'modelo', 'marca']
-    ordering_fields = ['marca', 'modelo', 'capacidad_pasajeros', 'estado', 'tipo_vehiculo'] # CORREGIDO: 'capacidad' a 'capacidad_pasajeros', añadido 'tipo_vehiculo'
+    # Asegúrate que estos campos coincidan con tu modelo Vehiculo actual
+    filterset_fields = ['estado', 'marca', 'tipo_vehiculo', 'capacidad_pasajeros']
+    search_fields = ['patente', 'modelo', 'marca', 'anio', 'numero_chasis', 'numero_motor'] # Añadidos campos buscables
+    ordering_fields = ['marca', 'modelo', 'capacidad_pasajeros', 'estado', 'tipo_vehiculo', 'anio'] # Añadido anio
+
 
 class ConductorViewSet(viewsets.ModelViewSet):
     queryset = Conductor.objects.all().order_by('apellido', 'nombre')
@@ -31,27 +33,28 @@ class ConductorViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['activo', 'estado_disponibilidad'] # Añadido 'estado_disponibilidad'
+    filterset_fields = ['activo', 'estado_disponibilidad']
     search_fields = ['nombre', 'apellido', 'numero_licencia']
-    ordering_fields = ['apellido', 'nombre', 'activo', 'estado_disponibilidad'] # Añadido 'estado_disponibilidad'
+    ordering_fields = ['apellido', 'nombre', 'activo', 'estado_disponibilidad']
 
 
 class AsignacionViewSet(viewsets.ModelViewSet):
     queryset = Asignacion.objects.all().select_related('vehiculo', 'conductor').order_by('-fecha_hora_solicitud')
     serializer_class = AsignacionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated] # Cambiado para requerir autenticación para todas las acciones
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # Actualizado para los nuevos nombres y campos
     filterset_fields = {
         'estado': ['exact'],
-        'tipo_servicio': ['exact'],
-        'vehiculo__marca': ['exact', 'icontains'],
+        # 'tipo_servicio': ['exact'], # ELIMINADA ESTA LÍNEA
+        'vehiculo__patente': ['exact', 'icontains'], # Ajustado para buscar por patente
         'conductor__apellido': ['exact', 'icontains'],
-        'fecha_hora_requerida_inicio': ['exact', 'gte', 'lte', 'date'], # Permite filtrar por fecha, mayor/menor que
+        'fecha_hora_requerida_inicio': ['exact', 'gte', 'lte', 'date'],
+        'solicitante_nombre': ['icontains'], # Para buscar por nombre del solicitante
+        'solicitante_jerarquia': ['exact'], # Para filtrar por jerarquía
     }
-    search_fields = ['destino_descripcion', 'vehiculo__patente', 'observaciones'] # CORREGIDO: 'destino' a 'destino_descripcion'
-    ordering_fields = ['fecha_hora_requerida_inicio', 'fecha_hora_fin_prevista', 'estado', 'tipo_servicio'] # CORREGIDO: 'fecha_hora_inicio' a 'fecha_hora_requerida_inicio'
+    search_fields = ['destino_descripcion', 'vehiculo__patente', 'observaciones', 'solicitante_nombre']
+    ordering_fields = ['fecha_hora_requerida_inicio', 'fecha_hora_fin_prevista', 'estado', 'solicitante_jerarquia'] # 'tipo_servicio' ELIMINADO
 
     @action(detail=True, methods=['post'], url_path='completar')
     def completar_asignacion(self, request, pk=None):
@@ -62,7 +65,7 @@ class AsignacionViewSet(viewsets.ModelViewSet):
             if asignacion.vehiculo:
                 asignacion.vehiculo.estado = 'disponible'
                 asignacion.vehiculo.save()
-            if asignacion.conductor: # Poner conductor como disponible también
+            if asignacion.conductor:
                 asignacion.conductor.estado_disponibilidad = 'disponible'
                 asignacion.conductor.save()
             asignacion.save()
@@ -77,9 +80,9 @@ class AsignacionViewSet(viewsets.ModelViewSet):
             if not asignacion.vehiculo or not asignacion.conductor:
                 return Response({'error': 'La asignación debe tener un vehículo y un conductor asignados para poder iniciarla.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            if asignacion.vehiculo.estado != 'disponible' and asignacion.vehiculo.estado != 'reservado': # Permitir iniciar si estaba reservado
+            if asignacion.vehiculo.estado not in ['disponible', 'reservado']:
                 return Response({'error': f'El vehículo {asignacion.vehiculo.patente} no está disponible.'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
             if asignacion.conductor.estado_disponibilidad != 'disponible' or not asignacion.conductor.activo :
                 return Response({'error': f'El conductor {asignacion.conductor} no está disponible o no está activo.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -87,7 +90,7 @@ class AsignacionViewSet(viewsets.ModelViewSet):
             asignacion.vehiculo.save()
             asignacion.conductor.estado_disponibilidad = 'en_ruta'
             asignacion.conductor.save()
-            
+
             asignacion.estado = 'activa'
             asignacion.save()
             return Response({'status': 'asignación iniciada', 'asignacion': self.get_serializer(asignacion).data}, status=status.HTTP_200_OK)
@@ -95,7 +98,9 @@ class AsignacionViewSet(viewsets.ModelViewSet):
             return Response({'error': 'La asignación no está programada o ya está en otro estado.'}, status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
-        # Aquí podrías llamar a tu futuro servicio de asignación automática si el estado es 'pendiente_auto'
+        # Aquí podrías añadir lógica futura si es necesario, por ejemplo,
+        # para llamar al servicio de asignación automática.
+        # Por ahora, solo guarda la instancia.
         # asignacion_obj = serializer.save()
         # if asignacion_obj.estado == 'pendiente_auto':
         #     from .services import intentar_asignacion_automatica # Suponiendo que lo crearás
