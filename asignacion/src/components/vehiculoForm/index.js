@@ -1,154 +1,183 @@
-// src/components/vehiculoForm/index.js
 import { h, Component } from 'preact';
-import { createVehiculo, updateVehiculo } from '../../services/vehicleService';
 import style from './style.css';
+import { createVehiculo, updateVehiculo } from '../../services/vehicleService';
 
 class VehiculoForm extends Component {
-    state = {
+  constructor(props) {
+    super(props);
+    this.state = {
+      vehiculo: props.vehiculo || {
+        patente: '',
         marca: '',
         modelo: '',
-        patente: '',
-        tipo_vehiculo: 'auto_funcionario',
+        anio: '',
+        numero_chasis: '',
+        numero_motor: '',
+        tipo_vehiculo: 'automovil',
         capacidad_pasajeros: 4,
-        error: null,
-        submitting: false,
-        foto: null,
-        fotoPreview: null,
+        caracteristicas_adicionales: '',
+        estado: 'disponible',
+        ubicacion_actual_lat: '',
+        ubicacion_actual_lon: '',
+        conductor_preferente: '',
+        foto: null
+      },
+      modoEdicion: !!props.vehiculo,
     };
+  }
 
-    componentDidMount() {
-        const { vehiculo } = this.props;
-        if (vehiculo) {
-            this.setState({
-                marca: vehiculo.marca || '',
-                modelo: vehiculo.modelo || '',
-                patente: vehiculo.patente || '',
-                tipo_vehiculo: vehiculo.tipo_vehiculo || 'auto_funcionario',
-                capacidad_pasajeros: vehiculo.capacidad_pasajeros || 4,
-                fotoPreview: vehiculo.foto_url || null
-            });
-        }
+  componentDidUpdate(prevProps) {
+    if (prevProps.vehiculo !== this.props.vehiculo) {
+      this.setState({
+        vehiculo: this.props.vehiculo || {
+          patente: '',
+          marca: '',
+          modelo: '',
+          anio: '',
+          numero_chasis: '',
+          numero_motor: '',
+          tipo_vehiculo: 'automovil',
+          capacidad_pasajeros: 4,
+          caracteristicas_adicionales: '',
+          estado: 'disponible',
+          ubicacion_actual_lat: '',
+          ubicacion_actual_lon: '',
+          conductor_preferente: '',
+          foto: null
+        },
+        modoEdicion: !!this.props.vehiculo
+      });
+    }
+  }
+
+  handleChange = (e) => {
+    const { name, value, type, files } = e.target;
+    this.setState(prevState => ({
+      vehiculo: {
+        ...prevState.vehiculo,
+        [name]: type === 'file' ? files[0] : value
+      }
+    }));
+  }
+
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    for (const key in this.state.vehiculo) {
+      if (this.state.vehiculo[key] !== null) {
+        formData.append(key, this.state.vehiculo[key]);
+      }
     }
 
-    handleChange = (e) => {
-        const value = e.target.type === 'number' ? parseInt(e.target.value, 10) : e.target.value;
-        this.setState({ [e.target.name]: value });
-    };
-    handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            this.setState({
-                foto: file,
-                fotoPreview: URL.createObjectURL(file)
-            });
-        }
-    };
-
-
-    handleSubmit = (e) => {
-        e.preventDefault();
-        this.setState({ submitting: true, error: null });
-
-        const { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, foto } = this.state;
-        const formData = new FormData();
-        formData.append('marca', marca);
-        formData.append('modelo', modelo);
-        formData.append('patente', patente);
-        formData.append('tipo_vehiculo', tipo_vehiculo);
-        formData.append('capacidad_pasajeros', capacidad_pasajeros);
-        if (foto) {
-            formData.append('foto', foto);
-        }
-
-        const promise = this.props.vehiculo
-            ? updateVehiculo(this.props.vehiculo.id, formData)
-            : createVehiculo(formData);
-
-        promise
-            .then(() => {
-                if (this.props.onVehiculoCreado) {
-                    this.props.onVehiculoCreado(); // También sirve para "actualizado"
-                }
-            })
-            .catch(error => {
-                console.error("Error en el formulario:", error.response);
-                let errorMessage = 'Error al procesar el vehículo.';
-                if (error.response && error.response.data) {
-                    const errors = error.response.data;
-                    const messages = Object.keys(errors)
-                        .map(key => `${key}: ${errors[key].join ? errors[key].join(', ') : errors[key]}`)
-                        .join(' ');
-                    if (messages) errorMessage += ` Detalles: ${messages}`;
-                }
-                this.setState({ error: errorMessage, submitting: false });
-            });
-    };
-
-    render(props, { marca, modelo, patente, tipo_vehiculo, capacidad_pasajeros, fotoPreview, error, submitting }) {
-        const tipoVehiculoChoices = [
-            { value: 'auto_funcionario', label: 'Auto para Funcionarios' },
-            { value: 'furgon_insumos', label: 'Furgón para Insumos' },
-            { value: 'ambulancia', label: 'Ambulancia para Pacientes' },
-            { value: 'camioneta_grande', label: 'Camioneta Grande Pasajeros' },
-            { value: 'camion_carga', label: 'Camión de Carga Ligera' },
-            { value: 'otro', label: 'Otro' },
-        ];
-
-        const esEdicion = !!props.vehiculo;
-
-        return (
-            <div class={style.formContainer}>
-                <h3>{esEdicion ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</h3>
-                {error && <p class={style.error}>{error}</p>}
-                <form onSubmit={this.handleSubmit}>
-                    <div class={style.formGroup}>
-                        <label for="patente">Patente:</label>
-                        <input type="text" name="patente" id="patente" value={patente} onInput={this.handleChange} required />
-                    </div>
-                    <div class={style.formGroup}>
-                        <label for="marca">Marca:</label>
-                        <input type="text" name="marca" id="marca" value={marca} onInput={this.handleChange} required />
-                    </div>
-                    <div class={style.formGroup}>
-                        <label for="modelo">Modelo:</label>
-                        <input type="text" name="modelo" id="modelo" value={modelo} onInput={this.handleChange} required />
-                    </div>
-                    <div class={style.formGroup}>
-                        <label for="tipo_vehiculo">Tipo de Vehículo:</label>
-                        <select name="tipo_vehiculo" id="tipo_vehiculo" value={tipo_vehiculo} onChange={this.handleChange}>
-                            {tipoVehiculoChoices.map(choice => (
-                                <option key={choice.value} value={choice.value}>{choice.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div class={style.formGroup}>
-                        <label for="capacidad_pasajeros">Capacidad Pasajeros:</label>
-                        <input type="number" name="capacidad_pasajeros" id="capacidad_pasajeros" value={capacidad_pasajeros} onInput={this.handleChange} min="1" required />
-                    </div>
-                    <div class={style.formGroup}>
-                        <label for="foto">Foto del vehículo:</label>
-                        <input type="file" name="foto" id="foto" accept="image/*" onChange={this.handleFileChange} />
-                    </div>
-                    {fotoPreview && (
-                        <div class={style.imagePreview}>
-                            <img src={fotoPreview} alt="Vista previa" style="max-width: 200px; margin-top: 1rem;" />
-                        </div>
-                    )}
-
-                    <div class={style.formActions}>
-                        <button type="submit" disabled={submitting} class={style.submitButton}>
-                            {submitting
-                                ? (esEdicion ? 'Guardando...' : 'Agregando...')
-                                : (esEdicion ? 'Guardar Cambios' : 'Agregar Vehículo')}
-                        </button>
-                        <button type="button" onClick={props.onCancel} class={style.cancelButton} disabled={submitting}>
-                            Cancelar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        );
+    try {
+      if (this.state.modoEdicion) {
+        await updateVehiculo(this.state.vehiculo.id, formData);
+      } else {
+        await createVehiculo(formData);
+      }
+      this.props.onVehiculoGuardado();
+    } catch (error) {
+      console.error('Error guardando vehículo:', error);
     }
+  }
+
+  render() {
+    const { vehiculo, modoEdicion } = this.state;
+    return (
+      <form class={style.formContainer} onSubmit={this.handleSubmit}>
+        <h3>{modoEdicion ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</h3>
+
+        <div class={style.formGroup}>
+          <label>Patente:</label>
+          <input type="text" name="patente" value={vehiculo.patente} onInput={this.handleChange} required />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Marca:</label>
+          <input type="text" name="marca" value={vehiculo.marca} onInput={this.handleChange} required />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Modelo:</label>
+          <input type="text" name="modelo" value={vehiculo.modelo} onInput={this.handleChange} required />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Año:</label>
+          <input type="number" name="anio" value={vehiculo.anio} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>N° Chasis:</label>
+          <input type="text" name="numero_chasis" value={vehiculo.numero_chasis} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>N° Motor:</label>
+          <input type="text" name="numero_motor" value={vehiculo.numero_motor} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Tipo de Vehículo:</label>
+          <select name="tipo_vehiculo" value={vehiculo.tipo_vehiculo} onInput={this.handleChange}>
+            <option value="automovil">Automóvil</option>
+            <option value="camioneta">Camioneta</option>
+            <option value="minibus">Minibús</option>
+            <option value="station_wagon">Station Wagon</option>
+          </select>
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Capacidad Pasajeros:</label>
+          <input type="number" name="capacidad_pasajeros" value={vehiculo.capacidad_pasajeros} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Estado:</label>
+          <select name="estado" value={vehiculo.estado} onInput={this.handleChange}>
+            <option value="disponible">Disponible</option>
+            <option value="en_uso">En Uso</option>
+            <option value="mantenimiento">Mantenimiento</option>
+            <option value="reservado">Reservado</option>
+          </select>
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Características Adicionales:</label>
+          <textarea name="caracteristicas_adicionales" value={vehiculo.caracteristicas_adicionales} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Latitud Actual:</label>
+          <input type="number" name="ubicacion_actual_lat" value={vehiculo.ubicacion_actual_lat} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Longitud Actual:</label>
+          <input type="number" name="ubicacion_actual_lon" value={vehiculo.ubicacion_actual_lon} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Conductor Preferente (ID):</label>
+          <input type="text" name="conductor_preferente" value={vehiculo.conductor_preferente} onInput={this.handleChange} />
+        </div>
+
+        <div class={style.formGroup}>
+          <label>Foto del vehículo:</label>
+          <input type="file" name="foto" accept="image/*" onChange={this.handleChange} />
+        </div>
+
+        <div class={style.formActions}>
+          <button type="submit" class={style.submitButton}>
+            {modoEdicion ? 'Guardar Cambios' : 'Agregar Vehículo'}
+          </button>
+          <button type="button" class={style.cancelButton} onClick={this.props.onCancel}>
+            Cancelar
+          </button>
+        </div>
+      </form>
+    );
+  }
 }
 
 export default VehiculoForm;

@@ -130,3 +130,32 @@ table th {
   background-color: #c82333;
 }
 
+.panelLayout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 2rem;
+  gap: 2rem;
+}
+
+.dataTableContainer {
+  flex: 2;
+  min-width: 60%;
+}
+
+.formPanel {
+  flex: 1;
+  max-width: 450px;
+  background-color: #333;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 7.5rem;  /* 🎯 Este valor alinea con el encabezado */
+
+  margin-top: 8rem; 
+  height: fit-content;
+  align-self: flex-start;
+}
+
