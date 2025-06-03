@@ -252,7 +252,7 @@ class AsignacionForm extends Component {
       req_pasajeros,
       req_carga_kg: req_carga_kg === "" ? null : req_carga_kg,
       req_tipo_vehiculo_preferente: req_tipo_vehiculo_preferente || null,
-      req_caracteristicas_especiales: req_caracteristicas_especiales || null,
+      req_caracteristicas_especiales: req_caracteristicas_especiales || "", // <--- aquí el cambio
       observaciones: observaciones || null,
       origen_region_raw: REGION_VALPARAISO,
       destino_region_raw: REGION_VALPARAISO,
