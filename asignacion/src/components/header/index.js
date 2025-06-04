@@ -5,7 +5,7 @@ import style from './style.css';
 
 const Header = ({ isLoggedIn, onLogout }) => (
     <header class={style.header}>
-        <h1>Gestor de Vehículos</h1>
+        {/* <h1>Gestor de Vehículos</h1> */}
         <nav>
             <Link activeClassName={style.active} href="/">Inicio</Link>
             {isLoggedIn && (
