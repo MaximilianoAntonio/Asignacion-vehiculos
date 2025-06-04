@@ -69,8 +69,10 @@ class VehiculosPage extends Component {
       <div class={`${style.panelLayout} ${showForm ? style.withForm : ''}`}>
         <div class={style.dataTableContainer}>
           <div class={style.encabezado}>
-            <h1>Listado de Vehículos</h1>
-            <button onClick={this.handleShowForm} class={style.addButton}>Agregar Vehículo</button>
+            <h1 class={style.titulo}>Listado de Vehículos</h1>
+            <div style="text-align: center;">
+              <button class={style.addButton} onClick={this.handleShowForm}>Agregar Vehículo</button>
+            </div>
           </div>
           <div class={style.tableContainer}>
             {vehiculos.length === 0 ? (

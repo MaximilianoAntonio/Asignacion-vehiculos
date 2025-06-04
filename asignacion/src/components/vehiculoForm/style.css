@@ -1,5 +1,6 @@
 .formContainer {
-  border: 1px solid #111111;
+  border: 3px solid #111111;
+  position: relative;
   padding: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -94,4 +95,19 @@
   margin-bottom: 15px;
 }
 
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color:black;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
 
+.closeButton:hover {
+  color: #000;
+}

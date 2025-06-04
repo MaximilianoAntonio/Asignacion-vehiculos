@@ -83,10 +83,11 @@ class AsignacionesPage extends Component {
       <div class={`${style.panelLayout} ${showForm ? style.withForm : ''}`}>
         <div class={style.dataTableContainer}>
           <div class={style.encabezado}>
-            <h1>Listado de Asignaciones</h1>
-            <button onClick={this.handleShowForm} class={style.addButton}>Crear Asignación</button>
+            <h1 class={style.titulo}>Listado de Asignaciones</h1>
+            <div style="text-align: center;">
+              <button class={style.addButton} onClick={this.handleShowForm}>Agregar Asignación</button>
+            </div>
           </div>
-
           <div class={style.tableContainer}>
             {asignaciones.length === 0 ? (
               <p>No hay asignaciones registradas.</p>
@@ -115,8 +116,8 @@ class AsignacionesPage extends Component {
                       <td>{a.fecha_hora_fin_prevista || '—'}</td>
                       <td>{a.estado}</td>
                       <td>
-                        <button onClick={() => this.handleEditAsignacion(a)} class={style.editButton}>Editar</button>
-                        <button onClick={() => this.handleDeleteAsignacion(a)} class={style.deleteButton}>🗑️</button>
+                        <button onClick={() => this.handleEditAsignacion(a)} class={style.editButton}>✏️ Editar</button>
+                        <button onClick={() => this.handleDeleteAsignacion(a)} class={style.deleteButton}>🗑️ Eliminar</button>
                       </td>
                     </tr>
                   ))}

@@ -72,6 +72,7 @@ class ConductorForm extends Component {
     const { conductor, modoEdicion } = this.state;
     return (
       <form class={style.formContainer} onSubmit={this.handleSubmit}>
+        <button type="button" class={style.closeButton} onClick={this.props.onCancel}>✖</button>
         <h3>{modoEdicion ? 'Editar Conductor' : 'Agregar Nuevo Conductor'}</h3>
 
         <div class={style.formGroup}>

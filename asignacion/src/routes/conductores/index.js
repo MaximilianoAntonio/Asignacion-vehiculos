@@ -69,8 +69,10 @@ class ConductoresPage extends Component {
       <div class={`${style.panelLayout} ${showForm ? style.withForm : ''}`}>
         <div class={style.dataTableContainer}>
           <div class={style.encabezado}>
-            <h1>Listado de Conductores</h1>
-            <button onClick={this.handleShowForm} class={style.addButton}>Agregar Conductor</button>
+            <h1 class={style.titulo}>Listado de Conductores</h1>
+            <div style="text-align: center;">
+              <button class={style.addButton} onClick={this.handleShowForm}>Agregar Conductor</button>
+            </div>
           </div>
           <div class={style.tableContainer}>
             {conductores.length === 0 ? (
