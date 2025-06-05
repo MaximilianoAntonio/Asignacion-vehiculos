@@ -46,20 +46,30 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken', 
     'corsheaders',
-    'asignaciones',
-    'django_filters',
+    'drf_yasg', 
+    # 'allauth', # dj_rest_auth a menudo usa allauth para registro, etc.
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    'dj_rest_auth', # Para endpoints de autenticación más completos si se usan
+    'asignaciones.apps.AsignacionesConfig', # Asegúrate que el nombre sea correcto
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE = [ #
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware', # Asegúrate que esté antes de CommonMiddleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'asignaciones.serializers.UserDetailSerializer',
+    # 'LOGIN_SERIALIZER': 'dj_rest_auth.serializers.LoginSerializer', # Si usaras el login de dj_rest_auth
+    # 'TOKEN_SERIALIZER': 'dj_rest_auth.serializers.TokenSerializer', # Si usaras el login de dj_rest_auth
+}
 
 ROOT_URLCONF = 'gestor_vehiculos.urls'
 

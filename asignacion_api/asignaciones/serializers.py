@@ -1,136 +1,105 @@
-# asignaciones/serializers.py
 from rest_framework import serializers
+from django.contrib.auth import get_user_model # Para obtener el modelo User activo
+from django.contrib.auth.models import Group    # Para obtener los nombres de los grupos
 from .models import Vehiculo, Conductor, Asignacion
 
-class VehiculoSerializer(serializers.ModelSerializer):
-    foto_url = serializers.ImageField(source='foto', read_only=True) # Mantenemos source='foto'
+User = get_user_model()
 
+class VehiculoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vehiculo
-        fields = [
-            'id',
-            'marca',
-            'modelo',
-            'patente',
-            'anio',
-            'numero_chasis',
-            'numero_motor',
-            'capacidad_pasajeros',
-            'estado',
-            'foto', # Campo para escribir/subir
-            'foto_url', # Campo para leer la URL
-            'tipo_vehiculo',
-            'caracteristicas_adicionales',
-            'ubicacion_actual_lat',
-            'ubicacion_actual_lon',
-            'conductor_preferente',
-        ]
-        extra_kwargs = {
-            'foto': {'write_only': True, 'required': False}
-        }
+        fields = '__all__'
 
 class ConductorSerializer(serializers.ModelSerializer):
-    estado_disponibilidad_display = serializers.CharField(source='get_estado_disponibilidad_display', read_only=True)
-    foto_url = serializers.ImageField(source='foto', read_only=True) # NUEVO: para leer la URL de la foto
-
     class Meta:
         model = Conductor
-        fields = [
-            'id',
-            'nombre',
-            'apellido',
-            'numero_licencia',
-            'fecha_vencimiento_licencia',
-            'telefono',
-            'email',
-            'activo',
-            'fecha_registro',
-            'foto', # NUEVO: para escribir/subir la foto
-            'foto_url', # NUEVO
-            'tipos_vehiculo_habilitados',
-            'estado_disponibilidad',
-            'estado_disponibilidad_display',
-            'ubicacion_actual_lat',
-            'ubicacion_actual_lon',
-        ]
-        read_only_fields = ['fecha_registro']
-        extra_kwargs = { # NUEVO
-            'foto': {'write_only': True, 'required': False}
-        }
+        fields = '__all__'
 
+# --- NUEVO Serializer para detalles del Usuario ---
+class UserDetailSerializer(serializers.ModelSerializer):
+    groups = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
 
+    class Meta:
+        model = User
+        fields = (
+            'id', 'username', 'email', 'first_name', 'last_name', 'full_name',
+            'is_staff', 'is_superuser',
+            'groups'
+        )
+        read_only_fields = ('is_staff', 'is_superuser', 'groups', 'full_name')
+
+    def get_groups(self, user):
+        return [group.name for group in user.groups.all()]
+
+    def get_full_name(self, user):
+        name = user.get_full_name()
+        return name if name else user.username
+
+# --- MODIFICADO AsignacionSerializer ---
 class AsignacionSerializer(serializers.ModelSerializer):
-    vehiculo = VehiculoSerializer(read_only=True)
-    conductor = ConductorSerializer(read_only=True) # Ahora incluirá la foto del conductor
-
-    vehiculo_id = serializers.PrimaryKeyRelatedField(
-        queryset=Vehiculo.objects.all(),
-        source='vehiculo',
-        write_only=True,
-        allow_null=True,
-        required=False
-    )
-    conductor_id = serializers.PrimaryKeyRelatedField(
-        queryset=Conductor.objects.filter(activo=True),
-        source='conductor',
-        write_only=True,
-        allow_null=True,
-        required=False
-    )
-
-    estado_display = serializers.CharField(source='get_estado_display', read_only=True)
+    solicitante_usuario_details = UserDetailSerializer(source='solicitante_usuario', read_only=True, allow_null=True)
+    vehiculo_details = VehiculoSerializer(source='vehiculo', read_only=True, allow_null=True)
+    conductor_details = ConductorSerializer(source='conductor', read_only=True, allow_null=True)
     solicitante_jerarquia_display = serializers.CharField(source='get_solicitante_jerarquia_display', read_only=True)
-    req_tipo_vehiculo_preferente_display = serializers.CharField(source='get_req_tipo_vehiculo_preferente_display', read_only=True)
-
+    estado_display = serializers.CharField(source='get_estado_display', read_only=True)
+    req_tipo_vehiculo_preferente_display = serializers.CharField(source='get_req_tipo_vehiculo_preferente_display', read_only=True, allow_null=True)
 
     class Meta:
         model = Asignacion
         fields = [
             'id',
-            'vehiculo',
-            'vehiculo_id',
-            'conductor',
-            'conductor_id',
-            'fecha_hora_requerida_inicio',
-            'fecha_hora_fin_prevista',
-            'fecha_hora_fin_real',
-            'estado',
-            'estado_display',
+            'vehiculo', 
+            'conductor', 
             'destino_descripcion',
             'origen_descripcion',
             'fecha_hora_solicitud',
+            'fecha_hora_requerida_inicio',
             'req_pasajeros',
             'req_tipo_vehiculo_preferente',
-            'req_tipo_vehiculo_preferente_display',
             'req_caracteristicas_especiales',
             'origen_lat',
             'origen_lon',
             'destino_lat',
             'destino_lon',
+            'fecha_hora_fin_prevista',
+            'fecha_hora_fin_real',
+            'estado',
             'observaciones',
             'solicitante_jerarquia',
-            'solicitante_jerarquia_display',
             'solicitante_nombre',
             'solicitante_telefono',
+            'solicitante_usuario', # THIS IS THE FIELD IN QUESTION
+            # Campos para display/lectura detallada
+            'solicitante_usuario_details',
+            'vehiculo_details',
+            'conductor_details',
+            'solicitante_jerarquia_display',
+            'estado_display',
+            'req_tipo_vehiculo_preferente_display',
         ]
-        read_only_fields = ['fecha_hora_solicitud']
-
-    def validate(self, data):
-        fecha_inicio = data.get('fecha_hora_requerida_inicio', getattr(self.instance, 'fecha_hora_requerida_inicio', None))
-        fecha_fin_prevista = data.get('fecha_hora_fin_prevista', getattr(self.instance, 'fecha_hora_fin_prevista', None))
-
-        if fecha_inicio and fecha_fin_prevista:
-            if fecha_inicio >= fecha_fin_prevista:
-                raise serializers.ValidationError({
-                    "fecha_hora_fin_prevista": "La fecha de fin prevista debe ser posterior a la fecha de inicio requerida."
-                })
-
-        vehiculo_obj = data.get('vehiculo')
-
-        if vehiculo_obj:
-            if self.instance is None or (self.instance and self.instance.vehiculo != vehiculo_obj):
-                if vehiculo_obj.estado not in ['disponible', 'reservado']:
-                    raise serializers.ValidationError({
-                        "vehiculo_id": f"El vehículo {vehiculo_obj.patente} no está disponible ('{vehiculo_obj.get_estado_display()}')."
-                    })
-        return data
+        read_only_fields = (
+            'fecha_hora_solicitud',
+            'solicitante_usuario', # Marked as read_only because it's set by the view
+            'solicitante_usuario_details',
+            'vehiculo_details',
+            'conductor_details',
+            'solicitante_jerarquia_display',
+            'estado_display',
+            'req_tipo_vehiculo_preferente_display',
+        )
+        extra_kwargs = {
+            'vehiculo': {'allow_null': True, 'required': False},
+            'conductor': {'allow_null': True, 'required': False},
+            'origen_descripcion': {'allow_blank': True, 'required': False},
+            'req_tipo_vehiculo_preferente': {'allow_blank': True, 'allow_null': True, 'required': False},
+            'req_caracteristicas_especiales': {'allow_blank': True, 'required': False},
+            'origen_lat': {'allow_null': True, 'required': False},
+            'origen_lon': {'allow_null': True, 'required': False},
+            'destino_lat': {'allow_null': True, 'required': False},
+            'destino_lon': {'allow_null': True, 'required': False},
+            'fecha_hora_fin_prevista': {'allow_null': True, 'required': False},
+            'fecha_hora_fin_real': {'allow_null': True, 'required': False},
+            'observaciones': {'allow_blank': True, 'allow_null': True, 'required': False},
+            'solicitante_nombre': {'allow_blank': True, 'required': False},
+        }

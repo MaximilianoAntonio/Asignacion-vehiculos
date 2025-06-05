@@ -1,4 +1,5 @@
-.asignaciones {
+/* src/routes/asignaciones/style.css */
+.asignacionesPage {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7,19 +8,21 @@
   min-height: 100vh;
 }
 
-.asignaciones h1 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  color: #333;
+.encabezado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.table-container {
+.tableContainer {
   width: 90%;
   max-width: 1000px;
   overflow-x: auto;
 }
 
-table {
+.dataTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
@@ -27,14 +30,14 @@ table {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-table th,
-table td {
+.dataTable th,
+.dataTable td {
   border: 1px solid #ddd;
   padding: 0.75rem;
   text-align: left;
 }
 
-table th {
+.dataTable th {
   background-color: #333;
   color: white;
 }
@@ -56,14 +59,6 @@ table th {
   background-color: #218838;
 }
 
-.encabezado {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
 .editButton {
   padding: 0.5rem 1rem;
   background-color: #673ab8;
@@ -77,12 +72,12 @@ table th {
 }
 
 .editButton:hover {
-  background-color: #5e34a6;
+  background-color: #5e35b1;
 }
 
 .deleteButton {
   padding: 0.5rem 1rem;
-  background-color: #dc3545;
+  background-color: #dc3545; /* rojo tipo Bootstrap */
   color: white;
   font-size: 0.95rem;
   font-weight: bold;
@@ -96,33 +91,3 @@ table th {
 .deleteButton:hover {
   background-color: #c82333;
 }
-
-.panelLayout {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 2rem;
-  gap: 2rem;
-}
-
-.dataTableContainer {
-  flex: 2;
-  min-width: 60%;
-}
-
-.formPanel {
-  flex: 1;
-  max-width: 450px;
-  background-color: #333;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 7.5rem;
-  margin-top: 8rem;
-  height: fit-content;
-  align-self: flex-start;
-}
-
-

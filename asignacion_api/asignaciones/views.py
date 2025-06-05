@@ -1,108 +1,108 @@
-# asignaciones/views.py
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from django.utils import timezone
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter, OrderingFilter
-
-
+from rest_framework import viewsets, permissions
+from django.contrib.auth.models import Group
 from .models import Vehiculo, Conductor, Asignacion
-from .serializers import (
-    VehiculoSerializer,
-    ConductorSerializer,
-    AsignacionSerializer
-)
+from .serializers import VehiculoSerializer, ConductorSerializer, AsignacionSerializer
 
-class VehiculoViewSet(viewsets.ModelViewSet):
-    queryset = Vehiculo.objects.all().order_by('marca', 'modelo')
-    serializer_class = VehiculoSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+# --- NUEVA Clase de Permiso Personalizado ---
+class IsSolicitanteOrAdmin(permissions.BasePermission):
+    SOLICITANTE_GROUP_NAME = 'Solicitantes de Traslados'
 
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # Asegúrate que estos campos coincidan con tu modelo Vehiculo actual
-    filterset_fields = ['estado', 'marca', 'tipo_vehiculo', 'capacidad_pasajeros']
-    search_fields = ['patente', 'modelo', 'marca', 'anio', 'numero_chasis', 'numero_motor'] # Añadidos campos buscables
-    ordering_fields = ['marca', 'modelo', 'capacidad_pasajeros', 'estado', 'tipo_vehiculo', 'anio'] # Añadido anio
+    def _is_in_solicitante_group(self, user):
+        if not user or not user.is_authenticated:
+            return False
+        try:
+            solicitante_group = Group.objects.get(name=self.SOLICITANTE_GROUP_NAME)
+            return solicitante_group in user.groups.all()
+        except Group.DoesNotExist:
+            return False
 
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
 
-class ConductorViewSet(viewsets.ModelViewSet):
-    queryset = Conductor.objects.all().order_by('apellido', 'nombre')
-    serializer_class = ConductorSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        # Admins (superuser o staff) tienen todos los permisos a nivel de vista
+        if request.user.is_superuser or request.user.is_staff:
+            return True
 
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['activo', 'estado_disponibilidad']
-    search_fields = ['nombre', 'apellido', 'numero_licencia']
-    ordering_fields = ['apellido', 'nombre', 'activo', 'estado_disponibilidad']
+        is_solicitante = self._is_in_solicitante_group(request.user)
 
+        if view.action == 'create': # POST para crear nuevas asignaciones
+            return is_solicitante
+        if view.action in ['list', 'retrieve']: # GET para listar o ver una asignación
+            # Solicitantes pueden listar (verán solo las suyas por get_queryset) y ver detalle
+            return is_solicitante
+        
+        # Solicitantes no pueden actualizar o borrar por defecto a nivel de vista general
+        # Esto se refinará en has_object_permission si se permite para objetos específicos.
+        # Por ahora, un solicitante no puede editar ni borrar una vez creada.
+        if view.action in ['update', 'partial_update', 'destroy']:
+            return False # Solo admins/staff pueden modificar/borrar por defecto
+            
+        return False # Denegar otras acciones no contempladas
 
+    def has_object_permission(self, request, view, obj):
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        # Admins (superuser o staff) pueden operar sobre cualquier objeto
+        if request.user.is_superuser or request.user.is_staff:
+            return True
+
+        is_solicitante = self._is_in_solicitante_group(request.user)
+
+        if is_solicitante and isinstance(obj, Asignacion):
+            # Solicitantes solo pueden ver (retrieve) sus propias asignaciones.
+            # No pueden editar (update/partial_update) ni borrar (destroy) sus asignaciones.
+            if view.action == 'retrieve':
+                return obj.solicitante_usuario == request.user
+            return False # No tienen permiso para otras acciones sobre el objeto
+        
+        return False
+
+# --- MODIFICADO: AsignacionViewSet ---
 class AsignacionViewSet(viewsets.ModelViewSet):
-    queryset = Asignacion.objects.all().select_related('vehiculo', 'conductor').order_by('-fecha_hora_solicitud')
+    queryset = Asignacion.objects.all().order_by('-fecha_hora_solicitud')
     serializer_class = AsignacionSerializer
-    permission_classes = [permissions.IsAuthenticated] # Cambiado para requerir autenticación para todas las acciones
+    permission_classes = [IsSolicitanteOrAdmin] # Aplicar el permiso personalizado
 
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = {
-        'estado': ['exact'],
-        # 'tipo_servicio': ['exact'], # ELIMINADA ESTA LÍNEA
-        'vehiculo__patente': ['exact', 'icontains'], # Ajustado para buscar por patente
-        'conductor__apellido': ['exact', 'icontains'],
-        'fecha_hora_requerida_inicio': ['exact', 'gte', 'lte', 'date'],
-        'solicitante_nombre': ['icontains'], # Para buscar por nombre del solicitante
-        'solicitante_jerarquia': ['exact'], # Para filtrar por jerarquía
-    }
-    search_fields = ['destino_descripcion', 'vehiculo__patente', 'observaciones', 'solicitante_nombre']
-    ordering_fields = ['fecha_hora_requerida_inicio', 'fecha_hora_fin_prevista', 'estado', 'solicitante_jerarquia'] # 'tipo_servicio' ELIMINADO
+    def get_queryset(self):
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            return Asignacion.objects.none()
 
-    @action(detail=True, methods=['post'], url_path='completar')
-    def completar_asignacion(self, request, pk=None):
-        asignacion = self.get_object()
-        if asignacion.estado == 'activa':
-            asignacion.estado = 'completada'
-            asignacion.fecha_hora_fin_real = timezone.now()
-            if asignacion.vehiculo:
-                asignacion.vehiculo.estado = 'disponible'
-                asignacion.vehiculo.save()
-            if asignacion.conductor:
-                asignacion.conductor.estado_disponibilidad = 'disponible'
-                asignacion.conductor.save()
-            asignacion.save()
-            return Response({'status': 'asignación completada', 'asignacion': self.get_serializer(asignacion).data}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'La asignación no está activa o ya está completada/cancelada.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Admins (superuser o staff) ven todas las asignaciones
+        if user.is_superuser or user.is_staff:
+            return Asignacion.objects.all().order_by('-fecha_hora_solicitud')
 
-    @action(detail=True, methods=['post'], url_path='iniciar')
-    def iniciar_asignacion(self, request, pk=None):
-        asignacion = self.get_object()
-        if asignacion.estado == 'programada':
-            if not asignacion.vehiculo or not asignacion.conductor:
-                return Response({'error': 'La asignación debe tener un vehículo y un conductor asignados para poder iniciarla.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Solicitantes solo ven sus propias asignaciones
+        try:
+            solicitante_group = Group.objects.get(name=IsSolicitanteOrAdmin.SOLICITANTE_GROUP_NAME)
+            if solicitante_group in user.groups.all():
+                return Asignacion.objects.filter(solicitante_usuario=user).order_by('-fecha_hora_solicitud')
+        except Group.DoesNotExist:
+            pass # Si el grupo no existe, no se filtra nada extra aquí
 
-            if asignacion.vehiculo.estado not in ['disponible', 'reservado']:
-                return Response({'error': f'El vehículo {asignacion.vehiculo.patente} no está disponible.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            if asignacion.conductor.estado_disponibilidad != 'disponible' or not asignacion.conductor.activo :
-                return Response({'error': f'El conductor {asignacion.conductor} no está disponible o no está activo.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            asignacion.vehiculo.estado = 'en_uso'
-            asignacion.vehiculo.save()
-            asignacion.conductor.estado_disponibilidad = 'en_ruta'
-            asignacion.conductor.save()
-
-            asignacion.estado = 'activa'
-            asignacion.save()
-            return Response({'status': 'asignación iniciada', 'asignacion': self.get_serializer(asignacion).data}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'La asignación no está programada o ya está en otro estado.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Asignacion.objects.none() # Por defecto, no mostrar nada si no es admin ni solicitante
 
     def perform_create(self, serializer):
-        # Aquí podrías añadir lógica futura si es necesario, por ejemplo,
-        # para llamar al servicio de asignación automática.
-        # Por ahora, solo guarda la instancia.
-        # asignacion_obj = serializer.save()
-        # if asignacion_obj.estado == 'pendiente_auto':
-        #     from .services import intentar_asignacion_automatica # Suponiendo que lo crearás
-        #     intentar_asignacion_automatica(asignacion_obj)
-        serializer.save()
+        user = self.request.user
+        
+        # El estado por defecto es 'pendiente_auto' según el modelo Asignacion
+        # No se asigna vehículo ni conductor al ser creado por un solicitante
+        serializer.save(
+            solicitante_usuario=user,
+            solicitante_nombre=user.get_full_name() or user.username
+            # Los campos 'solicitante_telefono' y 'solicitante_jerarquia'
+            # vendrán en serializer.validated_data del formulario.
+        )
+
+# --- Vistas existentes para Vehiculo y Conductor (solo para Admins) ---
+class VehiculoViewSet(viewsets.ModelViewSet): #
+    queryset = Vehiculo.objects.all() #
+    serializer_class = VehiculoSerializer #
+    permission_classes = [permissions.IsAdminUser] # Solo Admins pueden acceder
+
+class ConductorViewSet(viewsets.ModelViewSet): #
+    queryset = Conductor.objects.all() #
+    serializer_class = ConductorSerializer #
+    permission_classes = [permissions.IsAdminUser] # Solo Admins pueden acceder

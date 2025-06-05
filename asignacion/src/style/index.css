@@ -65,9 +65,9 @@ body {
 /* Asegúrate de que el header también tenga buen contraste */
 /* GOPH/mi-gestor-frontend/src/components/header/style.css */
 .header {
-    background-color: #1f1f1f;
+    background-color: #1f1f1f; /* Un poco más claro que el fondo de la página */
     color: white;
-    padding: 8px 0; /* ⬅️ reduce espacio vertical */
+    padding: 15px 30px;
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
@@ -75,15 +75,11 @@ body {
 .header h1 {
     margin: 0;
     font-size: 1.8em;
-    color: #ffffff; /* más brillante */
-    margin-bottom: 0.3rem; /* un poco de separación si lo necesitas */
+    color: #e0e0e0;
 }
 
 .header nav {
-    margin-top: 0;
-    display: flex;
-    justify-content: center; /* ⬅️ centra horizontalmente */
-    gap: 2rem; /* ⬅️ espacio entre los enlaces */
+    margin-top: 10px;
 }
 
 .header nav a {
