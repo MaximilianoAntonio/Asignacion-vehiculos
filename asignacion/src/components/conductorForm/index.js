@@ -15,14 +15,13 @@ class ConductorForm extends Component {
         email: '',
         activo: true,
         tipos_vehiculo_habilitados: '',
-        estado_disponibilidad: 'disponible',
-        ubicacion_actual_lat: '',
-        ubicacion_actual_lon: ''
+        estado_disponibilidad: 'disponible'
+        // ubicacion_actual_lat y ubicacion_actual_lon eliminados
       },
       modoEdicion: !!props.conductor,
-    };
+      errores: null,
+    }
   }
-
   componentDidUpdate(prevProps) {
     if (prevProps.conductor !== this.props.conductor) {
       this.setState({
@@ -35,11 +34,11 @@ class ConductorForm extends Component {
           email: '',
           activo: true,
           tipos_vehiculo_habilitados: '',
-          estado_disponibilidad: 'disponible',
-          ubicacion_actual_lat: '',
-          ubicacion_actual_lon: ''
+          estado_disponibilidad: 'disponible'
+          // ubicacion_actual_lat y ubicacion_actual_lon eliminados
         },
-        modoEdicion: !!this.props.conductor
+        modoEdicion: !!this.props.conductor,
+        errores: null,
       });
     }
   }
@@ -62,18 +61,38 @@ class ConductorForm extends Component {
       } else {
         await createConductor(this.state.conductor);
       }
+      this.setState({ errores: null });
       this.props.onConductorGuardado();
     } catch (error) {
-      console.error('Error guardando conductor:', error);
+      let errores = null;
+      if (error && error.response && error.response.data) {
+        errores = error.response.data;
+      } else if (error && error.message) {
+        errores = { general: [error.message] };
+      } else {
+        errores = { general: ['Ocurrió un error inesperado.'] };
+      }
+      this.setState({ errores });
     }
   }
 
   render() {
-    const { conductor, modoEdicion } = this.state;
+    const { conductor, modoEdicion, errores } = this.state;
     return (
       <form class={style.formContainer} onSubmit={this.handleSubmit}>
         <button type="button" class={style.closeButton} onClick={this.props.onCancel}>✖</button>
         <h3>{modoEdicion ? 'Editar Conductor' : 'Agregar Nuevo Conductor'}</h3>
+
+        {/* Bloque para mostrar errores */}
+        {errores && (
+          <div class={style.errorMsg}>
+            {Object.entries(errores).map(([campo, mensajes]) =>
+              mensajes.map(msg => (
+                <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+              ))
+            )}
+          </div>
+        )}
 
         <div class={style.formGroup}>
           <label>Nombre:</label>
@@ -123,16 +142,6 @@ class ConductorForm extends Component {
             <option value="dia_libre">Día Libre</option>
             <option value="no_disponible">No Disponible</option>
           </select>
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Latitud Actual:</label>
-          <input type="number" name="ubicacion_actual_lat" value={conductor.ubicacion_actual_lat} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Longitud Actual:</label>
-          <input type="number" name="ubicacion_actual_lon" value={conductor.ubicacion_actual_lon} onInput={this.handleChange} />
         </div>
 
         <div class={style.formActions}>

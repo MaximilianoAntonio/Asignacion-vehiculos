@@ -112,3 +112,12 @@
 .closeButton:hover {
   color: #000;
 }
+
+.errorMsg {
+  color: #d32f2f;
+  font-weight: bold;
+  font-size: 1.1em;
+  font-family: monospace;
+  margin-bottom: 1em;
+  letter-spacing: 0.5px;
+}

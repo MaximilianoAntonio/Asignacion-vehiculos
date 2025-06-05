@@ -22,9 +22,9 @@ class AsignacionesPage extends Component {
   cargarAsignaciones = () => {
     this.setState({ loading: true });
     getAsignaciones()
-      .then(response => {
+      .then(asignaciones => {
         this.setState({
-          asignaciones: response.data.results || response.data,
+          asignaciones, // ya es un array
           loading: false,
           error: null,
         });
@@ -41,8 +41,8 @@ class AsignacionesPage extends Component {
       import('../../services/conductorService').then(m => m.getConductores())
     ]);
     this.setState({
-      vehiculos: vehiculos.data.results || vehiculos.data,
-      conductores: conductores.data.results || conductores.data
+      vehiculos,
+      conductores
     });
   }
 

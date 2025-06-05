@@ -19,9 +19,9 @@ class ConductoresPage extends Component {
   cargarConductores = () => {
     this.setState({ loading: true });
     getConductores()
-      .then(response => {
+      .then(conductores => {
         this.setState({
-          conductores: response.data.results || response.data,
+          conductores, // ya es un array
           loading: false,
           error: null,
         });
@@ -90,8 +90,6 @@ class ConductoresPage extends Component {
                     <th>Activo</th>
                     <th>Disponibilidad</th>
                     <th>Tipos Vehículo</th>
-                    <th>Lat</th>
-                    <th>Lon</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -107,8 +105,6 @@ class ConductoresPage extends Component {
                       <td>{c.activo ? 'Sí' : 'No'}</td>
                       <td>{c.estado_disponibilidad}</td>
                       <td>{c.tipos_vehiculo_habilitados}</td>
-                      <td>{c.ubicacion_actual_lat || '—'}</td>
-                      <td>{c.ubicacion_actual_lon || '—'}</td>
                       <td>
                         <button onClick={() => this.handleEditConductor(c)} class={style.editButton}>✏️ Editar</button>
                         <button onClick={() => this.handleDeleteConductor(c)} class={style.deleteButton}>🗑️ Eliminar</button>
