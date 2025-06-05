@@ -1,7 +1,6 @@
 # asignaciones/models.py
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
 
 class Vehiculo(models.Model):
     ESTADO_CHOICES = [
@@ -161,16 +160,6 @@ class Asignacion(models.Model):
         max_length=50,
         blank=True,
         help_text="Teléfono de contacto del solicitante o responsable."
-    )
-
-    solicitante_usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL, 
-        null=True,
-        blank=True, 
-        related_name='solicitudes_asignacion',
-        verbose_name='Usuario Solicitante del Sistema',
-        help_text="Usuario del sistema que realiza la solicitud (si aplica)."
     )
 
     def __str__(self):

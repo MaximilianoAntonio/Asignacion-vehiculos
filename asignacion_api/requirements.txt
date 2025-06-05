@@ -4,5 +4,3 @@ django-cors-headers
 django-filter
 pillow
 geopy
-drf-yasg
-dj_rest_auth
