@@ -24,7 +24,7 @@ class AsignacionForm extends Component {
     conductor_id: '',
     destino_descripcion: 'Destino pendiente',
     origen_descripcion: '',
-    fecha_hora_solicitud: '',
+    fecha_hora_solicitud: '', // Se establecerá al enviar el formulario
     fecha_hora_requerida_inicio: '',
     req_pasajeros: 1,
     req_tipo_vehiculo_preferente: '',
@@ -60,7 +60,7 @@ class AsignacionForm extends Component {
         conductor_id: props.asignacion.conductor?.id || '',
         origen_descripcion: props.asignacion.origen_descripcion || '',
         destino_descripcion: props.asignacion.destino_descripcion || 'Destino pendiente',
-        fecha_hora_requerida_inicio: props.asignacion.fecha_hora_requerida_inicio?.slice(0, 16) || '',
+        fecha_hora_requerida_inicio: props.asignacion.fecha_hora_requerida_inicio ? props.asignacion.fecha_hora_requerida_inicio.slice(0, 16) : '',
         req_pasajeros: (typeof props.asignacion.req_pasajeros === 'number') ? props.asignacion.req_pasajeros : 1,
         req_tipo_vehiculo_preferente: props.asignacion.req_tipo_vehiculo_preferente || '',
         req_caracteristicas_especiales: props.asignacion.req_caracteristicas_especiales || '',
@@ -84,7 +84,7 @@ class AsignacionForm extends Component {
   tryCalcularRuta = () => {
     const { origen_lat, origen_lon, destino_lat, destino_lon } = this.state;
     if (origen_lat && origen_lon && destino_lat && destino_lon) {
-      const url = `https://router.project-osrm.org/route/v1/driving/${origen_lon},${origen_lat};${destino_lon},${destino_lat}?overview=full&geometries=geojson`;
+      const url = 'https://router.project-osrm.org/route/v1/driving/' + origen_lon + ',' + origen_lat + ';' + destino_lon + ',' + destino_lat + '?overview=full&geometries=geojson';
       fetch(url)
         .then(res => res.json())
         .then(data => {
@@ -133,12 +133,13 @@ class AsignacionForm extends Component {
       }).addTo(this.map);
 
       try {
-        const coords = this.state.ruta.coordinates.map(([lon, lat]) => [lat, lon]);
+        const coords = this.state.ruta.coordinates.map(coord => [coord[1], coord[0]]);
         if (coords && coords.length > 0) {
           this.map.fitBounds(coords);
         }
-      } catch (e) {
-        console.error("Error processing route coordinates for map bounds:", e);
+      }
+      catch (e) {
+        console.error("Error procesando coordenadas de ruta para límites de mapa:", e);
       }
     }
     if (
@@ -155,31 +156,31 @@ class AsignacionForm extends Component {
 
   handleSuggestionClick = (campo, sugerencia) => {
     this.setState({
-      [`${campo}_descripcion`]: sugerencia.display_name,
-      [`${campo}_lat`]: parseFloat(sugerencia.lat),
-      [`${campo}_lon`]: parseFloat(sugerencia.lon),
-      [`${campo}_calle_sugerencias`]: []
+      [campo + '_descripcion']: sugerencia.display_name,
+      [campo + '_lat']: parseFloat(sugerencia.lat),
+      [campo + '_lon']: parseFloat(sugerencia.lon),
+      [campo + '_calle_sugerencias']: []
     }, this.tryCalcularRuta);
   };
 
   handleCalleInputChange = (campo, e) => {
     const valor = e.target.value;
     this.setState({
-      [`${campo}_descripcion`]: valor,
-      [`${campo}_calle_sugerencias`]: [],
+      [campo + '_descripcion']: valor,
+      [campo + '_calle_sugerencias']: [],
       error: null
     });
     if (valor.length >= 3) {
       this.debouncedBuscarSugerenciasCalle(campo, valor);
     } else {
-      this.setState({ [`${campo}_calle_sugerencias`]: [] });
+      this.setState({ [campo + '_calle_sugerencias']: [] });
     }
   };
 
   buscarSugerenciasCalleApi = (campo, valorDescripcion) => {
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=cl&addressdetails=1&limit=15&state=Región%20de%20Valparaíso&street=${encodeURIComponent(valorDescripcion)}`)
+    fetch('https://nominatim.openstreetmap.org/search?format=json&countrycodes=cl&addressdetails=1&limit=15&state=Región%20de%20Valparaíso&street=' + encodeURIComponent(valorDescripcion))
       .then(res => {
-        if (!res.ok) throw new Error(`Error ${res.status} de Nominatim (Descripción)`);
+        if (!res.ok) throw new Error('Error ' + res.status + ' de Nominatim (Descripción)');
         return res.json();
       })
       .then(data => {
@@ -196,11 +197,11 @@ class AsignacionForm extends Component {
             (d.display_name && d.display_name.toLowerCase().includes('valparaíso'))
           )
         );
-        this.setState({ [`${campo}_calle_sugerencias`]: calles });
+        this.setState({ [campo + '_calle_sugerencias']: calles });
       })
       .catch(error => {
         console.error("Error buscando sugerencias de descripción:", error);
-        this.setState({ [`${campo}_calle_sugerencias`]: [], error: 'Error al buscar ubicaciones.' });
+        this.setState({ [campo + '_calle_sugerencias']: [], error: 'Error al buscar ubicaciones.' });
       });
   };
 
@@ -212,12 +213,11 @@ class AsignacionForm extends Component {
     }
     this.setState({ [name]: newValue, error: null }, () => {
       if (name === 'req_tipo_vehiculo_preferente') {
-        // Clear vehiculo_id if current vehicle doesn't match preferred type
         const { vehiculo_id } = this.state;
         const { vehiculosDisponibles } = this.props;
         if (vehiculo_id && vehiculosDisponibles) {
           const vehiculoSeleccionado = vehiculosDisponibles.find(v => v.id === vehiculo_id);
-          if (vehiculoSeleccionado && vehiculoSeleccionado.tipo !== this.state.req_tipo_vehiculo_preferente) {
+          if (vehiculoSeleccionado && vehiculoSeleccionado.tipo_vehiculo !== this.state.req_tipo_vehiculo_preferente) {
             this.setState({ vehiculo_id: '' });
           }
         }
@@ -237,6 +237,8 @@ class AsignacionForm extends Component {
       origen_lat, origen_lon, destino_lat, destino_lon,
       fecha_hora_fin_prevista, fecha_hora_fin_real,
     } = this.state;
+
+    const fecha_hora_solicitud = new Date().toISOString();
 
     if (!origen_descripcion) {
       this.setState({ error: "Debe ingresar la Descripción de Origen.", submitting: false });
@@ -260,6 +262,7 @@ class AsignacionForm extends Component {
       conductor: conductor_id || null,
       origen_descripcion,
       destino_descripcion,
+      fecha_hora_solicitud,
       fecha_hora_requerida_inicio,
       req_pasajeros,
       req_tipo_vehiculo_preferente: req_tipo_vehiculo_preferente || null,
@@ -297,7 +300,7 @@ class AsignacionForm extends Component {
           ? 'Error al actualizar la asignación.'
           : 'Error al crear la asignación.';
         if (error.message) {
-          errorMessage += ` ${error.message}`;
+          errorMessage += ' ' + error.message;
         }
         this.setState({ error: errorMessage, submitting: false });
       });
@@ -332,10 +335,9 @@ class AsignacionForm extends Component {
       { value: 'fallo_auto', label: 'Falló Asignación Automática' },
     ];
 
-    // Filtrar vehiculos según req_tipo_vehiculo_preferente
     let vehiculosFiltrados = vehiculosDisponibles || [];
     if (req_tipo_vehiculo_preferente) {
-      vehiculosFiltrados = vehiculosFiltrados.filter(v => v.tipo === req_tipo_vehiculo_preferente);
+      vehiculosFiltrados = vehiculosFiltrados.filter(v => v.tipo_vehiculo === req_tipo_vehiculo_preferente);
     }
 
     return (
@@ -345,7 +347,6 @@ class AsignacionForm extends Component {
         {error && <p class={formStyle.error}>{error}</p>}
         <form onSubmit={this.handleSubmit}>
 
-          {/* Tipo de vehículo preferente arriba */}
           <div class={formStyle.formGroup}>
             <label htmlFor="req_tipo_vehiculo_preferente">Tipo Vehículo Preferente (opcional):</label>
             <select name="req_tipo_vehiculo_preferente" id="req_tipo_vehiculo_preferente" value={req_tipo_vehiculo_preferente} onInput={this.handleChange}>
@@ -355,7 +356,6 @@ class AsignacionForm extends Component {
             </select>
           </div>
 
-          {/* Vehículo arriba, VEHÍCULOS FILTRADOS según tipo preferente */}
           <div class={formStyle.formGroup}>
             <label htmlFor="vehiculo_id">Vehículo (Opcional):</label>
             <select name="vehiculo_id" id="vehiculo_id" value={vehiculo_id} onInput={this.handleChange}>
@@ -368,7 +368,6 @@ class AsignacionForm extends Component {
             </select>
           </div>
 
-          {/* Conductor */}
           <div class={formStyle.formGroup}>
             <label htmlFor="conductor_id">Conductor (Opcional):</label>
             <select name="conductor_id" id="conductor_id" value={conductor_id} onInput={this.handleChange}>
@@ -381,32 +380,22 @@ class AsignacionForm extends Component {
             </select>
           </div>
 
-          {/* Mapa */}
           <div style="margin-bottom:1em;">
             <div id="map" style="height: 300px; width: 100%;"></div>
             {state.distancia && <p>Distancia estimada: {state.distancia}</p>}
           </div>
 
-          {/* Origen */}
           <fieldset class={formStyle.formGroup}>
             <legend>Origen (Región: Valparaíso)</legend>
             <label htmlFor="origen_descripcion">Descripción:</label>
-            <input
-              type="text"
-              name="origen_descripcion"
-              id="origen_descripcion"
+            <input type="text" name="origen_descripcion" id="origen_descripcion"
               value={origen_descripcion}
               onInput={e => this.handleCalleInputChange('origen', e)}
-              autoComplete="off"
-              placeholder='Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc.'
-            />
+              autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
             {this.state.origen_calle_sugerencias && this.state.origen_calle_sugerencias.length > 0 && (
               <ul class={formStyle.suggestionsList}>
                 {this.state.origen_calle_sugerencias.map(sug => (
-                  <li
-                    key={sug.place_id || sug.osm_id}
-                    onClick={() => this.handleSuggestionClick('origen', sug)}
-                  >
+                  <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('origen', sug)}>
                     {sug.display_name}
                   </li>
                 ))}
@@ -414,26 +403,17 @@ class AsignacionForm extends Component {
             )}
           </fieldset>
 
-          {/* Destino */}
           <fieldset class={formStyle.formGroup}>
             <legend>Destino (Región: Valparaíso)</legend>
             <label htmlFor="destino_descripcion">Descripción:</label>
-            <input
-              type="text"
-              name="destino_descripcion"
-              id="destino_descripcion"
+            <input type="text" name="destino_descripcion" id="destino_descripcion"
               value={destino_descripcion}
               onInput={e => this.handleCalleInputChange('destino', e)}
-              autoComplete="off"
-              placeholder='Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc.'
-            />
+              autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
             {this.state.destino_calle_sugerencias && this.state.destino_calle_sugerencias.length > 0 && (
               <ul class={formStyle.suggestionsList}>
                 {this.state.destino_calle_sugerencias.map(sug => (
-                  <li
-                    key={sug.place_id || sug.osm_id}
-                    onClick={() => this.handleSuggestionClick('destino', sug)}
-                  >
+                  <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('destino', sug)}>
                     {sug.display_name}
                   </li>
                 ))}
@@ -441,34 +421,45 @@ class AsignacionForm extends Component {
             )}
           </fieldset>
 
-          {/* Fecha y hora requerida inicio */}
           <div class={formStyle.formGroup}>
             <label htmlFor="fecha_hora_requerida_inicio">Fecha y Hora Requerida Inicio:</label>
-            <input type="datetime-local" name="fecha_hora_requerida_inicio" id="fecha_hora_requerida_inicio" value={fecha_hora_requerida_inicio} onInput={this.handleChange} required />
+            <input type="datetime-local" name="fecha_hora_requerida_inicio" id="fecha_hora_requerida_inicio"
+              value={fecha_hora_requerida_inicio} onInput={this.handleChange} required />
           </div>
 
-          {/* Nº Pasajeros */}
+          <div class={formStyle.formGroup}>
+            <label htmlFor="fecha_hora_fin_prevista">Fecha y Hora Fin Prevista (opcional):</label>
+            <input type="datetime-local" name="fecha_hora_fin_prevista" id="fecha_hora_fin_prevista"
+              value={state.fecha_hora_fin_prevista || ''} onInput={this.handleChange} />
+          </div>
+
+          <div class={formStyle.formGroup}>
+            <label htmlFor="fecha_hora_fin_real">Fecha y Hora Fin Real (opcional):</label>
+            <input type="datetime-local" name="fecha_hora_fin_real" id="fecha_hora_fin_real"
+              value={state.fecha_hora_fin_real || ''} onInput={this.handleChange} />
+          </div>
+
           <div class={formStyle.formGroup}>
             <label htmlFor="req_pasajeros">Nº Pasajeros:</label>
-            <input type="number" name="req_pasajeros" id="req_pasajeros" value={req_pasajeros} onInput={this.handleChange} min="1" required />
+            <input type="number" name="req_pasajeros" id="req_pasajeros" value={req_pasajeros}
+              onInput={this.handleChange} min="1" required />
           </div>
 
-          {/* Requerimientos especiales */}
           <div class={formStyle.formGroup}>
             <label htmlFor="req_caracteristicas_especiales">Requerimientos Especiales (opcional):</label>
-            <textarea name="req_caracteristicas_especiales" id="req_caracteristicas_especiales" value={req_caracteristicas_especiales} onInput={this.handleChange} />
+            <textarea name="req_caracteristicas_especiales" id="req_caracteristicas_especiales"
+              value={req_caracteristicas_especiales} onInput={this.handleChange} />
           </div>
 
-          {/* Observaciones */}
           <div class={formStyle.formGroup}>
             <label htmlFor="observaciones">Observaciones (opcional):</label>
             <textarea name="observaciones" id="observaciones" value={observaciones} onInput={this.handleChange} />
           </div>
 
-          {/* Solicitante jerarquía */}
           <div class={formStyle.formGroup}>
             <label htmlFor="solicitante_jerarquia">Jerarquía del Solicitante:</label>
-            <select name="solicitante_jerarquia" id="solicitante_jerarquia" value={solicitante_jerarquia} onInput={this.handleChange}>
+            <select name="solicitante_jerarquia" id="solicitante_jerarquia" value={solicitante_jerarquia}
+              onInput={this.handleChange}>
               <option value="0">Otro/No especificado</option>
               <option value="1">Funcionario</option>
               <option value="2">Coordinación/Referente</option>
@@ -476,19 +467,18 @@ class AsignacionForm extends Component {
             </select>
           </div>
 
-          {/* Solicitante nombre */}
           <div class={formStyle.formGroup}>
             <label htmlFor="solicitante_nombre">Nombre del Solicitante:</label>
-            <input type="text" name="solicitante_nombre" id="solicitante_nombre" value={solicitante_nombre} onInput={this.handleChange} />
+            <input type="text" name="solicitante_nombre" id="solicitante_nombre" value={solicitante_nombre}
+              onInput={this.handleChange} />
           </div>
 
-          {/* Solicitante teléfono */}
           <div class={formStyle.formGroup}>
             <label htmlFor="solicitante_telefono">Teléfono del Solicitante:</label>
-            <input type="text" name="solicitante_telefono" id="solicitante_telefono" value={solicitante_telefono} onInput={this.handleChange} />
+            <input type="text" name="solicitante_telefono" id="solicitante_telefono" value={solicitante_telefono}
+              onInput={this.handleChange} />
           </div>
 
-          {/* Estado */}
           <div class={formStyle.formGroup}>
             <label htmlFor="estado">Estado:</label>
             <select name="estado" id="estado" value={estado} onInput={this.handleChange}>
