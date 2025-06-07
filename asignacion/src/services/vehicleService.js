@@ -2,10 +2,25 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
-const VEHICULOS_API_URL = `${API_BASE_URL}/vehiculos/`; // Verifica que API_BASE_URL sea http://127.0.0.1:8000/api
+const VEHICULOS_API_URL = `${API_BASE_URL}/vehiculos/`;
 
-export const getVehiculos = () => {
-    return axios.get(VEHICULOS_API_URL);
+export const getVehiculos = async () => {
+    let results = [];
+    let nextUrl = VEHICULOS_API_URL;
+    while (nextUrl) {
+        const response = await axios.get(nextUrl);
+        const data = response.data;
+        if (Array.isArray(data)) {
+            results = data;
+            nextUrl = null;
+        } else if (data && Array.isArray(data.results)) {
+            results = results.concat(data.results);
+            nextUrl = data.next;
+        } else {
+            nextUrl = null;
+        }
+    }
+    return results;
 };
 
 export const getVehiculoById = (id) => {

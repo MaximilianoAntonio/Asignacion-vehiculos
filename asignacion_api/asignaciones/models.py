@@ -46,8 +46,7 @@ class Vehiculo(models.Model):
     caracteristicas_adicionales = models.TextField(
         blank=True, help_text="Características especiales: silla de ruedas, refrigerado, etc. (texto libre o JSON)"
     )
-    ubicacion_actual_lat = models.FloatField(null=True, blank=True, help_text="Latitud actual del vehículo")
-    ubicacion_actual_lon = models.FloatField(null=True, blank=True, help_text="Longitud actual del vehículo")
+    ubicacion = models.CharField(max_length=255, blank=True, null=True)
     conductor_preferente = models.ForeignKey(
         'Conductor',
         on_delete=models.SET_NULL,

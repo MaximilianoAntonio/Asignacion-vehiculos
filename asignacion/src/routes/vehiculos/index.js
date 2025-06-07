@@ -19,9 +19,9 @@ class VehiculosPage extends Component {
   cargarVehiculos = () => {
     this.setState({ loading: true });
     getVehiculos()
-      .then(response => {
+      .then(vehiculos => {
         this.setState({
-          vehiculos: response.data.results || response.data,
+          vehiculos, // ya es un array
           loading: false,
           error: null,
         });
@@ -69,8 +69,10 @@ class VehiculosPage extends Component {
       <div class={`${style.panelLayout} ${showForm ? style.withForm : ''}`}>
         <div class={style.dataTableContainer}>
           <div class={style.encabezado}>
-            <h1>Listado de Vehículos</h1>
-            <button onClick={this.handleShowForm} class={style.addButton}>Agregar Vehículo</button>
+            <h1 class={style.titulo}>Listado de Vehículos</h1>
+            <div style="text-align: center;">
+              <button class={style.addButton} onClick={this.handleShowForm}>Agregar Vehículo</button>
+            </div>
           </div>
           <div class={style.tableContainer}>
             {vehiculos.length === 0 ? (
@@ -89,6 +91,7 @@ class VehiculosPage extends Component {
                     <th>Chasis</th>
                     <th>Motor</th>
                     <th>Conductor Preferente</th>
+                    <th>Ubicación</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -105,6 +108,7 @@ class VehiculosPage extends Component {
                       <td>{v.numero_chasis || '—'}</td>
                       <td>{v.numero_motor || '—'}</td>
                       <td>{v.conductor_preferente ? `${v.conductor_preferente.nombre} ${v.conductor_preferente.apellido}` : '—'}</td>
+                      <td>{v.ubicacion || '—'}</td>
                       <td>
                         <button onClick={() => this.handleEditVehiculo(v)} class={style.editButton}>✏️ Editar</button>
                         <button onClick={() => this.handleDeleteVehiculo(v)} class={style.deleteButton}>🗑️ Eliminar</button>
@@ -121,7 +125,7 @@ class VehiculosPage extends Component {
           <div class={style.formPanel}>
             <VehiculoForm
               vehiculo={this.state.vehiculoEditando}
-              onVehiculoCreado={this.handleVehiculoCreado}
+              onVehiculoGuardado={this.handleVehiculoCreado} // <-- cambia aquí
               onCancel={this.handleHideForm}
             />
           </div>

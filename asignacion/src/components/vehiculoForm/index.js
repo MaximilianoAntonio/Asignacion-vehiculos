@@ -17,12 +17,13 @@ class VehiculoForm extends Component {
         capacidad_pasajeros: 4,
         caracteristicas_adicionales: '',
         estado: 'disponible',
-        ubicacion_actual_lat: '',
-        ubicacion_actual_lon: '',
+        ubicacion: '',
         conductor_preferente: '',
         foto: null
       },
       modoEdicion: !!props.vehiculo,
+      errores: null,
+      ubicacion_sugerencias: [],
     };
   }
 
@@ -40,8 +41,7 @@ class VehiculoForm extends Component {
           capacidad_pasajeros: 4,
           caracteristicas_adicionales: '',
           estado: 'disponible',
-          ubicacion_actual_lat: '',
-          ubicacion_actual_lon: '',
+          ubicacion: '',
           conductor_preferente: '',
           foto: null
         },
@@ -49,6 +49,43 @@ class VehiculoForm extends Component {
       });
     }
   }
+
+  buscarSugerenciasUbicacion = (valor) => {
+    fetch(`/api/nominatim/?q=${encodeURIComponent(valor)}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log('Sugerencias:', data);
+        this.setState({ ubicacion_sugerencias: data });
+      })
+      .catch(() => {
+        this.setState({ ubicacion_sugerencias: [] });
+      });
+  };
+
+  handleUbicacionInput = (e) => {
+    const value = e.target.value;
+    this.setState(prevState => ({
+      vehiculo: {
+        ...prevState.vehiculo,
+        ubicacion: value
+      }
+    }));
+    if (value.length >= 3) {
+      this.buscarSugerenciasUbicacion(value);
+    } else {
+      this.setState({ ubicacion_sugerencias: [] });
+    }
+  };
+
+  handleUbicacionSugerenciaClick = (sug) => {
+    this.setState(prevState => ({
+      vehiculo: {
+        ...prevState.vehiculo,
+        ubicacion: sug.display_name,
+      },
+      ubicacion_sugerencias: []
+    }));
+  };
 
   handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -75,17 +112,40 @@ class VehiculoForm extends Component {
       } else {
         await createVehiculo(formData);
       }
+      this.setState({ errores: null }); // limpia errores si todo sale bien
       this.props.onVehiculoGuardado();
     } catch (error) {
-      console.error('Error guardando vehículo:', error);
+      // Intenta extraer los errores del backend
+      let errores = null;
+      if (error && error.response && error.response.data) {
+        errores = error.response.data;
+      } else if (error && error.message) {
+        errores = { general: [error.message] };
+      } else {
+        errores = { general: ['Ocurrió un error inesperado.'] };
+      }
+      this.setState({ errores });
     }
   }
 
   render() {
-    const { vehiculo, modoEdicion } = this.state;
+    console.log('ubicacion_sugerencias en render:', this.state.ubicacion_sugerencias);
+    const { vehiculo, modoEdicion, errores } = this.state;
     return (
       <form class={style.formContainer} onSubmit={this.handleSubmit}>
+        <button type="button" class={style.closeButton} onClick={this.props.onCancel}>✖</button>
         <h3>{modoEdicion ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</h3>
+
+        {/* Bloque para mostrar errores */}
+        {errores && (
+          <div class={style.errorMsg}>
+            {Object.entries(errores).map(([campo, mensajes]) =>
+              mensajes.map(msg => (
+                <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+              ))
+            )}
+          </div>
+        )}
 
         <div class={style.formGroup}>
           <label>Patente:</label>
@@ -148,13 +208,24 @@ class VehiculoForm extends Component {
         </div>
 
         <div class={style.formGroup}>
-          <label>Latitud Actual:</label>
-          <input type="number" name="ubicacion_actual_lat" value={vehiculo.ubicacion_actual_lat} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Longitud Actual:</label>
-          <input type="number" name="ubicacion_actual_lon" value={vehiculo.ubicacion_actual_lon} onInput={this.handleChange} />
+          <label>Ubicación:</label>
+          <input
+            type="text"
+            name="ubicacion"
+            value={vehiculo.ubicacion || ''}
+            onInput={this.handleUbicacionInput}
+            autoComplete="off"
+            placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc."
+          />
+          {this.state.ubicacion_sugerencias.length > 0 && (
+            <ul class={style.suggestionsList}>
+              {this.state.ubicacion_sugerencias.map(sug => (
+                <li key={sug.place_id || sug.osm_id} onClick={() => this.handleUbicacionSugerenciaClick(sug)}>
+                  {sug.display_name}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div class={style.formGroup}>
