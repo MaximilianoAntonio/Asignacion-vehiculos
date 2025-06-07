@@ -21,8 +21,7 @@ class VehiculoSerializer(serializers.ModelSerializer):
             'foto_url', # Campo para leer la URL
             'tipo_vehiculo',
             'caracteristicas_adicionales',
-            'ubicacion_actual_lat',
-            'ubicacion_actual_lon',
+            'ubicacion',
             'conductor_preferente',
         ]
         extra_kwargs = {
@@ -50,8 +49,6 @@ class ConductorSerializer(serializers.ModelSerializer):
             'tipos_vehiculo_habilitados',
             'estado_disponibilidad',
             'estado_disponibilidad_display',
-            'ubicacion_actual_lat',
-            'ubicacion_actual_lon',
         ]
         read_only_fields = ['fecha_registro']
         extra_kwargs = { # NUEVO

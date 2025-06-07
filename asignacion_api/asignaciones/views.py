@@ -6,6 +6,9 @@ from rest_framework.decorators import action
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+import requests
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 from .models import Vehiculo, Conductor, Asignacion
@@ -14,6 +17,18 @@ from .serializers import (
     ConductorSerializer,
     AsignacionSerializer
 )
+
+@csrf_exempt
+def nominatim_proxy(request):
+    q = request.GET.get('q', '')
+    # Agrega la región al texto de búsqueda para limitar resultados
+    full_query = f"{q}, Región de Valparaíso, Chile"
+    url = (
+        "https://nominatim.openstreetmap.org/search"
+        f"?format=json&countrycodes=cl&addressdetails=1&limit=20&q={full_query}"
+    )
+    r = requests.get(url, headers={'User-Agent': 'asignacion-app'})
+    return JsonResponse(r.json(), safe=False)
 
 class VehiculoViewSet(viewsets.ModelViewSet):
     queryset = Vehiculo.objects.all().order_by('marca', 'modelo')

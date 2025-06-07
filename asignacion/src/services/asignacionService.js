@@ -4,8 +4,23 @@ import { API_BASE_URL } from '../config';
 
 const ASIGNACIONES_API_URL = `${API_BASE_URL}/asignaciones/`;
 
-export const getAsignaciones = () => {
-    return axios.get(ASIGNACIONES_API_URL);
+export const getAsignaciones = async () => {
+    let results = [];
+    let nextUrl = ASIGNACIONES_API_URL;
+    while (nextUrl) {
+        const response = await axios.get(nextUrl);
+        const data = response.data;
+        if (Array.isArray(data)) {
+            results = data;
+            nextUrl = null;
+        } else if (data && Array.isArray(data.results)) {
+            results = results.concat(data.results);
+            nextUrl = data.next;
+        } else {
+            nextUrl = null;
+        }
+    }
+    return results;
 };
 
 export const getAsignacionById = (id) => {

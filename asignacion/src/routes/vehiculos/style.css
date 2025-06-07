@@ -59,9 +59,8 @@ table th {
 .encabezado {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch; /* <- Que los hijos se alineen solos */
   margin-bottom: 2rem;
-  text-align: center;
 }
 
 .vehiculoFoto {
@@ -99,7 +98,7 @@ table th {
 
 .editButton {
   padding: 0.5rem 1rem;
-  background-color: #673ab8; /* Azul estilo Bootstrap */
+  background-color: #287bda; /* Azul estilo Bootstrap */
   color: white;
   font-size: 0.95rem;
   font-weight: bold;
@@ -110,7 +109,7 @@ table th {
 }
 
 .editButton:hover {
-  background-color: #673ab8;
+  background-color: #287bda;
 }
 
 .deleteButton {
@@ -147,13 +146,12 @@ table th {
 .formPanel {
   flex: 1;
   max-width: 450px;
-  background-color: #333;
+  background-color: none;
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  box-shadow: none;
   position: sticky;
   top: 7.5rem;  /* 🎯 Este valor alinea con el encabezado */
-
   margin-top: 8rem; 
   height: fit-content;
   align-self: flex-start;
