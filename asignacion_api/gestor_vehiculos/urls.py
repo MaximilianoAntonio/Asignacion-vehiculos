@@ -19,13 +19,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework.authtoken import views as authtoken_views 
+from asignaciones.views import CustomAuthToken
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('asignaciones.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('api/get-token/', authtoken_views.obtain_auth_token), 
+    path('api/get-token/', CustomAuthToken.as_view()),
 ]
 
 # Solo en desarrollo: sirve archivos desde /media/
