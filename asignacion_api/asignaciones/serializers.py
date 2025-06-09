@@ -1,6 +1,7 @@
 # asignaciones/serializers.py
 from rest_framework import serializers
 from .models import Vehiculo, Conductor, Asignacion
+from django.utils import timezone
 
 class VehiculoSerializer(serializers.ModelSerializer):
     foto_url = serializers.ImageField(source='foto', read_only=True) # Mantenemos source='foto'
@@ -109,6 +110,7 @@ class AsignacionSerializer(serializers.ModelSerializer):
             'solicitante_jerarquia_display',
             'solicitante_nombre',
             'solicitante_telefono',
+            'fecha_asignacion_funcionario',
         ]
         read_only_fields = ['fecha_hora_solicitud']
 
@@ -131,3 +133,13 @@ class AsignacionSerializer(serializers.ModelSerializer):
                         "vehiculo_id": f"El vehículo {vehiculo_obj.patente} no está disponible ('{vehiculo_obj.get_estado_display()}')."
                     })
         return data
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and request.user and request.user.groups.filter(name__istartswith='funcionario').exists():
+            validated_data['fecha_asignacion_funcionario'] = timezone.now()
+        return super().create(validated_data)
+    def update(self, instance, validated_data):
+        request = self.context.get('request')
+        if request and request.user and request.user.groups.filter(name__istartswith='funcionario').exists():
+            validated_data['fecha_asignacion_funcionario'] = timezone.now()
+        return super().update(instance, validated_data)
