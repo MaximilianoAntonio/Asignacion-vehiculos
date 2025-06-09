@@ -25,8 +25,14 @@ class LoginPage extends Component {
             .then(data => {
                 this.setState({ loading: false });
                 if (data.token) {
+                    // Guarda el grupo en localStorage
+                    if (data.groups && data.groups.length > 0) {
+                        localStorage.setItem('userGroup', data.groups[0]);
+                    } else {
+                        localStorage.setItem('userGroup', '');
+                    }
                     // Redirigir a una página protegida o al inicio
-                    route('/', true); // El segundo argumento 'true' reemplaza la entrada en el historial
+                    route('/', true);
                 } else {
                     this.setState({ error: 'Respuesta inesperada del servidor.' });
                 }
