@@ -135,6 +135,7 @@ class AsignacionesPage extends Component {
               onCancel={this.handleHideForm}
               vehiculosDisponibles={vehiculos}
               conductoresDisponibles={conductores}
+              userGroup={this.props.userGroup}
             />
           </div>
         )}
