@@ -160,6 +160,10 @@ class Asignacion(models.Model):
         blank=True,
         help_text="Teléfono de contacto del solicitante o responsable."
     )
+    fecha_asignacion_funcionario = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Marca temporal cuando un funcionario crea la asignación"
+    )
 
     def __str__(self):
         conductor_str = f"{self.conductor.nombre} {self.conductor.apellido}" if self.conductor else "Por asignar"
