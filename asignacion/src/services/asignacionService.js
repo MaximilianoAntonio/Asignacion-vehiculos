@@ -42,10 +42,17 @@ export const deleteAsignacion = (id) => {
     return axios.delete(`${ASIGNACIONES_API_URL}${id}/`);
 };
 
-// Podrías añadir aquí las acciones personalizadas si las necesitas en el frontend
-// export const completarAsignacionApi = (id) => {
-//     return axios.post(`${ASIGNACIONES_API_URL}${id}/completar/`);
-// };
-// export const iniciarAsignacionApi = (id) => {
-//     return axios.post(`${ASIGNACIONES_API_URL}${id}/iniciar/`);
-// };
+export async function procesarAsignaciones(fecha = null) {
+  const body = fecha ? JSON.stringify({ fecha }) : JSON.stringify({});
+  const response = await fetch(`${ASIGNACIONES_API_URL}asignar-vehiculos-auto-lote/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error('Error al procesar asignaciones: ' + errorText);
+  }
+  return response.json();
+}

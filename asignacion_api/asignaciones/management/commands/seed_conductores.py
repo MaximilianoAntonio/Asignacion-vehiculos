@@ -57,7 +57,7 @@ class Command(BaseCommand):
             
             # Tipos de vehículo habilitados por defecto (ejemplo, usa claves válidas de tu modelo Vehiculo)
             # Estos deben ser las claves (ej: 'automovil', 'camioneta') de tus TIPO_VEHICULO_CHOICES
-            tipos_habilitados_default = "automovil,camioneta" # Ajusta según los tipos que definiste
+            tipos_habilitados_default = "N/A" # Ajusta según los tipos que definiste
 
             defaults_conductor = {
                 'nombre': nombre,
@@ -66,9 +66,6 @@ class Command(BaseCommand):
                 'activo': True,
                 'estado_disponibilidad': 'disponible', # Estado por defecto
                 'tipos_vehiculo_habilitados': tipos_habilitados_default,
-                # Los campos telefono y email son opcionales (blank=True, null=True en el modelo)
-                # 'telefono': f"9{10000000 + index}", # Ejemplo si quieres generar teléfonos
-                # 'email': f"{nombre.split()[0].lower()}{index+1}@example.com", # Ejemplo si quieres generar emails
             }
 
             try:

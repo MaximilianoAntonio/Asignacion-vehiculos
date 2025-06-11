@@ -131,6 +131,26 @@
 .cancelButton { background-color: #6c757d; color: white; flex-grow: 1; }
 .cancelButton:hover { background-color: #495057; transform: translateY(-2px); }
 
+.processButton {
+  background: #ff9800;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1.1em;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 18px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.processButton:disabled {
+  background: #ffc107;
+  cursor: not-allowed;
+}
+.processButton:hover:not(:disabled) {
+  background: #e65100;
+}
+
 /* Acciones del formulario */
 .formActions {
   display: flex;

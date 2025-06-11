@@ -1,6 +1,6 @@
 {
-	"name": "mi-gestor-frontend",
-	"short_name": "mi-gestor-frontend",
+	"name": "Unidad de flota",
+	"short_name": "SSVQ",
 	"start_url": "/",
 	"display": "standalone",
 	"orientation": "portrait",
@@ -8,13 +8,13 @@
 	"theme_color": "#673ab8",
 	"icons": [
 		{
-			"src": "/assets/icons/android-chrome-192x192.png",
-			"type": "image/png",
+			"src": "www.ssvq.cl/ssvq/site/artic/20191009/imag/foto_0000006220191009104305.jpg",
+			"type": "image/jpg",
 			"sizes": "192x192"
 		},
 		{
-			"src": "/assets/icons/android-chrome-512x512.png",
-			"type": "image/png",
+			"src": "www.ssvq.cl/ssvq/site/artic/20191009/imag/foto_0000006220191009104305.jpg",
+			"type": "image/jpg",
 			"sizes": "512x512"
 		}
 	]

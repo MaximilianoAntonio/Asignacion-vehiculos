@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import { getAsignaciones, deleteAsignacion } from '../../services/asignacionService';
+import { getAsignaciones, deleteAsignacion, procesarAsignaciones } from '../../services/asignacionService';
 import style from './style.css';
 import AsignacionForm from '../../components/asignacionForm';
 
@@ -82,10 +82,27 @@ class AsignacionesPage extends Component {
     this.setState({ detailModalAsignacion: null });
   };
 
+  handleProcesarAsignaciones = () => {
+    this.setState({ loading: true });
+    procesarAsignaciones()
+      .then(() => {
+        this.cargarAsignaciones();
+        alert('Asignaciones procesadas correctamente.');
+      })
+      .catch(error => {
+        alert('Ocurrió un error al procesar las asignaciones.');
+        this.setState({ loading: false });
+      });
+  };
+
   render(_, { asignaciones, loading, error, showForm, vehiculos, conductores, detailModalAsignacion }) {
     return (
       <div class={style.asignacionesPage}>
         <h1>Gestión de Asignaciones</h1>
+        {/* Botón para procesar asignaciones */}
+        <button class={style.processButton} onClick={this.handleProcesarAsignaciones} disabled={loading}>
+          Procesar Asignaciones
+        </button>
         <div class={style.pageLayout}>
           <div class={style.leftColumn}>
             <button class={style.addButton} onClick={this.handleShowForm}>

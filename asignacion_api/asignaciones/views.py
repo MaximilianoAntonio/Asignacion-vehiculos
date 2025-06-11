@@ -2,14 +2,15 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import AllowAny
 
 from .models import Vehiculo, Conductor, Asignacion
 from .serializers import (
@@ -20,7 +21,7 @@ from .serializers import (
 
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
+from .services import asignar_vehiculos_automatico_lote
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -79,7 +80,6 @@ class AsignacionViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = {
         'estado': ['exact'],
-        # 'tipo_servicio': ['exact'], # ELIMINADA ESTA LÍNEA
         'vehiculo__patente': ['exact', 'icontains'], # Ajustado para buscar por patente
         'conductor__apellido': ['exact', 'icontains'],
         'fecha_hora_requerida_inicio': ['exact', 'gte', 'lte', 'date'],
@@ -89,53 +89,10 @@ class AsignacionViewSet(viewsets.ModelViewSet):
     search_fields = ['destino_descripcion', 'vehiculo__patente', 'observaciones', 'solicitante_nombre']
     ordering_fields = ['fecha_hora_requerida_inicio', 'fecha_hora_fin_prevista', 'estado', 'solicitante_jerarquia'] # 'tipo_servicio' ELIMINADO
 
-    @action(detail=True, methods=['post'], url_path='completar')
-    def completar_asignacion(self, request, pk=None):
-        asignacion = self.get_object()
-        if asignacion.estado == 'activa':
-            asignacion.estado = 'completada'
-            asignacion.fecha_hora_fin_real = timezone.now()
-            if asignacion.vehiculo:
-                asignacion.vehiculo.estado = 'disponible'
-                asignacion.vehiculo.save()
-            if asignacion.conductor:
-                asignacion.conductor.estado_disponibilidad = 'disponible'
-                asignacion.conductor.save()
-            asignacion.save()
-            return Response({'status': 'asignación completada', 'asignacion': self.get_serializer(asignacion).data}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'La asignación no está activa o ya está completada/cancelada.'}, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['post'], url_path='asignar-vehiculos-auto-lote', permission_classes=[AllowAny])
+    def asignar_vehiculos_auto_lote(self, request):
+        resultados = asignar_vehiculos_automatico_lote()
+        return Response({'resultados': resultados})
 
-    @action(detail=True, methods=['post'], url_path='iniciar')
-    def iniciar_asignacion(self, request, pk=None):
-        asignacion = self.get_object()
-        if asignacion.estado == 'programada':
-            if not asignacion.vehiculo or not asignacion.conductor:
-                return Response({'error': 'La asignación debe tener un vehículo y un conductor asignados para poder iniciarla.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            if asignacion.vehiculo.estado not in ['disponible', 'reservado']:
-                return Response({'error': f'El vehículo {asignacion.vehiculo.patente} no está disponible.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            if asignacion.conductor.estado_disponibilidad != 'disponible' or not asignacion.conductor.activo :
-                return Response({'error': f'El conductor {asignacion.conductor} no está disponible o no está activo.'}, status=status.HTTP_400_BAD_REQUEST)
-
-            asignacion.vehiculo.estado = 'en_uso'
-            asignacion.vehiculo.save()
-            asignacion.conductor.estado_disponibilidad = 'en_ruta'
-            asignacion.conductor.save()
-
-            asignacion.estado = 'activa'
-            asignacion.save()
-            return Response({'status': 'asignación iniciada', 'asignacion': self.get_serializer(asignacion).data}, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'La asignación no está programada o ya está en otro estado.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    def perform_create(self, serializer):
-        # Aquí podrías añadir lógica futura si es necesario, por ejemplo,
-        # para llamar al servicio de asignación automática.
-        # Por ahora, solo guarda la instancia.
-        # asignacion_obj = serializer.save()
-        # if asignacion_obj.estado == 'pendiente_auto':
-        #     from .services import intentar_asignacion_automatica # Suponiendo que lo crearás
-        #     intentar_asignacion_automatica(asignacion_obj)
-        serializer.save()
