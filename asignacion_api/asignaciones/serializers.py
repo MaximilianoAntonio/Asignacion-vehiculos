@@ -25,9 +25,10 @@ class VehiculoSerializer(serializers.ModelSerializer):
             'ubicacion',
             'conductor_preferente',
         ]
-        extra_kwargs = {
+        extra_kwargs = { # NUEVO
             'foto': {'write_only': True, 'required': False}
         }
+
 
 class ConductorSerializer(serializers.ModelSerializer):
     estado_disponibilidad_display = serializers.CharField(source='get_estado_disponibilidad_display', read_only=True)

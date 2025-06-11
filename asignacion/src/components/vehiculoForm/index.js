@@ -1,254 +1,107 @@
-import { h, Component } from 'preact';
+import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
 import style from './style.css';
-import { createVehiculo, updateVehiculo } from '../../services/vehicleService';
 
-class VehiculoForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      vehiculo: props.vehiculo || {
-        patente: '',
-        marca: '',
-        modelo: '',
-        anio: '',
-        numero_chasis: '',
-        numero_motor: '',
-        tipo_vehiculo: 'automovil',
-        capacidad_pasajeros: 4,
-        caracteristicas_adicionales: '',
-        estado: 'disponible',
-        ubicacion: '',
-        conductor_preferente: '',
-        foto: null
-      },
-      modoEdicion: !!props.vehiculo,
-      errores: null,
-      ubicacion_sugerencias: [],
+const VehiculoForm = ({ vehiculo, onSave, onUpdate, onCancel }) => {
+    const [marca, setMarca] = useState('');
+    const [modelo, setModelo] = useState('');
+    const [patente, setPatente] = useState('');
+    const [tipo, setTipo] = useState('Automóvil');
+    const [anio, setAnio] = useState('');
+    const [capacidadPasajeros, setCapacidadPasajeros] = useState('');
+    const [numeroChasis, setNumeroChasis] = useState('');
+    const [motor, setMotor] = useState('');
+    const [fotoVehiculo, setFotoVehiculo] = useState(null);
+
+    useEffect(() => {
+        setMarca(vehiculo?.marca || '');
+        setModelo(vehiculo?.modelo || '');
+        setPatente(vehiculo?.patente || '');
+        setTipo(vehiculo?.tipo || 'Automóvil');
+        setAnio(vehiculo?.anio || '');
+        setCapacidadPasajeros(vehiculo?.capacidad_pasajeros || '');
+        setNumeroChasis(vehiculo?.numero_chasis || '');
+        setMotor(vehiculo?.motor || '');
+        setFotoVehiculo(null);
+    }, [vehiculo]);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('marca', marca);
+        formData.append('modelo', modelo);
+        formData.append('patente', patente);
+        formData.append('tipo', tipo);
+        formData.append('anio', anio);
+        formData.append('capacidad_pasajeros', capacidadPasajeros);
+        formData.append('numero_chasis', numeroChasis);
+        formData.append('motor', motor);
+
+        if (fotoVehiculo) {
+            formData.append('foto_vehiculo', fotoVehiculo);
+        }
+
+        if (vehiculo) {
+            onUpdate(vehiculo.id, formData);
+        } else {
+            onSave(formData);
+        }
     };
-  }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.vehiculo !== this.props.vehiculo) {
-      this.setState({
-        vehiculo: this.props.vehiculo || {
-          patente: '',
-          marca: '',
-          modelo: '',
-          anio: '',
-          numero_chasis: '',
-          numero_motor: '',
-          tipo_vehiculo: 'automovil',
-          capacidad_pasajeros: 4,
-          caracteristicas_adicionales: '',
-          estado: 'disponible',
-          ubicacion: '',
-          conductor_preferente: '',
-          foto: null
-        },
-        modoEdicion: !!this.props.vehiculo
-      });
-    }
-  }
-
-  buscarSugerenciasUbicacion = (valor) => {
-    fetch(`/api/nominatim/?q=${encodeURIComponent(valor)}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log('Sugerencias:', data);
-        this.setState({ ubicacion_sugerencias: data });
-      })
-      .catch(() => {
-        this.setState({ ubicacion_sugerencias: [] });
-      });
-  };
-
-  handleUbicacionInput = (e) => {
-    const value = e.target.value;
-    this.setState(prevState => ({
-      vehiculo: {
-        ...prevState.vehiculo,
-        ubicacion: value
-      }
-    }));
-    if (value.length >= 3) {
-      this.buscarSugerenciasUbicacion(value);
-    } else {
-      this.setState({ ubicacion_sugerencias: [] });
-    }
-  };
-
-  handleUbicacionSugerenciaClick = (sug) => {
-    this.setState(prevState => ({
-      vehiculo: {
-        ...prevState.vehiculo,
-        ubicacion: sug.display_name,
-      },
-      ubicacion_sugerencias: []
-    }));
-  };
-
-  handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    this.setState(prevState => ({
-      vehiculo: {
-        ...prevState.vehiculo,
-        [name]: type === 'file' ? files[0] : value
-      }
-    }));
-  }
-
-  handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    for (const key in this.state.vehiculo) {
-      if (this.state.vehiculo[key] !== null) {
-        formData.append(key, this.state.vehiculo[key]);
-      }
-    }
-
-    try {
-      if (this.state.modoEdicion) {
-        await updateVehiculo(this.state.vehiculo.id, formData);
-      } else {
-        await createVehiculo(formData);
-      }
-      this.setState({ errores: null }); // limpia errores si todo sale bien
-      this.props.onVehiculoGuardado();
-    } catch (error) {
-      // Intenta extraer los errores del backend
-      let errores = null;
-      if (error && error.response && error.response.data) {
-        errores = error.response.data;
-      } else if (error && error.message) {
-        errores = { general: [error.message] };
-      } else {
-        errores = { general: ['Ocurrió un error inesperado.'] };
-      }
-      this.setState({ errores });
-    }
-  }
-
-  render() {
-    console.log('ubicacion_sugerencias en render:', this.state.ubicacion_sugerencias);
-    const { vehiculo, modoEdicion, errores } = this.state;
     return (
-      <form class={style.formContainer} onSubmit={this.handleSubmit}>
-        <button type="button" class={style.closeButton} onClick={this.props.onCancel}>✖</button>
-        <h3>{modoEdicion ? 'Editar Vehículo' : 'Agregar Nuevo Vehículo'}</h3>
-
-        {/* Bloque para mostrar errores */}
-        {errores && (
-          <div class={style.errorMsg}>
-            {Object.entries(errores).map(([campo, mensajes]) =>
-              mensajes.map(msg => (
-                <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
-              ))
-            )}
-          </div>
-        )}
-
-        <div class={style.formGroup}>
-          <label>Patente:</label>
-          <input type="text" name="patente" value={vehiculo.patente} onInput={this.handleChange} required />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Marca:</label>
-          <input type="text" name="marca" value={vehiculo.marca} onInput={this.handleChange} required />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Modelo:</label>
-          <input type="text" name="modelo" value={vehiculo.modelo} onInput={this.handleChange} required />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Año:</label>
-          <input type="number" name="anio" value={vehiculo.anio} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>N° Chasis:</label>
-          <input type="text" name="numero_chasis" value={vehiculo.numero_chasis} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>N° Motor:</label>
-          <input type="text" name="numero_motor" value={vehiculo.numero_motor} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Tipo de Vehículo:</label>
-          <select name="tipo_vehiculo" value={vehiculo.tipo_vehiculo} onInput={this.handleChange}>
-            <option value="automovil">Automóvil</option>
-            <option value="camioneta">Camioneta</option>
-            <option value="minibus">Minibús</option>
-            <option value="station_wagon">Station Wagon</option>
-          </select>
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Capacidad Pasajeros:</label>
-          <input type="number" name="capacidad_pasajeros" value={vehiculo.capacidad_pasajeros} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Estado:</label>
-          <select name="estado" value={vehiculo.estado} onInput={this.handleChange}>
-            <option value="disponible">Disponible</option>
-            <option value="en_uso">En Uso</option>
-            <option value="mantenimiento">Mantenimiento</option>
-            <option value="reservado">Reservado</option>
-          </select>
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Características Adicionales:</label>
-          <textarea name="caracteristicas_adicionales" value={vehiculo.caracteristicas_adicionales} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Ubicación:</label>
-          <input
-            type="text"
-            name="ubicacion"
-            value={vehiculo.ubicacion || ''}
-            onInput={this.handleUbicacionInput}
-            autoComplete="off"
-            placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc."
-          />
-          {this.state.ubicacion_sugerencias.length > 0 && (
-            <ul class={style.suggestionsList}>
-              {this.state.ubicacion_sugerencias.map(sug => (
-                <li key={sug.place_id || sug.osm_id} onClick={() => this.handleUbicacionSugerenciaClick(sug)}>
-                  {sug.display_name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Conductor Preferente (ID):</label>
-          <input type="text" name="conductor_preferente" value={vehiculo.conductor_preferente} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Foto del vehículo:</label>
-          <input type="file" name="foto" accept="image/*" onChange={this.handleChange} />
-        </div>
-
-        <div class={style.formActions}>
-          <button type="submit" class={style.submitButton}>
-            {modoEdicion ? 'Guardar Cambios' : 'Agregar Vehículo'}
-          </button>
-          <button type="button" class={style.cancelButton} onClick={this.props.onCancel}>
-            Cancelar
-          </button>
-        </div>
-      </form>
+        <form onSubmit={handleSubmit} class={style.form}>
+            <div class={style.formGroup}>
+                <label for="marca">Marca</label>
+                <input id="marca" type="text" value={marca} onInput={(e) => setMarca(e.target.value)} required />
+            </div>
+            <div class={style.formGroup}>
+                <label for="modelo">Modelo</label>
+                <input id="modelo" type="text" value={modelo} onInput={(e) => setModelo(e.target.value)} required />
+            </div>
+            <div class={style.formGroup}>
+                <label for="patente">Patente</label>
+                <input id="patente" type="text" value={patente} onInput={(e) => setPatente(e.target.value)} required />
+            </div>
+            <div class={style.formGroup}>
+                <label for="tipo">Tipo</label>
+                <select id="tipo" value={tipo} onInput={(e) => setTipo(e.target.value)} required>
+                    <option value="Automóvil">Automóvil</option>
+                    <option value="Camioneta">Camioneta</option>
+                    <option value="Minibús">Minibús</option>
+                    <option value="Station Wagon">Station Wagon</option>
+                </select>
+            </div>
+            <div class={style.formGroup}>
+                <label for="anio">Año</label>
+                <input id="anio" type="number" placeholder="Ej: 2023" value={anio} onInput={(e) => setAnio(e.target.value)} />
+            </div>
+            <div class={style.formGroup}>
+                <label for="capacidad">Capacidad de Pasajeros</label>
+                <input id="capacidad" type="number" placeholder="Ej: 5" value={capacidadPasajeros} onInput={(e) => setCapacidadPasajeros(e.target.value)} />
+            </div>
+            <div class={style.formGroup}>
+                <label for="numero_chasis">Número de Chasis</label>
+                <input id="numero_chasis" type="text" value={numeroChasis} onInput={(e) => setNumeroChasis(e.target.value)} />
+            </div>
+            <div class={style.formGroup}>
+                <label for="motor">Motor</label>
+                <input id="motor" type="text" value={motor} onInput={(e) => setMotor(e.target.value)} />
+            </div>
+            <div class={style.formGroup}>
+                <label for="foto_vehiculo">Foto del Vehículo</label>
+                <input id="foto_vehiculo" type="file" onChange={(e) => setFotoVehiculo(e.target.files[0])} />
+            </div>
+            
+            <div class={style.formActions}>
+                <button type="submit" class={`${style.button} ${style.saveButton}`}>
+                    {vehiculo ? 'Actualizar' : 'Guardar'}
+                </button>
+                <button type="button" onClick={onCancel} class={`${style.button} ${style.cancelButton}`}>
+                    Cancelar
+                </button>
+            </div>
+        </form>
     );
-  }
-}
+};
 
 export default VehiculoForm;
