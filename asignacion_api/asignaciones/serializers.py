@@ -5,6 +5,7 @@ from django.utils import timezone
 
 class VehiculoSerializer(serializers.ModelSerializer):
     foto_url = serializers.ImageField(source='foto', read_only=True) # Mantenemos source='foto'
+    tipo_vehiculo_display = serializers.CharField(source='get_tipo_vehiculo_display', read_only=True)
 
     class Meta:
         model = Vehiculo
@@ -21,7 +22,7 @@ class VehiculoSerializer(serializers.ModelSerializer):
             'foto', # Campo para escribir/subir
             'foto_url', # Campo para leer la URL
             'tipo_vehiculo',
-            'caracteristicas_adicionales',
+            'tipo_vehiculo_display', 
             'ubicacion',
             'conductor_preferente',
         ]

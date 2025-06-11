@@ -6,23 +6,25 @@ const VehiculoForm = ({ vehiculo, onSave, onUpdate, onCancel }) => {
     const [marca, setMarca] = useState('');
     const [modelo, setModelo] = useState('');
     const [patente, setPatente] = useState('');
-    const [tipo, setTipo] = useState('Automóvil');
+    const [tipo_vehiculo, setTipo] = useState('');
     const [anio, setAnio] = useState('');
     const [capacidadPasajeros, setCapacidadPasajeros] = useState('');
     const [numeroChasis, setNumeroChasis] = useState('');
-    const [motor, setMotor] = useState('');
-    const [fotoVehiculo, setFotoVehiculo] = useState(null);
+    const [numero_motor, setMotor] = useState('');
+    const [foto, setFotoVehiculo] = useState(null);
+    const [estado, setEstado] = useState('');
 
     useEffect(() => {
         setMarca(vehiculo?.marca || '');
         setModelo(vehiculo?.modelo || '');
         setPatente(vehiculo?.patente || '');
-        setTipo(vehiculo?.tipo || 'Automóvil');
+        setTipo(vehiculo?.tipo_vehiculo || '');
         setAnio(vehiculo?.anio || '');
         setCapacidadPasajeros(vehiculo?.capacidad_pasajeros || '');
         setNumeroChasis(vehiculo?.numero_chasis || '');
-        setMotor(vehiculo?.motor || '');
+        setMotor(vehiculo?.numero_motor || '');
         setFotoVehiculo(null);
+        setEstado(vehiculo?.estado || '');
     }, [vehiculo]);
 
     const handleSubmit = (e) => {
@@ -31,14 +33,15 @@ const VehiculoForm = ({ vehiculo, onSave, onUpdate, onCancel }) => {
         formData.append('marca', marca);
         formData.append('modelo', modelo);
         formData.append('patente', patente);
-        formData.append('tipo', tipo);
-        formData.append('anio', anio);
-        formData.append('capacidad_pasajeros', capacidadPasajeros);
+        formData.append('tipo_vehiculo', tipo_vehiculo);
+        formData.append('anio', anio ? parseInt(anio, 10) : '');
+        formData.append('capacidad_pasajeros', capacidadPasajeros ? parseInt(capacidadPasajeros, 10) : '');
         formData.append('numero_chasis', numeroChasis);
-        formData.append('motor', motor);
+        formData.append('numero_motor', numero_motor);
+        formData.append('estado', estado);
 
-        if (fotoVehiculo) {
-            formData.append('foto_vehiculo', fotoVehiculo);
+        if (foto) {
+            formData.append('foto', foto);
         }
 
         if (vehiculo) {
@@ -64,11 +67,11 @@ const VehiculoForm = ({ vehiculo, onSave, onUpdate, onCancel }) => {
             </div>
             <div class={style.formGroup}>
                 <label for="tipo">Tipo</label>
-                <select id="tipo" value={tipo} onInput={(e) => setTipo(e.target.value)} required>
-                    <option value="Automóvil">Automóvil</option>
-                    <option value="Camioneta">Camioneta</option>
-                    <option value="Minibús">Minibús</option>
-                    <option value="Station Wagon">Station Wagon</option>
+                <select id="tipo" value={tipo_vehiculo} onInput={(e) => setTipo(e.target.value)} required>
+                    <option value="automovil">Automóvil</option>
+                    <option value="camioneta">Camioneta</option>
+                    <option value="minibus">Minibús</option>
+                    <option value="station_wagon">Station Wagon</option>
                 </select>
             </div>
             <div class={style.formGroup}>
@@ -79,17 +82,28 @@ const VehiculoForm = ({ vehiculo, onSave, onUpdate, onCancel }) => {
                 <label for="capacidad">Capacidad de Pasajeros</label>
                 <input id="capacidad" type="number" placeholder="Ej: 5" value={capacidadPasajeros} onInput={(e) => setCapacidadPasajeros(e.target.value)} />
             </div>
+
+            <div class={style.formGroup}>
+                <label for="estado">Estado</label>
+                <select id="estado" value={estado} onInput={(e) => setEstado(e.target.value)} required>
+                    <option value="disponible">Disponible</option>
+                    <option value="en_uso">En Ruta</option>
+                    <option value="mantenimiento">Mantenimiento</option>
+                    <option value="reservado">Reservado</option>
+                </select>
+            </div>
+
             <div class={style.formGroup}>
                 <label for="numero_chasis">Número de Chasis</label>
                 <input id="numero_chasis" type="text" value={numeroChasis} onInput={(e) => setNumeroChasis(e.target.value)} />
             </div>
             <div class={style.formGroup}>
-                <label for="motor">Motor</label>
-                <input id="motor" type="text" value={motor} onInput={(e) => setMotor(e.target.value)} />
+                <label for="numero_motor">Motor</label>
+                <input id="numero_motor" type="text" value={numero_motor} onInput={(e) => setMotor(e.target.value)} />
             </div>
             <div class={style.formGroup}>
-                <label for="foto_vehiculo">Foto del Vehículo</label>
-                <input id="foto_vehiculo" type="file" onChange={(e) => setFotoVehiculo(e.target.files[0])} />
+                <label for="foto">Foto del Vehículo</label>
+                <input id="foto" type="file" onChange={(e) => setFotoVehiculo(e.target.files[0])} />
             </div>
             
             <div class={style.formActions}>
