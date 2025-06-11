@@ -1,30 +1,47 @@
-/* src/components/header/style.css */
 .header {
-    background-color: #333;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
+    padding: 0.7rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.header h1 {
-    margin: 0;
-    font-size: 1.8em;
-    color: #ffffff;
-    margin-bottom: 0.3rem;
+.logoContainer {
+    display: flex;
+    align-items: center;
 }
 
-
-.header nav {
-    margin-top: 10px;
+.logo {
+    height: 40px;
+    margin-right: 1rem;
 }
 
-.header nav a {
-    color: white;
-    margin: 0 10px;
-    text-decoration: none;
-}
-
-.header nav a.active {
+.title {
+    color: #fff;
+    font-size: 1.5rem;
     font-weight: bold;
-    text-decoration: underline;
+    letter-spacing: 1px;
+}
+
+.nav {
+    display: flex;
+    gap: 1.2rem;
+}
+
+a, .nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+a:hover, .nav a:hover, .active {
+    color: #ffd700;
+}
+
+.logout {
+    cursor: pointer;
+    color: #ff7675;
+    font-weight: bold;
 }

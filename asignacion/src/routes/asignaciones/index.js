@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
 import { getAsignaciones, deleteAsignacion, procesarAsignaciones } from '../../services/asignacionService';
+import { exportAsignacionesPDF } from '../../services/pdfExportService';
 import style from './style.css';
 import AsignacionForm from '../../components/asignacionForm';
 
@@ -95,19 +96,32 @@ class AsignacionesPage extends Component {
       });
   };
 
+  formatearFecha(fechaStr) {
+    if (!fechaStr) return '—';
+    const fecha = new Date(fechaStr);
+    const dia = fecha.getDate();
+    const mes = fecha.toLocaleString('es-ES', { month: 'long' });
+    const hora = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
+    return `${dia} / ${mes.charAt(0).toUpperCase() + mes.slice(1)} / ${hora}`;
+  }
+
   render(_, { asignaciones, loading, error, showForm, vehiculos, conductores, detailModalAsignacion }) {
     return (
       <div class={style.asignacionesPage}>
         <h1>Gestión de Asignaciones</h1>
-        {/* Botón para procesar asignaciones */}
-        <button class={style.processButton} onClick={this.handleProcesarAsignaciones} disabled={loading}>
-          Procesar Asignaciones
-        </button>
+        <div class={style.tableActions}>
+          <button class={style.addButton} onClick={this.handleShowForm}>
+            Agregar asignación
+          </button>
+          <button class={style.processButton} onClick={this.handleProcesarAsignaciones} disabled={loading}>
+            Procesar asignaciones
+          </button>
+          <button class={style.exportButton} onClick={() => exportAsignacionesPDF(asignaciones)} disabled={loading || asignaciones.length === 0}>
+            Exportar PDF
+          </button>
+        </div>
         <div class={style.pageLayout}>
           <div class={style.leftColumn}>
-            <button class={style.addButton} onClick={this.handleShowForm}>
-              Agregar Asignación
-            </button>
             <table class={style.table}>
               <thead>
                 <tr>
@@ -136,8 +150,8 @@ class AsignacionesPage extends Component {
                       <td>{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
                       <td>{a.destino_descripcion}</td>
                       <td>{a.origen_descripcion || '—'}</td>
-                      <td>{a.fecha_hora_requerida_inicio}</td>
-                      <td>{a.fecha_hora_fin_prevista || '—'}</td>
+                      <td>{this.formatearFecha(a.fecha_hora_requerida_inicio)}</td>
+                      <td>{this.formatearFecha(a.fecha_hora_fin_prevista)}</td>
                       <td>{a.estado}</td>
                     </tr>
                   ))
@@ -177,8 +191,8 @@ class AsignacionesPage extends Component {
                   <p><strong>Conductor:</strong> {detailModalAsignacion.conductor ? `${detailModalAsignacion.conductor.nombre} ${detailModalAsignacion.conductor.apellido}` : '—'}</p>
                   <p><strong>Destino:</strong> {detailModalAsignacion.destino_descripcion}</p>
                   <p><strong>Origen:</strong> {detailModalAsignacion.origen_descripcion || '—'}</p>
-                  <p><strong>Inicio:</strong> {detailModalAsignacion.fecha_hora_requerida_inicio}</p>
-                  <p><strong>Fin Previsto:</strong> {detailModalAsignacion.fecha_hora_fin_prevista || '—'}</p>
+                  <p><strong>Inicio:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_requerida_inicio)}</p>
+                  <p><strong>Fin Previsto:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_fin_prevista)}</p>
                   <p><strong>Estado:</strong> {detailModalAsignacion.estado}</p>
                 </div>
                 <div class={style.modalActions}>

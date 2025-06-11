@@ -53,6 +53,7 @@ class LoginPage extends Component {
         return (
             <div class={style.loginPage}>
                 <div class={style.loginForm}>
+                    <img src="/assets/logo-ssvq.jpg" alt="Logo" class={style.logo} />
                     <h2>Iniciar Sesión</h2>
                     {error && <p class={style.error}>{error}</p>}
                     <form onSubmit={this.handleSubmit}>

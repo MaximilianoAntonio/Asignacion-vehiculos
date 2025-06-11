@@ -4,12 +4,15 @@ import { Link } from 'preact-router/match';
 import style from './style.css';
 
 const Header = ({ isLoggedIn, onLogout, userGroup }) => {
-    // Detecta si el grupo es funcionario (insensible a mayúsculas y plural)
     const isFuncionario = userGroup && userGroup.toLowerCase().startsWith('funcionario');
 
     return (
         <header class={style.header}>
-            <nav>
+            <div class={style.logoContainer}>
+                <img src="/assets/logo-ssvq.jpg" alt="Logo" class={style.logo} />
+                <span class={style.title}>Gestión de Flota</span>
+            </div>
+            <nav class={style.nav}>
                 <Link activeClassName={style.active} href="/">Inicio</Link>
                 {isLoggedIn && (
                     <>
@@ -23,7 +26,7 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                     </>
                 )}
                 {isLoggedIn ? (
-                    <a href="#" onClick={onLogout} style={{ cursor: 'pointer' }}>Logout</a>
+                    <a href="#" onClick={onLogout} class={style.logout}>Logout</a>
                 ) : (
                     <Link activeClassName={style.active} href="/login">Login</Link>
                 )}

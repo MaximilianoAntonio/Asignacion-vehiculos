@@ -84,7 +84,7 @@
   font-size: 14px;
 }
 
-/* Fila clickeable (si lo usas en el futuro) */
+/* Fila clickeable */
 .clickableRow {
   cursor: pointer;
   transition: background-color 0.2s;
@@ -93,7 +93,7 @@
   background-color: #d1dae4;
 }
 
-/* Botones */
+/* Botones generales */
 .addButton, .editButton, .deleteButton, .saveButton, .cancelButton {
   padding: 10px 15px;
   border: none;
@@ -110,8 +110,7 @@
 .addButton {
   background-color: #007bff;
   color: white;
-  align-self: flex-start;
-  margin-bottom: 1.5rem;
+  /* Quita align-self y margin-bottom para que el flex funcione bien */
 }
 .addButton:hover {
   background: #0056b3;
@@ -131,17 +130,41 @@
 .cancelButton { background-color: #6c757d; color: white; flex-grow: 1; }
 .cancelButton:hover { background-color: #495057; transform: translateY(-2px); }
 
+/* Botón de procesar a la altura de la tabla */
+
+
+/* Acciones del formulario */
+.formActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Tabla - Acciones superiores */
+.tableActions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 230px; /* Añade espacio entre los botones */
+  margin-bottom: 10px;
+  width: 100%;
+}
+
 .processButton {
   background: #ff9800;
   color: #fff;
   border: none;
-  padding: 12px 24px;
-  font-size: 1.1em;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
   border-radius: 6px;
   cursor: pointer;
-  margin-bottom: 18px;
-  font-weight: bold;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  display: inline-block;
+  margin-bottom: 0; /* Quita margen para mejor alineación */
+  vertical-align: middle;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
 }
 .processButton:disabled {
   background: #ffc107;
@@ -149,13 +172,8 @@
 }
 .processButton:hover:not(:disabled) {
   background: #e65100;
-}
-
-/* Acciones del formulario */
-.formActions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 
 /* Modal */
@@ -224,4 +242,28 @@
     max-width: 100%;
     width: 100%;
   }
+}
+
+.exportButton {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.exportButton:disabled {
+  background-color: #388e3c;
+  cursor: not-allowed;
+}
+.exportButton:hover:not(:disabled) {
+  background-color: #388e3c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }

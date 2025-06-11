@@ -44,13 +44,47 @@ def calcular_score(asignacion, vehiculo):
     )
     distancia_score = min(1, distancia_km / 100)  # 100km o más = score 1
 
+    if hasattr(vehiculo, 'anio') and vehiculo.anio:
+        novedad_score = min(1, max(0, (vehiculo.anio - 2010) / 15))  # Normaliza entre 2010 y 2025
+    else:
+        novedad_score = 0.5  # Valor por defecto
+
+    # Peso de novedad depende de la distancia (más lejos, más peso)
+    peso_novedad = min(0.3, 0.1 + 0.2 * distancia_score)  # Hasta 0.3 si distancia >= 100km
+
+    # Ajusta los pesos de los otros factores para que sumen 1
+    peso_cargo = PESO_CARGO - peso_novedad * 0.5
+    peso_capacidad = PESO_CAPACIDAD - peso_novedad * 0.3
+    peso_distancia = PESO_DISTANCIA - peso_novedad * 0.2
+
     # Score total
     score = (
-        cargo_score * PESO_CARGO +
-        capacidad_score * PESO_CAPACIDAD +
-        distancia_score * PESO_DISTANCIA
+        cargo_score * peso_cargo +
+        capacidad_score * peso_capacidad +
+        distancia_score * peso_distancia +
+        novedad_score * peso_novedad
     )
     return score
+
+def asignar_vehiculo_automatico(asignacion):
+    vehiculos = Vehiculo.objects.filter(
+        estado='disponible',
+        capacidad_pasajeros__gte=asignacion.req_pasajeros or 1
+    )
+    mejor_score = -1
+    mejor_vehiculo = None
+    for v in vehiculos:
+        score = calcular_score(asignacion, v)
+        if score > mejor_score:
+            mejor_score = score
+            mejor_vehiculo = v
+    if mejor_vehiculo:
+        asignacion.vehiculo = mejor_vehiculo
+        asignacion.estado = 'programada'
+        asignacion.save()
+        mejor_vehiculo.estado = 'reservado'
+        mejor_vehiculo.save()
+    return mejor_vehiculo
 
 def asignar_vehiculos_automatico_lote():
     asignaciones = Asignacion.objects.filter(estado='pendiente_auto', vehiculo__isnull=True)
@@ -70,20 +104,3 @@ def asignar_vehiculos_automatico_lote():
                 'vehiculo_asignado': None
             })
     return resultados
-
-def asignar_vehiculo_automatico(asignacion):
-    vehiculos = Vehiculo.objects.filter(estado='disponible')
-    mejor_score = -1
-    mejor_vehiculo = None
-    for v in vehiculos:
-        score = calcular_score(asignacion, v)
-        if score > mejor_score:
-            mejor_score = score
-            mejor_vehiculo = v
-    if mejor_vehiculo:
-        asignacion.vehiculo = mejor_vehiculo
-        asignacion.estado = 'programada'
-        asignacion.save()
-        mejor_vehiculo.estado = 'reservado'
-        mejor_vehiculo.save()
-    return mejor_vehiculo

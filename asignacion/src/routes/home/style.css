@@ -1,32 +1,128 @@
 .homeContainer {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 4rem;
-  background-color: #f9f9f9;
-  min-height: 80vh;
-  text-align: center;
+  justify-content: flex-start;
+  background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+  padding-top: 3rem;
+  animation: fadeInBg 1.2s;
+}
+
+@keyframes fadeInBg {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .logo {
-  width: 180px;
-  margin-bottom: 2rem;
+  width: 160px;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 1s;
 }
 
-h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: #333;
+.fleetImg {
+  width: 320px;
+  max-width: 90vw;
+  margin: 2rem 0 1rem 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(44, 62, 80, 0.1);
+  animation: slideUp 1.2s;
 }
 
-h2 {
-  font-size: 1.2rem;
-  font-weight: 400;
-  color: #555;
-  margin-bottom: 2rem;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn2 {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 1.2s;
+}
+
+.fadeIn2 {
+  animation: fadeIn2 1.5s;
 }
 
 .carEmoji {
   font-size: 3rem;
+  margin: 1.2rem 0 0.5rem 0;
+  animation: carBounce 1.8s infinite;
+  display: block;
+}
+
+@keyframes carBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-18px);
+  }
+}
+
+.tutorialBox {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 16px rgba(44, 62, 80, 0.1);
+  padding: 2rem 2.5rem;
+  margin-top: 2rem;
+  max-width: 420px;
+  width: 90vw;
+  animation: fadeIn 1.8s;
+}
+
+.tutorialBox h3 {
+  color: #2b5876;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.tutorialBox ol {
+  margin-left: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.tutorialBox li {
+  margin-bottom: 0.6rem;
+  font-size: 1.05rem;
+}
+
+.tip {
+  color: #4e4376;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  font-style: italic;
 }
