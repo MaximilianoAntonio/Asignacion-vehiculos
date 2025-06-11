@@ -31,6 +31,22 @@
     }
 }
 
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* Para evitar scroll horizontal si algo se desborda un poco */
+}
+
 body {
 	margin: 0;
 	padding: 0;
@@ -50,6 +66,8 @@ body {
     display: flex;
     flex-direction: column; /* Para que Header y Router se apilen */
     min-height: 100vh;
+    width: 100%;
+    height: 100%;
 }
 
 /* Contenedor para el contenido de las rutas, si decides añadir uno */
