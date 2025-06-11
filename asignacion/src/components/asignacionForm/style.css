@@ -1,6 +1,6 @@
 .formContainer {
-  position: relative;
   border: 3px solid #111111;
+  position: relative;
   padding: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
@@ -9,7 +9,6 @@
   color: #333;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
-
 
 .formContainer h3 {
   margin-top: 0;
@@ -32,7 +31,6 @@
 
 .formGroup input[type="text"],
 .formGroup input[type="date"],
-.formGroup input[type="datetime-local"],
 .formGroup input[type="tel"],
 .formGroup input[type="email"],
 .formGroup input[type="number"],
@@ -99,14 +97,15 @@
 
 .closeButton {
   position: absolute;
-  top: 12px;
-  right: 16px;
+  top: 16px;
+  right: 20px;
   background: transparent;
   border: none;
   font-size: 20px;
-  color: black;
+  color:black;
   cursor: pointer;
   padding: 0;
+  line-height: 1;
 }
 
 .closeButton:hover {
@@ -120,4 +119,28 @@
   font-family: monospace;
   margin-bottom: 1em;
   letter-spacing: 0.5px;
+}
+
+.suggestionsList {
+  background: #fff;
+  border: 1px solid #ccc;
+  position: absolute;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.suggestionsList li {
+  padding: 8px;
+  cursor: pointer;
+}
+.suggestionsList li:hover {
+  background: #eee;
+}
+
+.formGroup {
+  position: relative;
 }

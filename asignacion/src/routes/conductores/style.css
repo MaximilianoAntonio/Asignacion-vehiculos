@@ -1,127 +1,207 @@
-.conductores {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  background-color: #f9f9f9;
-  min-height: 100vh;
+/* Estilos generales de la página */
+.conductoresPage {
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
 }
 
-.conductores h1 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  color: #333;
+.conductoresPage h1 {
+    margin-bottom: 25px;
 }
 
-.table-container {
-  width: 90%;
-  max-width: 1000px;
-  overflow-x: auto;
+/* Layout de dos columnas */
+.pageLayout {
+    display: flex;
+    gap: 30px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-  background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.leftColumn {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
 }
 
-table th,
-table td {
-  border: 1px solid #ddd;
-  padding: 0.75rem;
-  text-align: left;
+.rightColumn {
+    flex: 1;
+    position: sticky;
+    top: 208px;
+    align-self: flex-start;
 }
 
-table th {
-  background-color: #333;
-  color: white;
+/* Contenedor del formulario */
+.formContainer {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.formContainer h2 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Placeholder para cuando el formulario está oculto */
+.formPlaceholder {
+    background: #f9f9f9;
+    padding: 40px 25px;
+    border-radius: 8px;
+    text-align: center;
+    color: #888;
+    border: 2px dashed #ddd;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tabla */
+.dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background: #fff;
+}
+.dataTable th,
+.dataTable td {
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+.dataTable th {
+    background-color: #007bff;
+    color: white;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+.dataTable th:nth-child(3),
+.dataTable td:nth-child(3) {
+  width: 110px;
+  text-align: center;
+}
+.clickableRow {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.clickableRow:hover {
+    background-color: #d1dae4;
+}
+
+/* Botones */
+.addButton, .editButton, .deleteButton, .saveButton, .cancelButton {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
 }
 
 .addButton {
-  padding: 0.75rem 1.5rem;
-  background-color: #28a745;
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-  margin-bottom: 1rem;
+    background-color: #007bff;
+    color: white;
+    align-self: flex-start;
+    margin-bottom: 1.5rem;
 }
-
 .addButton:hover {
-  background-color: #218838;
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 
-.encabezado {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch; /* <- Que los hijos se alineen solos */
-  margin-bottom: 2rem;
+.editButton { background-color: #ffc107; color: #333; }
+.editButton:hover { background-color: #ffe082; transform: translateY(-2px); }
+
+.deleteButton { background-color: #dc3545; color: white; }
+.deleteButton:hover { background-color: #c82333; transform: translateY(-2px); }
+
+.saveButton { background-color: #28a745; color: white; flex-grow: 1; }
+.saveButton:hover { background-color: #218838; transform: translateY(-2px); }
+
+.cancelButton { background-color: #6c757d; color: white; flex-grow: 1; }
+.cancelButton:hover { background-color: #495057; transform: translateY(-2px); }
+
+/* Acciones del formulario */
+.formActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
 }
 
-.editButton {
-  padding: 0.5rem 1rem;
-  background-color: #287bda;
-  color: white;
-  font-size: 0.95rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+/* Modal */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modalContent {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    position: relative;
+    width: 90%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.modalContent h2 {
+    margin-top: 0;
+    color: #007bff;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+.modalDetails p { margin: 8px 0; font-size: 16px; color: #555; }
+.modalDetails p strong { color: #333; }
+.modalCloseButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.modalCloseButton:hover { color: #333; }
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
 }
 
-.editButton:hover {
-  background-color: #287bda;
+/* Responsive */
+@media (max-width: 900px) {
+    .pageLayout {
+        flex-direction: column;
+        gap: 24px;
+        padding: 16px;
+    }
+    .rightColumn {
+        max-width: 100%;
+        width: 100%;
+    }
 }
-
-.deleteButton {
-  padding: 0.5rem 1rem;
-  background-color: #dc3545;
-  color: white;
-  font-size: 0.95rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-left: 0.5rem;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.deleteButton:hover {
-  background-color: #c82333;
-}
-
-.panelLayout {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 2rem;
-  gap: 2rem;
-}
-
-.dataTableContainer {
-  flex: 2;
-  min-width: 60%;
-}
-
-.formPanel {
-  flex: 1;
-  max-width: 450px;
-  background-color: none;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: none;
-  position: sticky;
-  top: 7.5rem;
-  margin-top: 8rem;
-  height: fit-content;
-  align-self: flex-start;
-}
-
-

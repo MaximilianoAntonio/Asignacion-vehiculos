@@ -1,15 +1,23 @@
 import { h, Component } from 'preact';
-import { getConductores, createConductor, deleteConductor } from '../../services/conductorService';
 import style from './style.css';
 import ConductorForm from '../../components/conductorForm';
+import { getConductores, createConductor, updateConductor, deleteConductor } from '../../services/conductorService';
+
+const DISPONIBILIDAD_LABELS = {
+  disponible: 'Disponible',
+  en_ruta: 'En Ruta',
+  dia_libre: 'Día Libre',
+  no_disponible: 'No Disponible'
+};
 
 class ConductoresPage extends Component {
   state = {
     conductores: [],
     loading: true,
     error: null,
-    showForm: false,
-    conductorEditando: null,
+    formMode: null, // 'add' | 'edit'
+    selectedConductor: null,
+    detailModalConductor: null,
   };
 
   componentDidMount() {
@@ -19,113 +27,173 @@ class ConductoresPage extends Component {
   cargarConductores = () => {
     this.setState({ loading: true });
     getConductores()
-      .then(conductores => {
-        this.setState({
-          conductores, // ya es un array
-          loading: false,
-          error: null,
-        });
-      })
-      .catch(error => {
-        console.error("Error fetching conductores:", error);
-        this.setState({ error: 'Error al cargar los conductores.', loading: false });
-      });
+      .then(conductores => this.setState({ conductores, loading: false, error: null }))
+      .catch(error => this.setState({ error: 'Error al cargar los conductores.', loading: false }));
   };
 
-  handleShowForm = () => {
-    this.setState({ showForm: true, conductorEditando: null });
+  resetFormState = () => {
+    this.setState({ formMode: null, selectedConductor: null });
   };
 
-  handleHideForm = () => {
-    this.setState({ showForm: false, conductorEditando: null });
+  handleAddNew = () => {
+    this.setState({ formMode: 'add', selectedConductor: null });
   };
 
-  handleConductorGuardado = () => {
-    this.setState({ showForm: false, conductorEditando: null });
-    this.cargarConductores();
+  handleEdit = (conductor) => {
+    this.setState({ formMode: 'edit', selectedConductor: conductor, detailModalConductor: null });
   };
 
-  handleEditConductor = (conductor) => {
-    this.setState({ showForm: true, conductorEditando: conductor });
+  handleViewDetails = (conductor) => {
+    this.setState({ detailModalConductor: conductor });
   };
 
-  handleDeleteConductor = (conductor) => {
-    const confirmado = window.confirm(`¿Estás seguro de que deseas eliminar al conductor ${conductor.nombre} ${conductor.apellido}?`);
-    if (confirmado) {
-      deleteConductor(conductor.id)
-        .then(() => this.cargarConductores())
-        .catch(error => {
-          console.error('Error al eliminar el conductor:', error);
-          alert('Ocurrió un error al eliminar el conductor.');
-        });
+  handleHideDetails = () => {
+    this.setState({ detailModalConductor: null });
+  };
+
+  handleSave = async (formData) => {
+    try {
+      await createConductor(formData);
+      this.cargarConductores();
+      this.resetFormState();
+    } catch (error) {
+      alert('Error al guardar el conductor.');
     }
   };
 
-  render(_, { conductores, loading, error, showForm }) {
-    if (loading) return <p>Cargando conductores...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+  handleUpdate = async (id, formData) => {
+    try {
+      await updateConductor(id, formData);
+      this.cargarConductores();
+      this.resetFormState();
+    } catch (error) {
+      alert('Error al actualizar el conductor.');
+    }
+  };
 
+  handleDelete = async (id) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este conductor?')) {
+      try {
+        await deleteConductor(id);
+        this.cargarConductores();
+        this.handleHideDetails();
+      } catch (error) {
+        alert('Error al eliminar el conductor.');
+      }
+    }
+  };
+
+  render(_, { conductores, loading, error, formMode, selectedConductor, detailModalConductor }) {
     return (
-      <div class={`${style.panelLayout} ${showForm ? style.withForm : ''}`}>
-        <div class={style.dataTableContainer}>
-          <div class={style.encabezado}>
-            <h1 class={style.titulo}>Listado de Conductores</h1>
-            <div style="text-align: center;">
-              <button class={style.addButton} onClick={this.handleShowForm}>Agregar Conductor</button>
-            </div>
-          </div>
-          <div class={style.tableContainer}>
-            {conductores.length === 0 ? (
-              <p>No hay conductores registrados.</p>
-            ) : (
-              <table class={style.dataTable}>
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>N° Licencia</th>
-                    <th>Vencimiento</th>
-                    <th>Teléfono</th>
-                    <th>Email</th>
-                    <th>Activo</th>
-                    <th>Disponibilidad</th>
-                    <th>Tipos Vehículo</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {conductores.map(c => (
-                    <tr key={c.id}>
-                      <td>{c.nombre}</td>
-                      <td>{c.apellido}</td>
-                      <td>{c.numero_licencia}</td>
-                      <td>{c.fecha_vencimiento_licencia}</td>
-                      <td>{c.telefono || '—'}</td>
-                      <td>{c.email || '—'}</td>
-                      <td>{c.activo ? 'Sí' : 'No'}</td>
-                      <td>{c.estado_disponibilidad}</td>
-                      <td>{c.tipos_vehiculo_habilitados}</td>
-                      <td>
-                        <button onClick={() => this.handleEditConductor(c)} class={style.editButton}>✏️ Editar</button>
-                        <button onClick={() => this.handleDeleteConductor(c)} class={style.deleteButton}>🗑️ Eliminar</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+      <div class={style.conductoresPage}>
+      <h1>Gestión de Conductores</h1>
+      <div class={style.pageLayout}>
+        <div class={style.leftColumn}>
+        <button onClick={this.handleAddNew} class={style.addButton}>Agregar Nuevo Conductor</button>
+        <table class={style.dataTable}>
+          <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Foto</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Disponibilidad</th>
+            <th>Tipos Vehículo</th>
+          </tr>
+          </thead>
+          <tbody>
+          {loading ? (
+            <tr><td colspan="9">Cargando conductores...</td></tr>
+          ) : error ? (
+            <tr><td colspan="9">{error}</td></tr>
+          ) : conductores.length === 0 ? (
+            <tr><td colspan="9">No hay conductores registrados.</td></tr>
+          ) : conductores.map(c => (
+            <tr key={c.id} onClick={() => this.handleViewDetails(c)} class={style.clickableRow}>
+            <td>{c.nombre}</td>
+            <td>{c.apellido}</td>
+            <td>
+              {c.foto_url ? (
+              <img
+                src={`${c.foto_url}`}
+                style={{ width: '100px', height: 'auto', objectFit: 'contain' }}
+              />
+              ) : (
+              'Sin foto'
+              )}
+            </td>
+            <td>{c.telefono || '—'}</td>
+            <td>{c.email || '—'}</td>
+            <td>{DISPONIBILIDAD_LABELS[c.estado_disponibilidad] || c.estado_disponibilidad}</td>
+            <td>{c.tipos_vehiculo_habilitados}</td>
+            </tr>
+          ))}
+          </tbody>
+        </table>
         </div>
-
-        {showForm && (
-          <div class={style.formPanel}>
-            <ConductorForm
-              conductor={this.state.conductorEditando}
-              onConductorGuardado={this.handleConductorGuardado}
-              onCancel={this.handleHideForm}
-            />
+        <div class={style.rightColumn}>
+        {formMode ? (
+          <div class={style.formContainer}>
+          <h2>{formMode === 'edit' ? 'Editar Conductor' : 'Agregar Conductor'}</h2>
+          <ConductorForm
+            conductor={selectedConductor}
+            onSave={this.handleSave}
+            onUpdate={this.handleUpdate}
+            onCancel={this.resetFormState}
+          />
+          </div>
+        ) : (
+          <div class={style.formPlaceholder}>
+          <p>Seleccione "Agregar Nuevo Conductor" o haga clic en una fila para ver sus detalles y editar.</p>
           </div>
         )}
+        </div>
+      </div>
+
+      {detailModalConductor && (
+        <div class={style.modalOverlay} onClick={this.handleHideDetails}>
+        <div
+          class={style.modalContent}
+          onClick={e => e.stopPropagation()}
+          style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '32px' }}
+        >
+          <div
+          class={style.modalImageContainer}
+          style={{
+            flex: '0 0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%'
+          }}
+          >
+          <img
+            src={detailModalConductor.foto_url ? `${detailModalConductor.foto_url}` : 'https://th.bing.com/th/id/OIP.5_RqTlUhvMdpCjGOhOmTdQHaHa?rs=1&pid=ImgDetMain'}
+            alt="Conductor"
+            style={{ width: '250px', height: 'auto', objectFit: 'contain', display: 'block' }}
+          />
+          </div>
+          <div style={{ flex: '1 1 0%' }}>
+          <button class={style.modalCloseButton} onClick={this.handleHideDetails}>×</button>
+          <h2>Información del Conductor</h2>
+          <div class={style.modalDetails}>
+            <p><strong>Nombre:</strong> {detailModalConductor.nombre} {detailModalConductor.apellido}</p>
+            <p><strong>N° Licencia:</strong> {detailModalConductor.numero_licencia}</p>
+            <p><strong>Vencimiento:</strong> {detailModalConductor.fecha_vencimiento_licencia}</p>
+            <p><strong>Teléfono:</strong> {detailModalConductor.telefono || '—'}</p>
+            <p><strong>Email:</strong> {detailModalConductor.email || '—'}</p>
+            <p><strong>Disponibilidad:</strong> {DISPONIBILIDAD_LABELS[detailModalConductor.estado_disponibilidad] || detailModalConductor.estado_disponibilidad}</p>
+            <p><strong>Tipos Vehículo:</strong> {detailModalConductor.tipos_vehiculo_habilitados}</p>
+          </div>
+          <div class={style.modalActions}>
+            <button onClick={() => this.handleEdit(detailModalConductor)} class={style.editButton}>Editar</button>
+            <button onClick={() => this.handleDelete(detailModalConductor.id)} class={style.deleteButton}>Eliminar</button>
+          </div>
+          </div>
+        </div>
+        </div>
+      )}
       </div>
     );
   }

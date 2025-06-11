@@ -1,160 +1,133 @@
-import { h, Component } from 'preact';
+import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
 import style from './style.css';
-import { createConductor, updateConductor } from '../../services/conductorService';
 
-class ConductorForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      conductor: props.conductor || {
-        nombre: '',
-        apellido: '',
-        numero_licencia: '',
-        fecha_vencimiento_licencia: '',
-        telefono: '',
-        email: '',
-        activo: true,
-        tipos_vehiculo_habilitados: '',
-        estado_disponibilidad: 'disponible'
-        // ubicacion_actual_lat y ubicacion_actual_lon eliminados
-      },
-      modoEdicion: !!props.conductor,
-      errores: null,
-    }
-  }
-  componentDidUpdate(prevProps) {
-    if (prevProps.conductor !== this.props.conductor) {
-      this.setState({
-        conductor: this.props.conductor || {
-          nombre: '',
-          apellido: '',
-          numero_licencia: '',
-          fecha_vencimiento_licencia: '',
-          telefono: '',
-          email: '',
-          activo: true,
-          tipos_vehiculo_habilitados: '',
-          estado_disponibilidad: 'disponible'
-          // ubicacion_actual_lat y ubicacion_actual_lon eliminados
-        },
-        modoEdicion: !!this.props.conductor,
-        errores: null,
-      });
-    }
-  }
+const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
+  const [nombre, setNombre] = useState('');
+  const [apellido, setApellido] = useState('');
+  const [numeroLicencia, setNumeroLicencia] = useState('');
+  const [fechaVencimiento, setFechaVencimiento] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [email, setEmail] = useState('');
+  const [tiposVehiculo, setTiposVehiculo] = useState('');
+  const [estadoDisponibilidad, setEstadoDisponibilidad] = useState('disponible');
+  const [errores, setErrores] = useState(null);
+  const [foto, setFoto] = useState(null);
 
-  handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    this.setState(prevState => ({
-      conductor: {
-        ...prevState.conductor,
-        [name]: type === 'checkbox' ? checked : value
-      }
-    }));
-  }
+  useEffect(() => {
+    setNombre(conductor?.nombre || '');
+    setApellido(conductor?.apellido || '');
+    setNumeroLicencia(conductor?.numero_licencia || '');
+    setFechaVencimiento(conductor?.fecha_vencimiento_licencia || '');
+    setTelefono(conductor?.telefono || '');
+    setEmail(conductor?.email || '');
+    setTiposVehiculo(conductor?.tipos_vehiculo_habilitados || '');
+    setEstadoDisponibilidad(conductor?.estado_disponibilidad || 'disponible');
+    setErrores(null);
+    setFoto(null);
+  }, [conductor]);
 
-  handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (this.state.modoEdicion) {
-        await updateConductor(this.state.conductor.id, this.state.conductor);
-      } else {
-        await createConductor(this.state.conductor);
-      }
-      this.setState({ errores: null });
-      this.props.onConductorGuardado();
-    } catch (error) {
-      let errores = null;
-      if (error && error.response && error.response.data) {
-        errores = error.response.data;
-      } else if (error && error.message) {
-        errores = { general: [error.message] };
-      } else {
-        errores = { general: ['Ocurrió un error inesperado.'] };
-      }
-      this.setState({ errores });
+    const formData = new FormData();
+    formData.append('nombre', nombre);
+    formData.append('apellido', apellido);
+    formData.append('numero_licencia', numeroLicencia);
+    formData.append('fecha_vencimiento_licencia', fechaVencimiento);
+    formData.append('telefono', telefono);
+    formData.append('email', email);
+    formData.append('tipos_vehiculo_habilitados', tiposVehiculo);
+    formData.append('estado_disponibilidad', estadoDisponibilidad);
+    if (foto) {
+      formData.append('foto', foto);
     }
-  }
+    try {
+      if (conductor) {
+        await onUpdate(conductor.id, formData);
+      } else {
+        await onSave(formData);
+      }
+      setErrores(null);
+    } catch (error) {
+      let err = null;
+      if (error && error.response && error.response.data) {
+        err = error.response.data;
+      } else if (error && error.message) {
+        err = { general: [error.message] };
+      } else {
+        err = { general: ['Ocurrió un error inesperado.'] };
+      }
+      setErrores(err);
+    }
+  };
 
-  render() {
-    const { conductor, modoEdicion, errores } = this.state;
-    return (
-      <form class={style.formContainer} onSubmit={this.handleSubmit}>
-        <button type="button" class={style.closeButton} onClick={this.props.onCancel}>✖</button>
-        <h3>{modoEdicion ? 'Editar Conductor' : 'Agregar Nuevo Conductor'}</h3>
-
-        {/* Bloque para mostrar errores */}
-        {errores && (
-          <div class={style.errorMsg}>
-            {Object.entries(errores).map(([campo, mensajes]) =>
-              mensajes.map(msg => (
-                <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
-              ))
-            )}
-          </div>
-        )}
-
-        <div class={style.formGroup}>
-          <label>Nombre:</label>
-          <input type="text" name="nombre" value={conductor.nombre} onInput={this.handleChange} required />
+  return (
+    <form onSubmit={handleSubmit} class={style.form}>
+      <div class={style.formGroup}>
+        <label>Nombre</label>
+        <input type="text" value={nombre} onInput={e => setNombre(e.target.value)} required />
+      </div>
+      <div class={style.formGroup}>
+        <label>Apellido</label>
+        <input type="text" value={apellido} onInput={e => setApellido(e.target.value)} required />
+      </div>
+      <div class={style.formGroup}>
+        <label>Número de Licencia</label>
+        <input type="text" value={numeroLicencia} onInput={e => setNumeroLicencia(e.target.value)} required />
+      </div>
+      <div class={style.formGroup}>
+        <label>Fecha de Vencimiento Licencia</label>
+        <input type="date" value={fechaVencimiento} onInput={e => setFechaVencimiento(e.target.value)} required />
+      </div>
+      <div class={style.formGroup}>
+        <label>Teléfono</label>
+        <input type="tel" value={telefono} onInput={e => setTelefono(e.target.value)} />
+      </div>
+      <div class={style.formGroup}>
+        <label>Email</label>
+        <input type="email" value={email} onInput={e => setEmail(e.target.value)} />
+      </div>
+      <div class={style.formGroup}>
+        <label>Tipos de Vehículo Habilitados</label>
+        <input type="text" value={tiposVehiculo} onInput={e => setTiposVehiculo(e.target.value)} placeholder="Station Wagon, Automóvil, Minibús, Camioneta, etc" />
+      </div>
+      <div class={style.formGroup}>
+        <label>Estado de Disponibilidad</label>
+        <select value={estadoDisponibilidad} onInput={e => setEstadoDisponibilidad(e.target.value)}>
+          <option value="disponible">Disponible</option>
+          <option value="en_ruta">En Ruta</option>
+          <option value="dia_libre">Día Libre</option>
+          <option value="no_disponible">No Disponible</option>
+        </select>
+      </div>
+      <div class={style.formGroup}>
+        <label for="foto">Foto del Conductor</label>
+        <input
+          id="foto"
+          type="file"
+          accept="image/*"
+          onChange={e => setFoto(e.target.files[0])}
+        />
+      </div>
+      {errores && (
+        <div class={style.errorMsg}>
+          {Object.entries(errores).map(([campo, mensajes]) =>
+            mensajes.map(msg => (
+              <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+            ))
+          )}
         </div>
-
-        <div class={style.formGroup}>
-          <label>Apellido:</label>
-          <input type="text" name="apellido" value={conductor.apellido} onInput={this.handleChange} required />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Número de Licencia:</label>
-          <input type="text" name="numero_licencia" value={conductor.numero_licencia} onInput={this.handleChange} required />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Fecha de Vencimiento Licencia:</label>
-          <input type="date" name="fecha_vencimiento_licencia" value={conductor.fecha_vencimiento_licencia} onInput={this.handleChange} required />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Teléfono:</label>
-          <input type="tel" name="telefono" value={conductor.telefono} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Email:</label>
-          <input type="email" name="email" value={conductor.email} onInput={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Activo:</label>
-          <input type="checkbox" name="activo" checked={conductor.activo} onChange={this.handleChange} />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Tipos de Vehículo Habilitados:</label>
-          <input type="text" name="tipos_vehiculo_habilitados" value={conductor.tipos_vehiculo_habilitados} onInput={this.handleChange} placeholder="automovil,camioneta" />
-        </div>
-
-        <div class={style.formGroup}>
-          <label>Estado de Disponibilidad:</label>
-          <select name="estado_disponibilidad" value={conductor.estado_disponibilidad} onInput={this.handleChange}>
-            <option value="disponible">Disponible</option>
-            <option value="en_ruta">En Ruta</option>
-            <option value="dia_libre">Día Libre</option>
-            <option value="no_disponible">No Disponible</option>
-          </select>
-        </div>
-
-        <div class={style.formActions}>
-          <button type="submit" class={style.submitButton}>
-            {modoEdicion ? 'Guardar Cambios' : 'Agregar Conductor'}
-          </button>
-          <button type="button" class={style.cancelButton} onClick={this.props.onCancel}>
-            Cancelar
-          </button>
-        </div>
-      </form>
-    );
-  }
-}
+      )}
+      <div class={style.formActions}>
+        <button type="submit" class={style.saveButton}>
+          {conductor ? 'Actualizar' : 'Guardar'}
+        </button>
+        <button type="button" onClick={onCancel} class={style.cancelButton}>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+};
 
 export default ConductorForm;
