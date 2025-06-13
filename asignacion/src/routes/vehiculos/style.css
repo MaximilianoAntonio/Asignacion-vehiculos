@@ -202,3 +202,74 @@
     padding-top: 15px;
     border-top: 1px solid #eee;
 }
+
+/* Estilos de los estados de los vehículos */
+.estadoDisponible {
+    color: #256029;
+    background: #e6f4ea;
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-weight: 500;
+    border: 1px solid #b7dfc8;
+}
+.estadoEnUso {
+    color: #1a3a5b;
+    background: #e7f0fa;
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-weight: 500;
+    border: 1px solid #b3cbe6;
+}
+.estadoMantenimiento {
+    color: #842029;
+    background: #f8d7da;
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-weight: 500;
+    border: 1px solid #f1b0b7;
+}
+.estadoReservado {
+    color: #856404;
+    background: #fff3cd;
+    border-radius: 12px;
+    padding: 4px 14px;
+    font-weight: 500;
+    border: 1px solid #ffe69c;
+}
+.estadoCounters {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 18px;
+    font-weight: 500;
+}
+.estadoCounters span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    background: #f9f9f9;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.estadoCounters .estadoDisponible {
+    border: 1px solid #b7dfc8;
+    background: #e6f4ea;
+    color: #256029;
+}
+.estadoCounters .estadoEnUso {
+    border: 1px solid #b3cbe6;
+    background: #e7f0fa;
+    color: #1a3a5b;
+}
+.estadoCounters .estadoMantenimiento {
+    border: 1px solid #f1b0b7;
+    background: #f8d7da;
+    color: #842029;
+}
+.estadoCounters .estadoReservado {
+    border: 1px solid #ffe69c;
+    background: #fff3cd;
+    color: #856404;
+}

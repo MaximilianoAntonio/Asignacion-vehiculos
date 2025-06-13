@@ -1,6 +1,10 @@
 import { h } from 'preact';
+import { useEffect, useState } from 'preact/hooks';
 import style from './style.css';
 import logoSSVQ from '../../assets/logo-ssvq.jpg';
+import { getVehiculos } from '../../services/vehicleService';
+import { getConductores } from '../../services/conductorService';
+import { getAsignaciones } from '../../services/asignacionService';
 
 // Animación de varios autos avanzando rápidamente con "tierra"
 const AnimatedCarsRow = () => (
@@ -59,33 +63,76 @@ const steps = [
   { text: 'Puedes revisar el estado de tus solicitudes en la misma sección.', icon: '🔎' },
 ];
 
-const Home = () => (
-  <div class={style.homeBg}>
-    <div class={style.particles}></div>
-    <div class={style.homeSplitContainer}>
-      <div class={style.leftPanel}>
-        <img src={logoSSVQ} alt="Logo SSVQ" class={style.logoAnimated} />
-        <h1 class={style.titleAnimated}>Bienvenido al Gestor de Vehículos</h1>
-        <h2 class={style.subtitleAnimated}>Servicio de Salud Valparaíso - San Antonio</h2>
-        <AnimatedCarsRow />
-      </div>
-      <div class={style.rightPanel}>
-        <div class={style.tutorialBox}>
-          <h3 class={style.tutorialTitle}>¿Cómo usar la plataforma?</h3>
-          <ol class={style.tutorialList}>
-            {steps.map((step, i) => (
-              <li class={style.tutorialStep} style={{ animationDelay: `${0.3 + i * 0.2}s` }}>
-                <span class={style.stepIcon}>{step.icon}</span>
-                <span>{step.text}</span>
-              </li>
-            ))}
-          </ol>
-          <p class={style.tip}><b>Tip:</b> Si tienes dudas, consulta la ayuda o contacta a soporte.</p>
-          <button class={style.ctaButton}>¡Solicita tu vehículo ahora!</button>
+const Home = () => {
+  const [resumen, setResumen] = useState({
+    vehiculosDisponibles: 0,
+    conductoresActivos: 0,
+    rutasActivas: 0,
+  });
+
+  useEffect(() => {
+    async function cargarResumen() {
+      try {
+        const [vehiculos, conductores, asignaciones] = await Promise.all([
+          getVehiculos(),
+          getConductores(),
+          getAsignaciones(),
+        ]);
+        setResumen({
+          vehiculosDisponibles: vehiculos.filter(v => v.estado === 'disponible').length,
+          conductoresActivos: conductores.filter(c => c.estado_disponibilidad === 'disponible').length,
+          rutasActivas: asignaciones.filter(a => a.estado && a.estado.startsWith('en_')).length,
+        });
+      } catch (e) {
+        // Si hay error, deja los valores en 0
+      }
+    }
+    cargarResumen();
+  }, []);
+
+  return (
+    <div class={style.homeBg}>
+      <div class={style.particles}></div>
+      <div class={style.homeSplitContainer}>
+        <div class={style.leftPanel}>
+          <img src={logoSSVQ} alt="Logo SSVQ" class={style.logoAnimated} />
+          <h1 class={style.titleAnimated}>Bienvenido al Gestor de Vehículos</h1>
+          <h2 class={style.subtitleAnimated}>Servicio de Salud Valparaíso - San Antonio</h2>
+          {/* Resumen de datos */}
+          <div class={style.resumenBox}>
+            <div class={style.resumenItem}>
+              <span class={style.resumenNumero}>{resumen.vehiculosDisponibles}</span>
+              <span class={style.resumenLabel}>Vehículos Disponibles</span>
+            </div>
+            <div class={style.resumenItem}>
+              <span class={style.resumenNumero}>{resumen.conductoresActivos}</span>
+              <span class={style.resumenLabel}>Conductores Activos</span>
+            </div>
+            <div class={style.resumenItem}>
+              <span class={style.resumenNumero}>{resumen.rutasActivas}</span>
+              <span class={style.resumenLabel}>Rutas Activas</span>
+            </div>
+          </div>
+          <AnimatedCarsRow />
+        </div>
+        <div class={style.rightPanel}>
+          <div class={style.tutorialBox}>
+            <h3 class={style.tutorialTitle}>¿Cómo usar la plataforma?</h3>
+            <ol class={style.tutorialList}>
+              {steps.map((step, i) => (
+                <li class={style.tutorialStep} style={{ animationDelay: `${0.3 + i * 0.2}s` }}>
+                  <span class={style.stepIcon}>{step.icon}</span>
+                  <span>{step.text}</span>
+                </li>
+              ))}
+            </ol>
+            <p class={style.tip}><b>Tip:</b> Si tienes dudas, consulta la ayuda o contacta a soporte.</p>
+            <button class={style.ctaButton}>¡Solicita tu vehículo ahora!</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default Home;

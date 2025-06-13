@@ -4,7 +4,6 @@ import { createAsignacion, updateAsignacion } from '../../services/asignacionSer
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 window.L = L;
-import style from './style.css';
 
 const REGION_VALPARAISO = "Región de Valparaíso";
 
@@ -24,7 +23,7 @@ class AsignacionForm extends Component {
     conductor_id: '',
     destino_descripcion: 'Destino pendiente',
     origen_descripcion: '',
-    fecha_hora_solicitud: '', // Se establecerá al enviar el formulario
+    fecha_hora_solicitud: '',
     fecha_hora_requerida_inicio: '',
     req_pasajeros: 1,
     req_tipo_vehiculo_preferente: '',
@@ -308,7 +307,7 @@ class AsignacionForm extends Component {
       });
   };
 
-render(props, state) {
+  render(props, state) {
     const {
       vehiculo_id, conductor_id,
       origen_descripcion, destino_descripcion,
@@ -347,7 +346,7 @@ render(props, state) {
 
     return (
       <div class={formStyle.formContainer}>
-        <button type="button" class={style.closeButton} onClick={props.onCancel}>✖</button>
+        <button type="button" class={formStyle.closeButton} onClick={props.onCancel}>✖</button>
         <h3>{props.asignacion ? 'Editar Asignación' : 'Crear Nueva Asignación'}</h3>
         {error && <p class={formStyle.error}>{error}</p>}
         {state.errores && (

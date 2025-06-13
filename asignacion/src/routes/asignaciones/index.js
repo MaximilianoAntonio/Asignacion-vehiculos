@@ -106,9 +106,36 @@ class AsignacionesPage extends Component {
   }
 
   render(_, { asignaciones, loading, error, showForm, vehiculos, conductores, detailModalAsignacion }) {
+    const estadosLabels = {
+      pendiente: 'Pendiente',
+      en_curso: 'En Curso',
+      finalizada: 'Finalizada',
+      cancelada: 'Cancelada'
+    };
+
+    const asignacionesPorEstado = asignaciones.reduce((acc, a) => {
+      acc[a.estado] = (acc[a.estado] || 0) + 1;
+      return acc;
+    }, {});
+
     return (
       <div class={style.asignacionesPage}>
         <h1>Gestión de Asignaciones</h1>
+        {/* Mueve los contadores aquí */}
+        <div class={style.estadoCounters}>
+          <span class={style.estadoFinalizada}>
+            Finalizada: {asignacionesPorEstado['finalizada'] || 0}
+          </span>
+          <span class={style.estadoEnCurso}>
+            En Curso: {asignacionesPorEstado['en_curso'] || 0}
+          </span>
+          <span class={style.estadoPendiente}>
+            Pendiente: {asignacionesPorEstado['pendiente'] || 0}
+          </span>
+          <span class={style.estadoCancelada}>
+            Cancelada: {asignacionesPorEstado['cancelada'] || 0}
+          </span>
+        </div>
         <div class={style.tableActions}>
           <button class={style.addButton} onClick={this.handleShowForm}>
             Agregar asignación
@@ -152,7 +179,14 @@ class AsignacionesPage extends Component {
                       <td>{a.origen_descripcion || '—'}</td>
                       <td>{this.formatearFecha(a.fecha_hora_requerida_inicio)}</td>
                       <td>{this.formatearFecha(a.fecha_hora_fin_prevista)}</td>
-                      <td>{a.estado}</td>
+                      <td class={
+                        a.estado === 'pendiente' ? style.estadoPendiente :
+                        a.estado === 'en_curso' ? style.estadoEnCurso :
+                        a.estado === 'finalizada' ? style.estadoFinalizada :
+                        a.estado === 'cancelada' ? style.estadoCancelada : ''
+                      }>
+                        {estadosLabels[a.estado] || a.estado}
+                      </td>
                     </tr>
                   ))
                 )}

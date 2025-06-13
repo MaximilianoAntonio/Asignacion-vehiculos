@@ -96,10 +96,32 @@ const Vehiculos = () => {
         'reservado': 'Reservado',
     };
 
+    // Contar vehículos por estado
+    const vehiculosPorEstado = vehiculos.reduce((acc, v) => {
+        acc[v.estado] = (acc[v.estado] || 0) + 1;
+        return acc;
+    }, {});
+
     return (
         <div class={style.vehiculosPage}>
             <h1>Gestión de Vehículos</h1>
             
+            {/* Contadores por estado */}
+            <div class={style.estadoCounters}>
+                <span class={style.estadoDisponible}>
+                    Disponible: {vehiculosPorEstado['disponible'] || 0}
+                </span>
+                <span class={style.estadoEnUso}>
+                    En Ruta: {vehiculosPorEstado['en_uso'] || 0}
+                </span>
+                <span class={style.estadoReservado}>
+                    Reservado: {vehiculosPorEstado['reservado'] || 0}
+                </span>
+                <span class={style.estadoMantenimiento}>
+                    Mantenimiento: {vehiculosPorEstado['mantenimiento'] || 0}
+                </span>
+            </div>
+
             <div class={style.pageLayout}>
                 <div class={style.leftColumn}>
                     <button onClick={handleAddNew} class={style.button}>
@@ -136,7 +158,14 @@ const Vehiculos = () => {
                                     <td>{vehiculo.modelo}</td>
                                     <td>{vehiculo.anio}</td>
                                     <td>{tipoVehiculoLabels[vehiculo.tipo_vehiculo] || vehiculo.tipo_vehiculo}</td>
-                                    <td>{estadoVehiculoLabels[vehiculo.estado] || vehiculo.estado}</td>
+                                    <td class={
+                                        vehiculo.estado === 'disponible' ? style.estadoDisponible :
+                                        vehiculo.estado === 'en_uso' ? style.estadoEnUso :
+                                        vehiculo.estado === 'mantenimiento' ? style.estadoMantenimiento :
+                                        vehiculo.estado === 'reservado' ? style.estadoReservado : ''
+                                    }>
+                                        {estadoVehiculoLabels[vehiculo.estado] || vehiculo.estado}
+                                    </td>
                                     <td>{vehiculo.capacidad_pasajeros}</td>
                                 </tr>
                             ))}
