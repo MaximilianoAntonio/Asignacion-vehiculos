@@ -174,7 +174,12 @@ class AsignacionesPage extends Component {
                   </tr>
                 ) : (
                   asignaciones.map(a => (
-                    <tr key={a.id} class={style.clickableRow}>
+                    <tr
+                      key={a.id}
+                      class={style.clickableRow}
+                      onClick={() => this.handleViewDetails(a)} // <-- Agrega esto
+                      style={{ cursor: 'pointer' }} // Opcional: cambia el cursor
+                    >
                       <td>{a.vehiculo?.patente || '—'}</td>
                       <td>{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
                       <td>{a.destino_descripcion}</td>
@@ -190,7 +195,12 @@ class AsignacionesPage extends Component {
                         {estadosLabels[a.estado] || a.estado}
                       </td>
                       <td>
-                        <button onClick={e => { e.stopPropagation(); this.setState({ mapaModalAsignacion: a }); }}>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation(); // Evita que el click en el botón abra el modal de detalles
+                            this.setState({ mapaModalAsignacion: a });
+                          }}
+                        >
                           Ver Mapa
                         </button>
                       </td>
@@ -202,8 +212,6 @@ class AsignacionesPage extends Component {
           </div>
           <div class={style.rightColumn}>
             {showForm ? (
-              <div class={style.formContainer}>
-                <h2>{this.state.asignacionEditando ? 'Editar Asignación' : 'Agregar Asignación'}</h2>
                 <AsignacionForm
                   asignacion={this.state.asignacionEditando}
                   onAsignacionCreada={this.handleAsignacionCreada}
@@ -212,7 +220,6 @@ class AsignacionesPage extends Component {
                   conductoresDisponibles={conductores}
                   userGroup={this.props.userGroup}
                 />
-              </div>
             ) : (
               <div class={style.formPlaceholder}>
                 <p>Seleccione "Agregar Asignación" o haga clic en una fila para ver detalles y editar.</p>
@@ -223,7 +230,23 @@ class AsignacionesPage extends Component {
 
         {detailModalAsignacion && (
           <div class={style.modalOverlay} onClick={this.handleHideDetails}>
-            <div class={style.modalContent} onClick={e => e.stopPropagation()} style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '32px' }}>
+            <div
+              class={style.modalContent}
+              onClick={e => e.stopPropagation()}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                gap: '32px',
+                minWidth: '900px'
+              }}
+            >
+              {/* Mapa a la izquierda */}
+              <div style={{ flex: '1 1 0%', minWidth: '400px', minHeight: '350px' }}>
+                <h3>Ruta en el Mapa</h3>
+                <MapView asignacion={detailModalAsignacion} />
+              </div>
+              {/* Detalles a la derecha */}
               <div style={{ flex: '1 1 0%' }}>
                 <button class={style.modalCloseButton} onClick={this.handleHideDetails}>×</button>
                 <h2>Información de la Asignación</h2>
