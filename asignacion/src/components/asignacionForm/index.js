@@ -321,7 +321,9 @@ class AsignacionForm extends Component {
     const { vehiculosDisponibles, conductoresDisponibles, userGroup } = props;
 
     // Detecta si el grupo es funcionario (insensible a mayúsculas y plural)
-    const isFuncionario = userGroup && userGroup.toLowerCase().startsWith('funcionario');
+    const isFuncionario = Array.isArray(userGroup)
+      ? userGroup.some(g => g && g.toLowerCase().includes('funcionario'))
+      : (userGroup && userGroup.toLowerCase().includes('funcionario'));
 
     const tipoVehiculoChoices = [
       { value: '', label: 'Cualquiera (opcional)' },
