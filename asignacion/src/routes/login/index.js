@@ -25,11 +25,11 @@ class LoginPage extends Component {
             .then(data => {
                 this.setState({ loading: false });
                 if (data.token) {
-                    // Guarda el grupo en localStorage
+                    // Guarda TODOS los grupos como array
                     if (data.groups && data.groups.length > 0) {
-                        localStorage.setItem('userGroup', data.groups[0]);
+                        localStorage.setItem('userGroup', JSON.stringify(data.groups));
                     } else {
-                        localStorage.setItem('userGroup', '');
+                        localStorage.setItem('userGroup', '[]');
                     }
                     // Redirigir a una página protegida o al inicio
                     route('/', true);
