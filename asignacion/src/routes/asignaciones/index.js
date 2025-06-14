@@ -3,6 +3,7 @@ import { getAsignaciones, deleteAsignacion, procesarAsignaciones } from '../../s
 import { exportAsignacionesPDF } from '../../services/pdfExportService';
 import style from './style.css';
 import AsignacionForm from '../../components/asignacionForm';
+import MapView from '../../components/MapView';
 
 class AsignacionesPage extends Component {
   state = {
@@ -159,6 +160,7 @@ class AsignacionesPage extends Component {
                   <th>Inicio</th>
                   <th>Fin Previsto</th>
                   <th>Estado</th>
+                  <th>Ver Mapa</th> {/* Nueva columna */}
                 </tr>
               </thead>
               <tbody>
@@ -172,7 +174,7 @@ class AsignacionesPage extends Component {
                   </tr>
                 ) : (
                   asignaciones.map(a => (
-                    <tr key={a.id} onClick={() => this.handleViewDetails(a)} class={style.clickableRow}>
+                    <tr key={a.id} class={style.clickableRow}>
                       <td>{a.vehiculo?.patente || '—'}</td>
                       <td>{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
                       <td>{a.destino_descripcion}</td>
@@ -186,6 +188,11 @@ class AsignacionesPage extends Component {
                         a.estado === 'cancelada' ? style.estadoCancelada : ''
                       }>
                         {estadosLabels[a.estado] || a.estado}
+                      </td>
+                      <td>
+                        <button onClick={e => { e.stopPropagation(); this.setState({ mapaModalAsignacion: a }); }}>
+                          Ver Mapa
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -234,6 +241,15 @@ class AsignacionesPage extends Component {
                   <button onClick={() => { this.handleDeleteAsignacion(detailModalAsignacion); this.handleHideDetails(); }} class={style.deleteButton}>Eliminar</button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+        {this.state.mapaModalAsignacion && (
+          <div class={style.modalOverlay} onClick={() => this.setState({ mapaModalAsignacion: null })}>
+            <div class={style.modalContent} onClick={e => e.stopPropagation()} style={{ width: '600px', height: '450px' }}>
+              <button class={style.modalCloseButton} onClick={() => this.setState({ mapaModalAsignacion: null })}>×</button>
+              <h2>Ruta en el Mapa</h2>
+              <MapView asignacion={this.state.mapaModalAsignacion} />
             </div>
           </div>
         )}

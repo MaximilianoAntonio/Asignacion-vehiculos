@@ -25,13 +25,14 @@ export default class App extends Component {
     state = {
         currentUrl: '',
         isLoggedIn: !!getToken(),
-        userGroup: localStorage.getItem('userGroup') || '', // <-- Añade esto
+        userGroup: JSON.parse(localStorage.getItem('userGroup') || '[]'), // <-- SIEMPRE array
     };
 
-
     componentDidMount() {
-        // Forzar actualización del header si el estado de login cambia (ej. al cargar la app)
-        this.setState({ isLoggedIn: !!getToken() });
+        this.setState({ 
+            isLoggedIn: !!getToken(),
+            userGroup: JSON.parse(localStorage.getItem('userGroup') || '[]'), // <-- SIEMPRE array
+        });
     }
 
     handleRoute = e => {
@@ -39,14 +40,14 @@ export default class App extends Component {
         this.setState({ 
             currentUrl: e.url, 
             isLoggedIn: !!getToken(),
-            userGroup: localStorage.getItem('userGroup') || '', // <-- Añade esto
+            userGroup: JSON.parse(localStorage.getItem('userGroup') || '[]'), // <-- SIEMPRE array
         });
     };
 
     handleLogout = () => {
         logoutUser();
-        localStorage.removeItem('userGroup'); // Limpia el grupo al salir
-        this.setState({ isLoggedIn: false, userGroup: '' });
+        localStorage.removeItem('userGroup');
+        this.setState({ isLoggedIn: false, userGroup: [] }); // <-- array vacío
         route('/login', true);
     };
 
@@ -56,15 +57,15 @@ export default class App extends Component {
                 <Header 
                     isLoggedIn={this.state.isLoggedIn} 
                     onLogout={this.handleLogout}
-                    userGroup={this.state.userGroup} // <-- Pasa el grupo aquí
+                    userGroup={this.state.userGroup} // <-- Ahora es array
                 />
                 <Router onChange={this.handleRoute}>
-            <Home path="/" />
-            <LoginPage path="/login" />
-            <PrivateRoute component={VehiculosPage} path="/vehiculos" />
-            <PrivateRoute component={ConductoresPage} path="/conductores" />
-            <PrivateRoute component={AsignacionesPage} path="/asignaciones" userGroup={this.state.userGroup} />
-        </Router>
+                    <Home path="/" />
+                    <LoginPage path="/login" />
+                    <PrivateRoute component={VehiculosPage} path="/vehiculos" />
+                    <PrivateRoute component={ConductoresPage} path="/conductores" />
+                    <PrivateRoute component={AsignacionesPage} path="/asignaciones" userGroup={this.state.userGroup} />
+                </Router>
             </div>
         );
     }

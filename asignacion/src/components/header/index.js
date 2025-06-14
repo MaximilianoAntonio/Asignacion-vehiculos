@@ -1,10 +1,11 @@
-// src/components/header/index.js
 import { h } from 'preact';
 import { Link } from 'preact-router/match';
 import style from './style.css';
 
 const Header = ({ isLoggedIn, onLogout, userGroup }) => {
-    const isFuncionario = userGroup && userGroup.toLowerCase().startsWith('funcionario');
+    const isFuncionario = Array.isArray(userGroup)
+        ? userGroup.some(g => g && g.toLowerCase().includes('funcionario'))
+        : (userGroup && userGroup.toLowerCase().includes('funcionario'));
 
     return (
         <header class={style.header}>
@@ -16,13 +17,15 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                 <Link activeClassName={style.active} href="/">Inicio</Link>
                 {isLoggedIn && (
                     <>
-                        {!isFuncionario && (
+                        {isFuncionario ? (
+                            <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
+                        ) : (
                             <>
                                 <Link activeClassName={style.active} href="/vehiculos">Vehículos</Link>
                                 <Link activeClassName={style.active} href="/conductores">Conductores</Link>
+                                <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
                             </>
                         )}
-                        <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
                     </>
                 )}
                 {isLoggedIn ? (
