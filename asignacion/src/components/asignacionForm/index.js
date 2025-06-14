@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import formStyle from '../conductorForm/style.css';
+import formStyle from './style.css';
 import { createAsignacion, updateAsignacion } from '../../services/asignacionService';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -347,19 +347,20 @@ class AsignacionForm extends Component {
     }
 
     return (
-      <div class={formStyle.formContainer}>
-        <button type="button" class={formStyle.closeButton} onClick={props.onCancel}>✖</button>
-        <h3>{props.asignacion ? 'Editar Asignación' : 'Crear Nueva Asignación'}</h3>
-        {error && <p class={formStyle.error}>{error}</p>}
-        {state.errores && (
-          <div class={formStyle.errorMsg}>
-            {Object.entries(state.errores).map(([campo, mensajes]) =>
-              mensajes.map(msg => (
-                <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
-              ))
-            )}
-          </div>
-        )}
+        <div class={formStyle.formContainer}>
+          <h2>
+            Agregar Asignación
+          </h2>
+          {error && <p class={formStyle.error}>{error}</p>}
+          {state.errores && (
+            <div class={formStyle.errorMsg}>
+              {Object.entries(state.errores).map(([campo, mensajes]) =>
+                mensajes.map(msg => (
+                  <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+                ))
+              )}
+            </div>
+          )}
         <form onSubmit={this.handleSubmit}>
 
           {/* SOLO PARA NO FUNCIONARIOS */}
@@ -511,7 +512,7 @@ class AsignacionForm extends Component {
 
           <div class={formStyle.formActions}>
             <button type="submit" disabled={submitting} class={formStyle.submitButton}>
-              {submitting ? (props.asignacion ? 'Actualizando...' : 'Creando...') : (props.asignacion ? 'Actualizar Asignación' : 'Crear Asignación')}
+              {submitting ? (props.asignacion ? 'Actualizando...' : 'Creando...') : (props.asignacion ? 'Actualizar Asignación' : 'Guardar')}
             </button>
             <button type="button" onClick={props.onCancel} class={formStyle.cancelButton} disabled={submitting}>
               Cancelar
