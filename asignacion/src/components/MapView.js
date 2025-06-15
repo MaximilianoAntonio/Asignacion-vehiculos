@@ -2,6 +2,19 @@ import { useRef, useEffect, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+const origenIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="blue" /></svg>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  popupAnchor: [0, -8]
+});
+const destinoIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="red" /></svg>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  popupAnchor: [0, -8]
+});
+
 const MapView = ({ asignacion }) => {
   const mapRef = useRef(null);
   const [routeCoords, setRouteCoords] = useState(null);
@@ -43,9 +56,9 @@ const MapView = ({ asignacion }) => {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Marcadores
-    L.marker([asignacion.origen_lat, asignacion.origen_lon]).addTo(map).bindPopup('Origen').openPopup();
-    L.marker([asignacion.destino_lat, asignacion.destino_lon]).addTo(map).bindPopup('Destino');
+    // Marcadores con íconos personalizados
+    L.marker([asignacion.origen_lat, asignacion.origen_lon], { icon: origenIcon }).addTo(map).bindPopup('Origen').openPopup();
+    L.marker([asignacion.destino_lat, asignacion.destino_lon], { icon: destinoIcon }).addTo(map).bindPopup('Destino');
 
     // Dibuja la ruta si está disponible
     if (routeCoords) {
