@@ -5,6 +5,19 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 window.L = L;
 
+const origenIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="blue" /></svg>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  popupAnchor: [0, -8]
+});
+const destinoIcon = new L.Icon({
+  iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="red" /></svg>',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  popupAnchor: [0, -8]
+});
+
 const REGION_VALPARAISO = "Región de Valparaíso";
 
 // Debounce helper
@@ -110,6 +123,24 @@ class AsignacionForm extends Component {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(this.map);
     }
+        if (this.origenMarker) {
+      this.map.removeLayer(this.origenMarker);
+      this.origenMarker = null;
+    }
+    if (this.destinoMarker) {
+      this.map.removeLayer(this.destinoMarker);
+      this.destinoMarker = null;
+    }
+    if (this.state.origen_lat && this.state.origen_lon) {
+      this.origenMarker = L.marker([this.state.origen_lat, this.state.origen_lon], { icon: origenIcon })
+        .addTo(this.map)
+        .bindPopup('Origen');
+    }
+    if (this.state.destino_lat && this.state.destino_lon) {
+      this.destinoMarker = L.marker([this.state.destino_lat, this.state.destino_lon], { icon: destinoIcon })
+        .addTo(this.map)
+        .bindPopup('Destino');
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -149,6 +180,31 @@ class AsignacionForm extends Component {
         this.map.removeLayer(this.routeLayer);
         this.routeLayer = null;
         this.setState({ distancia: null, ruta: null });
+      }
+    }
+        if (
+      (this.state.origen_lat !== prevState.origen_lat || this.state.origen_lon !== prevState.origen_lon) ||
+      (this.state.destino_lat !== prevState.destino_lat || this.state.destino_lon !== prevState.destino_lon)
+    ) {
+      // Elimina marcadores anteriores si existen
+      if (this.origenMarker) {
+        this.map.removeLayer(this.origenMarker);
+        this.origenMarker = null;
+      }
+      if (this.destinoMarker) {
+        this.map.removeLayer(this.destinoMarker);
+        this.destinoMarker = null;
+      }
+      // Agrega marcadores nuevos si hay coordenadas
+      if (this.state.origen_lat && this.state.origen_lon) {
+        this.origenMarker = L.marker([this.state.origen_lat, this.state.origen_lon], { icon: origenIcon })
+          .addTo(this.map)
+          .bindPopup('Origen');
+      }
+      if (this.state.destino_lat && this.state.destino_lon) {
+        this.destinoMarker = L.marker([this.state.destino_lat, this.state.destino_lon], { icon: destinoIcon })
+          .addTo(this.map)
+          .bindPopup('Destino');
       }
     }
   }
