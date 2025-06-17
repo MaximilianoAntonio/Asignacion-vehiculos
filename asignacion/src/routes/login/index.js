@@ -1,7 +1,7 @@
 // src/routes/login/index.js
 import { h, Component } from 'preact';
 import { route } from 'preact-router';
-import { loginUser } from '../../services/authService';
+import { loginUser, getToken } from '../../services/authService';
 import style from './style.css'; // Crearemos este archivo
 
 class LoginPage extends Component {
@@ -25,12 +25,15 @@ class LoginPage extends Component {
             .then(data => {
                 this.setState({ loading: false });
                 if (data.token) {
+                    localStorage.setItem('authToken', data.token); // <-- ADD THIS LINE
                     // Guarda TODOS los grupos como array
                     if (data.groups && data.groups.length > 0) {
                         localStorage.setItem('userGroup', JSON.stringify(data.groups));
                     } else {
                         localStorage.setItem('userGroup', '[]');
                     }
+                    // Configura axios con el token recién guardado
+                    getToken();
                     // Redirigir a una página protegida o al inicio
                     route('/', true);
                 } else {
@@ -38,12 +41,15 @@ class LoginPage extends Component {
                 }
             })
             .catch(err => {
-                console.error("Login error:", err.response);
+                this.setState({ loading: false });
+                console.error("Login error:", err.response || err.message || err);
                 let errorMessage = 'Error al iniciar sesión.';
                 if (err.response && err.response.data && err.response.data.non_field_errors) {
                     errorMessage = err.response.data.non_field_errors.join(' ');
                 } else if (err.response && err.response.status === 400) {
                      errorMessage = 'Usuario o contraseña incorrectos.';
+                } else if (err.message) {
+                    errorMessage = err.message;
                 }
                 this.setState({ error: errorMessage, loading: false });
             });

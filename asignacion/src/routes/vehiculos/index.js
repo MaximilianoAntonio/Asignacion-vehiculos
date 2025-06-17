@@ -78,7 +78,7 @@ const Vehiculos = () => {
         setDetailModalVehiculo(vehiculo);
     };
     
-    const API_BASE_URL = 'http://127.0.0.1:8000/';
+
 
     // Diccionario para mostrar los tipos de vehículo de forma más legible
     const tipoVehiculoLabels = {

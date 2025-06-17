@@ -25,14 +25,15 @@ SECRET_KEY = 'django-insecure-)i$w*5mx^2esaf$)+oarmvtbf@)-15q(#3#avi@zbw%bqewr5k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080", # Puerto común para Preact dev server
-    "http://127.0.0.1:8080",
+# CORS
+# en lugar de CORS_ALLOWED_ORIGINS = [...], usa un regex que acepte cualquier IP en el puerto 8080
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https?://\d+\.\d+\.\d+\.\d+:8000$",
 ]
-
-CORS_ALLOW_ALL_ORIGINS = True
+# opcionalmente desactiva allow-all si quieres ceñirte al regex
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 
 # Application definition

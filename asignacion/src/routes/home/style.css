@@ -1,352 +1,348 @@
+:root {
+  --bg-main: #F9FAFB;
+  --bg-card: #FFFFFF;
+  --accent-primary: #2563EB;
+  --accent-primary-darker: #1D4ED8;
+  --accent-secondary: #60A5FA;
+  --text-primary: #1F2937;
+  --text-secondary: #4B5563;
+  --border-color: #D1D5DB;
+  --shadow-soft: 0 4px 8px rgba(0,0,0,0.04);
+  --shadow-medium: 0 6px 12px rgba(37,99,235,0.1);
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --gradient-bg: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+}
+
+/* Reglas globales opcionales */
+* { box-sizing: border-box; margin:0; padding:0; }
+body { font-family: var(--font-primary); background: var(--bg-main); color: var(--text-primary); }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  font-family: var(--font-primary);
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #E5E7EB; /* Light gray-blue track */
+}
+::-webkit-scrollbar-thumb {
+  background: #9CA3AF; /* Medium gray-blue thumb */
+  border-radius: var(--border-radius-sm);
+  border: 2px solid #E5E7EB;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6B7280; /* Darker gray-blue thumb hover */
+}
+
+/* FULLSCREEN BG */
 .homeBg {
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+  background: var(--gradient-bg);
   display: flex;
-  align-items: flex-start; /* MODIFICADO: Alinea .homeSplitContainer arriba dentro de .homeBg */
-  justify-content: center; /* Mantiene .homeSplitContainer centrado horizontalmente */
+  justify-content: center;
+  align-items: center;
   position: relative;
-  overflow: hidden;
-  padding-top: 4rem; /* AÑADIDO: Espacio superior controlado. Puedes ajustar este valor (e.g., 2rem, 3rem, 5rem) */
+  overflow-x: hidden;
+  padding: 2rem;
 }
 
-.particles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image: radial-gradient(circle at 20% 30%, #ffd70033 0 8%, transparent 60%),
-    radial-gradient(circle at 80% 70%, #4e437622 0 10%, transparent 60%),
-    radial-gradient(circle at 60% 20%, #2b587622 0 7%, transparent 60%);
-  animation: bgMove 8s linear infinite alternate;
-}
-@keyframes bgMove {
-  0% {
-    background-position: 20% 30%, 80% 70%, 60% 20%;
-  }
-  100% {
-    background-position: 25% 35%, 75% 65%, 65% 25%;
-  }
-}
-
+/* SPLIT CONTAINER */
 .homeSplitContainer {
-  position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: row;
-  align-items: center; /* Esto alinea .leftPanel y .rightPanel verticalmente entre sí */
-  justify-content: center;
-  min-height: 80vh; /* Puedes mantener esto si deseas que el contenedor dividido tenga una altura mínima */
   width: 90vw;
-  max-width: 1200px;
-  gap: 3rem;
-  /* Considera añadir margin-top: 0; si sospechas que .homeSplitContainer tiene un margen superior propio */
+  max-width: 1280px;
+  gap: 2.5rem;
+  align-items: flex-start;
+  height: auto;
 }
 
+/* PANELS */
 .leftPanel {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1 1 0;
-  min-width: 320px;
+  padding: 0 1rem;
 }
-
 .rightPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0 1rem;
+}
+
+/* LOGO & HEADINGS */
+.logoAnimated {
+  width: 150px;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+.titleAnimated {
+  font-size: 2.5rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.subtitleAnimated {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* RESUMEN BOX */
+.resumenBox {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto 2rem;
+}
+.resumenItem {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-primary); /* Uses new primary blue */
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-medium);
+  padding: 1rem 1.25rem;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 1 1 0;
-  min-width: 340px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex-grow: 1;
+  flex-basis: 140px;
+  min-width: 130px;
+  max-width: 180px;
+}
+.resumenItem:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+.resumenNumero {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-primary); /* Uses new primary blue */
+}
+.resumenLabel {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.4rem;
+}
+.resumenIcon {
+  font-size: 1.6rem;
+  margin-bottom: 0.6rem;
+  /* color: var(--accent-primary); // Icons in resumenItem are text, will inherit or can be set */
 }
 
-.logoAnimated {
-  width: 140px;
-  margin-bottom: 1.2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  animation: logoPop 1.1s cubic-bezier(.68,-0.55,.27,1.55);
+/* CARS ROW (FRAMER MOTION) */
+.carsRow {
+  width: 220px;
+  height: 45px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto 1.5rem;
 }
-@keyframes logoPop {
-  0% {
-    opacity: 0;
-    transform: scale(0.7) rotate(-10deg);
-  }
-  80% {
-    opacity: 1;
-    transform: scale(1.1) rotate(2deg);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
+.carWrapper {
+  position: absolute;
+  top: 0;
 }
-
-.titleAnimated {
-  font-size: 2.3rem;
-  color: #2b5876;
-  font-weight: bold;
-  letter-spacing: 1px;
-  margin-bottom: 0.5rem;
-  animation: fadeInDown 1.2s;
-  text-align: center; /* <-- Añadido */
-  width: 100%;        /* <-- Añadido para asegurar centrado */
-}
-
-.subtitleAnimated {
-  font-size: 1.3rem;
-  color: #4e4376;
-  margin-bottom: 1.2rem;
-  animation: fadeInDown 1.5s;
-  text-align: center; /* <-- Añadido */
-  width: 100%;        /* <-- Añadido para asegurar centrado */
-}
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animatedCar {
-  margin: 1.2rem 0 1.5rem 0;
-  display: block;
-  animation: carBounce 2.2s infinite;
-}
-@keyframes carBounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-18px);
-  }
-}
-
-.tutorialBox {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(44, 62, 80, 0.1);
-  padding: 2.2rem 2.5rem 2rem 2.5rem;
-  margin-top: 1.5rem;
-  max-width: 420px;
+.carSvg {
   width: 100%;
-  animation: fadeIn 2s;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* TUTORIAL BOX */
+.tutorialBox {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-medium);
+  padding: 2rem;
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
 }
-
+.tutorialBox::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-primary-darker)); /* Uses new blue gradient */
+  border-top-left-radius: var(--border-radius-md);
+  border-top-right-radius: var(--border-radius-md);
+}
 .tutorialTitle {
-  color: #2b5876;
-  margin-bottom: 1.2rem;
-  font-size: 1.25rem;
-  font-weight: bold;
-  letter-spacing: 0.5px;
+  color: var(--text-primary);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: .2px;
+  margin-bottom: 1.5rem;
 }
-
 .tutorialList {
-  margin-left: 1.2rem;
-  margin-bottom: 1rem;
   padding: 0;
+  list-style: none;
+  max-height: none;
+  overflow: visible;
+  margin-bottom: 1.5rem;
 }
-
 .tutorialStep {
   display: flex;
-  align-items: center;
-  margin-bottom: 0.7rem;
-  font-size: 1.08rem;
-  opacity: 0;
-  animation: stepFadeIn 0.7s forwards;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  gap: 0.75rem;
+  line-height: 1.5;
 }
-.tutorialStep:nth-child(1) {
-  animation-delay: 0.3s;
-}
-.tutorialStep:nth-child(2) {
-  animation-delay: 0.5s;
-}
-.tutorialStep:nth-child(3) {
-  animation-delay: 0.7s;
-}
-.tutorialStep:nth-child(4) {
-  animation-delay: 0.9s;
-}
-.tutorialStep:nth-child(5) {
-  animation-delay: 1.1s;
-}
-
-@keyframes stepFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .stepIcon {
-  font-size: 1.3rem;
-  margin-right: 0.7rem;
-  transition: transform 0.2s;
+  font-size: 1.25rem;
+  color: var(--accent-primary); /* Uses new primary blue */
+  margin-right: 0.5rem;
+  margin-top: 0.1em;
+  transition: transform .2s ease-in-out;
 }
 .tutorialStep:hover .stepIcon {
   transform: scale(1.2) rotate(-10deg);
 }
-
 .tip {
-  color: #4e4376;
-  font-size: 1rem;
-  margin-top: 0.5rem;
-  font-style: italic;
-  opacity: 0.8;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-style: normal;
+  opacity: .9;
+  padding: 0.75rem;
+  background-color: #EFF6FF; /* Lighter blue for tip background */
+  border-radius: var(--border-radius-sm);
+  border-left: 3px solid var(--accent-secondary); /* Uses new secondary blue */
+  margin-bottom: 1.5rem;
 }
-
 .ctaButton {
-  margin-top: 1.2rem;
   width: 100%;
-  padding: 0.9rem;
-  background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
+  padding: 0.85rem 1rem;
+  background: var(--accent-primary); /* Uses new primary blue */
   color: #fff;
   border: none;
-  border-radius: 8px;
-  font-size: 1.15rem;
-  font-weight: bold;
+  border-radius: var(--border-radius-sm);
+  font-size: 1.05rem;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-  transition: background 0.2s, transform 0.2s;
-  animation: fadeIn 2.5s;
+  box-shadow: var(--shadow-soft);
+  transition: background-color .2s ease-in-out, transform .2s ease-in-out, box-shadow .2s ease-in-out;
 }
 .ctaButton:hover {
-  background: linear-gradient(90deg, #ffd700 0%, #4e4376 100%);
-  color: #2b5876;
-  transform: scale(1.04);
+  background: var(--accent-primary-darker); /* Uses new darker blue */
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
 }
 
-.carsRow {
-  width: 220px;
-  height: 40px;
-  position: relative;
-  margin-bottom: 1.2rem;
-  margin-top: 1rem; /* Ajusta este valor según necesites */
-  display: flex;
-  justify-content: flex-start;
-  align-items: flex-end;
-  overflow: visible;
-}
-
-.carWrapper {
-  position: absolute;
-  left: -80px;
-  top: 0;
-  animation: carMove 2.5s cubic-bezier(.7,.1,.3,1) infinite;
-}
-
-.carWrapper:nth-child(2) {
-  animation-duration: 2.8s;
-}
-.carWrapper:nth-child(3) {
-  animation-duration: 2.2s;
-}
-
-@keyframes carMove {
-  0% {
-    left: -80px;
-    opacity: 0;
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .homeSplitContainer {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    width: 95vw;
   }
-  10% {
-    opacity: 1;
+  .leftPanel, .rightPanel {
+    width: 100%;
+    max-width: 600px;
+    padding: 0;
   }
-  80% {
-    opacity: 1;
+  .titleAnimated {
+    font-size: 2.2rem;
   }
-  100% {
-    left: 240px;
-    opacity: 0;
+  .subtitleAnimated {
+    font-size: 1.1rem;
+  }
+  .resumenBox {
+    gap: 1rem;
+  }
+  .resumenItem {
+    min-width: 140px; /* This is fine, but flex-basis on larger screens governs initial size */
+    padding: 1rem 1.25rem;
   }
 }
 
-.carSvg {
-  width: 70px;
-  height: 32px;
-  filter: drop-shadow(0 2px 6px #b2bec3aa);
+@media (max-width: 768px) {
+  .homeBg {
+    padding: 1rem;
+  }
+  .homeSplitContainer {
+    gap: 1.5rem;
+    width: 100%;
+  }
+  .titleAnimated {
+    font-size: 2rem;
+  }
+  .subtitleAnimated {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+  .resumenBox {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 2rem;
+    max-width: 100%;
+  }
+  .resumenItem {
+    flex-basis: auto;
+    width: 100%;
+    /* min-width can be removed here as width:100% takes precedence */
+  }
+  .tutorialTitle {
+    font-size: 1.2rem;
+  }
+  .tutorialStep {
+    font-size: 0.95rem;
+  }
+  .ctaButton {
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
 }
 
+/* Panel specific scrollbars (if internal scroll is ever needed) */
+.leftPanel::-webkit-scrollbar,
+.rightPanel::-webkit-scrollbar {
+  width: 6px;
+}
+.leftPanel::-webkit-scrollbar-thumb,
+.rightPanel::-webkit-scrollbar-thumb {
+  background: var(--accent-secondary); /* Lighter blue for panel scroll thumbs */
+  border-radius: var(--border-radius-sm);
+}
+
+/* Car animation dust effect */
 .dust {
-  opacity: 0.7;
-  animation: dustPuff 0.5s linear infinite;
-}
-
-.carWrapper:nth-child(1) .dust {
-  animation-delay: 0s;
-}
-.carWrapper:nth-child(2) .dust {
-  animation-delay: 0.2s;
-}
-.carWrapper:nth-child(3) .dust {
-  animation-delay: 0.4s;
-}
-
-@keyframes dustPuff {
-  0% { opacity: 0.7; transform: scaleX(1) scaleY(1);}
-  50% { opacity: 0.4; transform: scaleX(1.3) scaleY(1.2);}
-  100% { opacity: 0; transform: scaleX(1.5) scaleY(1.3);}
-}
-
-.resumenBox {
-  display: flex;
-  gap: 32px;
-  margin: 32px 0 24px 0;
-  justify-content: center;
-}
-.resumenItem {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  padding: 18px 32px;
-  text-align: center;
-  min-width: 140px;
-  border: 2px solid #e3eafc;
-}
-.resumenNumero {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #007bff;
-  display: block;
-}
-.resumenLabel {
-  font-size: 1.1rem;
-  color: #333;
-  margin-top: 6px;
-  display: block;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-    .homeSplitContainer {
-        flex-direction: column;
-        gap: 1.5rem;
-        min-height: unset;
-        width: 98vw;
-    }
-    .leftPanel, .rightPanel {
-        min-width: 0;
-        width: 100%;
-        align-items: center;
-    }
-    .tutorialBox {
-        margin-top: 0.5rem;
-    }
+  opacity: 0.45 !important; /* Retained !important as it might be overriding inline SVG styles or Framer Motion opacity */
 }

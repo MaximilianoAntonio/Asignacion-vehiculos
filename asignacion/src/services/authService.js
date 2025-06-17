@@ -7,18 +7,23 @@ const LOGIN_API_URL = `${API_BASE_URL}/get-token/`; // Corresponde al endpoint d
 // Variable para almacenar el token globalmente (o usar localStorage/contexto Preact)
 let authToken = null;
 
-export const loginUser = (credentials) => {
-    return axios.post(LOGIN_API_URL, credentials)
-        .then(response => {
-            if (response.data.token) {
-                authToken = response.data.token;
-                // Opcional: Guardar el token en localStorage para persistencia
-                localStorage.setItem('authToken', authToken);
-                axios.defaults.headers.common['Authorization'] = `Token ${authToken}`;
-            }
-            return response.data;
-        });
-};
+export async function loginUser({ username, password }) {
+    const response = await fetch(LOGIN_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        const error = new Error('Login failed');
+        error.response = { status: response.status, data: errorData };
+        throw error;
+    }
+    return response.json();
+}
 
 export const logoutUser = () => {
     authToken = null;
