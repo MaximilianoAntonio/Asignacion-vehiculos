@@ -106,6 +106,16 @@ class AsignacionesPage extends Component {
     return `${dia} / ${mes.charAt(0).toUpperCase() + mes.slice(1)} / ${hora}`;
   }
 
+  acortarDireccion(direccion) {
+    if (!direccion) return '—';
+    // Devuelve la parte hasta la cuarta coma (incluida), o toda si hay menos de 4 comas
+    const partes = direccion.split(',');
+    if (partes.length > 4) {
+      return partes.slice(0, 4).join(',').trim();
+    }
+    return direccion.trim();
+  }
+
   render(_, { asignaciones, loading, error, showForm, vehiculos, conductores, detailModalAsignacion }) {
     const estadosLabels = {
       pendiente: 'Pendiente',
@@ -155,35 +165,35 @@ class AsignacionesPage extends Component {
                 <tr>
                   <th>Vehículo</th>
                   <th>Conductor</th>
-                  <th>Destino</th>
                   <th>Origen</th>
+                  <th>Destino</th>
                   <th>Inicio</th>
                   <th>Fin Previsto</th>
                   <th>Estado</th>
-                  <th>Ver Mapa</th> {/* Nueva columna */}
+                  {/* <th>Ver Mapa</th>  Eliminado */} 
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan="8">Cargando asignaciones...</td></tr>
+                  <tr><td colSpan="7">Cargando asignaciones...</td></tr>
                 ) : error ? (
-                  <tr><td colSpan="8" style={{ color: 'red' }}>{error}</td></tr>
+                  <tr><td colSpan="7" style={{ color: 'red' }}>{error}</td></tr>
                 ) : asignaciones.length === 0 ? (
                   <tr>
-                    <td colSpan="8">No hay asignaciones registradas.</td>
+                    <td colSpan="7">No hay asignaciones registradas.</td>
                   </tr>
                 ) : (
                   asignaciones.map(a => (
                     <tr
                       key={a.id}
                       class={style.clickableRow}
-                      onClick={() => this.handleViewDetails(a)} // <-- Agrega esto
-                      style={{ cursor: 'pointer' }} // Opcional: cambia el cursor
+                      onClick={() => this.handleViewDetails(a)}
+                      style={{ cursor: 'pointer' }}
                     >
                       <td>{a.vehiculo?.patente || '—'}</td>
                       <td>{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
-                      <td>{a.destino_descripcion}</td>
-                      <td>{a.origen_descripcion || '—'}</td>
+                      <td>{this.acortarDireccion(a.origen_descripcion)}</td>
+                      <td>{this.acortarDireccion(a.destino_descripcion)}</td>
                       <td>{this.formatearFecha(a.fecha_hora_requerida_inicio)}</td>
                       <td>{this.formatearFecha(a.fecha_hora_fin_prevista)}</td>
                       <td class={
@@ -194,16 +204,7 @@ class AsignacionesPage extends Component {
                       }>
                         {estadosLabels[a.estado] || a.estado}
                       </td>
-                      <td>
-                        <button
-                          onClick={e => {
-                            e.stopPropagation(); // Evita que el click en el botón abra el modal de detalles
-                            this.setState({ mapaModalAsignacion: a });
-                          }}
-                        >
-                          Ver Mapa
-                        </button>
-                      </td>
+                      {/* Botón de Ver Mapa eliminado */}
                     </tr>
                   ))
                 )}
@@ -253,8 +254,8 @@ class AsignacionesPage extends Component {
                 <div class={style.modalDetails}>
                   <p><strong>Vehículo:</strong> {detailModalAsignacion.vehiculo?.patente || '—'}</p>
                   <p><strong>Conductor:</strong> {detailModalAsignacion.conductor ? `${detailModalAsignacion.conductor.nombre} ${detailModalAsignacion.conductor.apellido}` : '—'}</p>
-                  <p><strong>Destino:</strong> {detailModalAsignacion.destino_descripcion}</p>
-                  <p><strong>Origen:</strong> {detailModalAsignacion.origen_descripcion || '—'}</p>
+                  <p><strong>Origen:</strong> {this.acortarDireccion(detailModalAsignacion.origen_descripcion)}</p>
+                  <p><strong>Destino:</strong> {this.acortarDireccion(detailModalAsignacion.destino_descripcion)}</p>
                   <p><strong>Inicio:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_requerida_inicio)}</p>
                   <p><strong>Fin Previsto:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_fin_prevista)}</p>
                   <p><strong>Estado:</strong> {detailModalAsignacion.estado}</p>

@@ -1,8 +1,7 @@
 .formContainer {
-  border: 3px solid #111111;
-  position: relative;
+  border: 1.5px solid #e0e0e0;
+  background: #fafafa;
   border-radius: 12px;
-  background: #fff;
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
   padding: 28px 24px 20px 24px;
   max-width: 480px;
@@ -10,7 +9,7 @@
 }
 
 .formContainer h2, .formContainer h3 {
-  border-bottom: 1px solid #111111;
+  border-bottom: 2.5px solid #1976d2;
   color: #222;
   font-size: 2rem;
   font-weight: 700;
@@ -19,7 +18,7 @@
 }
 
 .formGroup {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
   position: relative;
 }
 
@@ -41,17 +40,26 @@
 .formGroup textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #bbb;
-  border-radius: 5px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
   box-sizing: border-box;
-  background: #fdfdfd;
+  background: #fff;
   color: #222;
   font-size: 15px;
+  transition: border-color 0.2s;
 }
 
-.formGroup input::placeholder,
-.formGroup textarea::placeholder {
-  color: #888;
+.formGroup input[type="text"]:focus,
+.formGroup input[type="date"]:focus,
+.formGroup input[type="tel"]:focus,
+.formGroup input[type="email"]:focus,
+.formGroup input[type="number"]:focus,
+.formGroup input[type="file"]:focus,
+.formGroup input[type="datetime-local"]:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  border-color: #1976d2;
+  outline: none;
 }
 
 .formActions {
@@ -70,13 +78,13 @@
 }
 
 .submitButton {
-  background: #f2f2f2;
+  background-color: #fdfdfd;
   color: #222;
 }
 
 .submitButton:disabled {
-  background: #ffd600;
-  color: #222;
+  background: #90caf9;
+  color: #fff;
 }
 
 .cancelButton {

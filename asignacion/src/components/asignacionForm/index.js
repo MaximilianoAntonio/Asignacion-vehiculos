@@ -403,127 +403,63 @@ class AsignacionForm extends Component {
     }
 
     return (
-        <div class={formStyle.formContainer}>
-          <h2>
-            Agregar Asignación
-          </h2>
-          {error && <p class={formStyle.error}>{error}</p>}
-          {state.errores && (
-            <div class={formStyle.errorMsg}>
-              {Object.entries(state.errores).map(([campo, mensajes]) =>
-                mensajes.map(msg => (
-                  <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
-                ))
-              )}
-            </div>
+    <div class={formStyle.formContainer}>
+      <h2>
+        Agregar Asignación
+      </h2>
+      {error && <p class={formStyle.error}>{error}</p>}
+      {state.errores && (
+        <div class={formStyle.errorMsg}>
+          {Object.entries(state.errores).map(([campo, mensajes]) =>
+            mensajes.map(msg => (
+              <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+            ))
           )}
-        <form onSubmit={this.handleSubmit}>
+        </div>
+      )}
+    <form onSubmit={this.handleSubmit}>
 
-          {/* SOLO PARA NO FUNCIONARIOS */}
-          {!isFuncionario && (
-            <>
-              <div class={formStyle.formGroup}>
-                <label htmlFor="req_tipo_vehiculo_preferente">Tipo Vehículo Preferente (opcional):</label>
-                <select name="req_tipo_vehiculo_preferente" id="req_tipo_vehiculo_preferente" value={req_tipo_vehiculo_preferente} onInput={this.handleChange}>
-                  {tipoVehiculoChoices.map(choice => (
-                    <option key={choice.value} value={choice.value}>{choice.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="vehiculo_id">Vehículo (Opcional):</label>
-                <select name="vehiculo_id" id="vehiculo_id" value={vehiculo_id} onInput={this.handleChange}>
-                  <option value="">-- Seleccionar Vehículo --</option>
-                  {vehiculosFiltrados.map(v => (
-                    <option key={v.id} value={v.id}>
-                      {v.marca} {v.modelo} ({v.patente}) - {v.estado}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="conductor_id">Conductor (Opcional):</label>
-                <select name="conductor_id" id="conductor_id" value={conductor_id} onInput={this.handleChange}>
-                  <option value="">-- Seleccionar Conductor --</option>
-                  {conductoresDisponibles && conductoresDisponibles.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre} {c.apellido} ({c.estado_disponibilidad})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="fecha_hora_fin_prevista">Fecha y Hora Fin Prevista (opcional):</label>
-                <input type="datetime-local" name="fecha_hora_fin_prevista" id="fecha_hora_fin_prevista"
-                  value={state.fecha_hora_fin_prevista || ''} onInput={this.handleChange} />
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="fecha_hora_fin_real">Fecha y Hora Fin Real (opcional):</label>
-                <input type="datetime-local" name="fecha_hora_fin_real" id="fecha_hora_fin_real"
-                  value={state.fecha_hora_fin_real || ''} onInput={this.handleChange} />
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="observaciones">Observaciones (opcional):</label>
-                <textarea name="observaciones" id="observaciones" value={observaciones} onInput={this.handleChange} />
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="estado">Estado:</label>
-                <select name="estado" id="estado" value={estado} onInput={this.handleChange}>
-                  {estadoChoices.map(choice => (
-                    <option key={choice.value} value={choice.value}>{choice.label}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
-
-          {/* CAMPOS SIEMPRE VISIBLES */}
-          <div style="margin-bottom:1em;">
-            <div id="map" style="height: 300px; width: 100%;"></div>
-            {state.distancia && <p>Distancia estimada: {state.distancia}</p>}
+      {/* SOLO PARA NO FUNCIONARIOS */}
+      {!isFuncionario && (
+        <>
+          <div class={formStyle.formGroup}>
+            <label htmlFor="req_tipo_vehiculo_preferente">Tipo Vehículo Preferente (opcional):</label>
+            <select name="req_tipo_vehiculo_preferente" id="req_tipo_vehiculo_preferente" value={req_tipo_vehiculo_preferente} onInput={this.handleChange}>
+              {tipoVehiculoChoices.map(choice => (
+                <option key={choice.value} value={choice.value}>{choice.label}</option>
+              ))}
+            </select>
           </div>
 
-          <fieldset class={formStyle.formGroup}>
-            <legend>Origen (Región: Valparaíso)</legend>
-            <label htmlFor="origen_descripcion">Descripción:</label>
-            <input type="text" name="origen_descripcion" id="origen_descripcion"
-              value={origen_descripcion}
-              onInput={e => this.handleCalleInputChange('origen', e)}
-              autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
-            {this.state.origen_calle_sugerencias && this.state.origen_calle_sugerencias.length > 0 && (
-              <ul class={formStyle.suggestionsList}>
-                {this.state.origen_calle_sugerencias.map(sug => (
-                  <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('origen', sug)}>
-                    {sug.display_name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </fieldset>
+          <div class={formStyle.formGroup}>
+            <label htmlFor="vehiculo_id">Vehículo (Opcional):</label>
+            <select name="vehiculo_id" id="vehiculo_id" value={vehiculo_id} onInput={this.handleChange}>
+              <option value="">-- Seleccionar Vehículo --</option>
+              {vehiculosFiltrados.map(v => (
+                <option key={v.id} value={v.id}>
+                  {v.marca} {v.modelo} ({v.patente}) - {v.estado}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <fieldset class={formStyle.formGroup}>
-            <legend>Destino (Región: Valparaíso)</legend>
-            <label htmlFor="destino_descripcion">Descripción:</label>
-            <input type="text" name="destino_descripcion" id="destino_descripcion"
-              value={destino_descripcion}
-              onInput={e => this.handleCalleInputChange('destino', e)}
-              autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
-            {this.state.destino_calle_sugerencias && this.state.destino_calle_sugerencias.length > 0 && (
-              <ul class={formStyle.suggestionsList}>
-                {this.state.destino_calle_sugerencias.map(sug => (
-                  <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('destino', sug)}>
-                    {sug.display_name}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </fieldset>
+          <div class={formStyle.formGroup}>
+            <label htmlFor="conductor_id">Conductor (Opcional):</label>
+            <select name="conductor_id" id="conductor_id" value={conductor_id} onInput={this.handleChange}>
+              <option value="">-- Seleccionar Conductor --</option>
+              {conductoresDisponibles && conductoresDisponibles.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre} {c.apellido} ({c.estado_disponibilidad})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div class={formStyle.formGroup}>
+            <label htmlFor="fecha_hora_fin_prevista">Fecha y Hora Fin Prevista (opcional):</label>
+            <input type="datetime-local" name="fecha_hora_fin_prevista" id="fecha_hora_fin_prevista"
+              value={state.fecha_hora_fin_prevista || ''} onInput={this.handleChange} />
+          </div>
 
           <div class={formStyle.formGroup}>
             <label htmlFor="fecha_hora_requerida_inicio">Fecha y Hora Requerida Inicio:</label>
@@ -537,47 +473,115 @@ class AsignacionForm extends Component {
               onInput={this.handleChange} min="1" required />
           </div>
 
+          {/* Elimina este bloque duplicado de conductor */}
+          {/*
           <div class={formStyle.formGroup}>
-            <label htmlFor="req_caracteristicas_especiales">Requerimientos Especiales (opcional):</label>
-            <textarea name="req_caracteristicas_especiales" id="req_caracteristicas_especiales"
-              value={req_caracteristicas_especiales} onInput={this.handleChange} />
-          </div>
-
-          <div class={formStyle.formGroup}>
-            <label htmlFor="solicitante_jerarquia">Jerarquía del Solicitante:</label>
-            <select name="solicitante_jerarquia" id="solicitante_jerarquia" value={solicitante_jerarquia}
-              onInput={this.handleChange}>
-              <option value="0">Otro/No especificado</option>
-              <option value="1">Funcionario</option>
-              <option value="2">Coordinación/Referente</option>
-              <option value="3">Jefatura/Subdirección</option>
+            <label htmlFor="conductor_id">Conductor (Opcional):</label>
+            <select name="conductor_id" id="conductor_id" value={conductor_id} onInput={this.handleChange}>
+              <option value="">-- Seleccionar Conductor --</option>
+              {conductoresDisponibles && conductoresDisponibles.map(c => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre} {c.apellido} ({c.estado_disponibilidad})
+                </option>
+              ))}
             </select>
           </div>
+          */}
 
           <div class={formStyle.formGroup}>
-            <label htmlFor="solicitante_nombre">Nombre del Solicitante:</label>
-            <input type="text" name="solicitante_nombre" id="solicitante_nombre" value={solicitante_nombre}
-              onInput={this.handleChange} />
+            <label htmlFor="estado">Estado:</label>
+            <select name="estado" id="estado" value={estado} onInput={this.handleChange}>
+              {estadoChoices.map(choice => (
+                <option key={choice.value} value={choice.value}>{choice.label}</option>
+              ))}
+            </select>
           </div>
+        </>
+      )}
 
-          <div class={formStyle.formGroup}>
-            <label htmlFor="solicitante_telefono">Teléfono del Solicitante:</label>
-            <input type="text" name="solicitante_telefono" id="solicitante_telefono" value={solicitante_telefono}
-              onInput={this.handleChange} />
-          </div>
-
-          <div class={formStyle.formActions}>
-            <button type="submit" disabled={submitting} class={formStyle.submitButton}>
-              {submitting ? (props.asignacion ? 'Actualizando...' : 'Creando...') : (props.asignacion ? 'Actualizar Asignación' : 'Guardar')}
-            </button>
-            <button type="button" onClick={props.onCancel} class={formStyle.cancelButton} disabled={submitting}>
-              Cancelar
-            </button>
-          </div>
-
-        </form>
+      {/* CAMPOS SIEMPRE VISIBLES */}
+      <div style="margin-bottom:1em;">
+        <div id="map" style="height: 300px; width: 100%;"></div>
+        {state.distancia && <p>Distancia estimada: {state.distancia}</p>}
       </div>
-    );
+
+      <fieldset class={formStyle.formGroup}>
+        <legend>Origen (Región: Valparaíso)</legend>
+        <label htmlFor="origen_descripcion">Descripción:</label>
+        <input type="text" name="origen_descripcion" id="origen_descripcion"
+          value={origen_descripcion}
+          onInput={e => this.handleCalleInputChange('origen', e)}
+          autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
+        {this.state.origen_calle_sugerencias && this.state.origen_calle_sugerencias.length > 0 && (
+          <ul class={formStyle.suggestionsList}>
+            {this.state.origen_calle_sugerencias.map(sug => (
+              <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('origen', sug)}>
+                {sug.display_name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </fieldset>
+
+      <fieldset class={formStyle.formGroup}>
+        <legend>Destino (Región: Valparaíso)</legend>
+        <label htmlFor="destino_descripcion">Descripción:</label>
+        <input type="text" name="destino_descripcion" id="destino_descripcion"
+          value={destino_descripcion}
+          onInput={e => this.handleCalleInputChange('destino', e)}
+          autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
+        {this.state.destino_calle_sugerencias && this.state.destino_calle_sugerencias.length > 0 && (
+          <ul class={formStyle.suggestionsList}>
+            {this.state.destino_calle_sugerencias.map(sug => (
+              <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('destino', sug)}>
+                {sug.display_name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </fieldset>
+
+      <div class={formStyle.formGroup}>
+        <label htmlFor="req_caracteristicas_especiales">Requerimientos Especiales (opcional):</label>
+        <textarea name="req_caracteristicas_especiales" id="req_caracteristicas_especiales"
+          value={req_caracteristicas_especiales} onInput={this.handleChange} />
+      </div>
+
+      <div class={formStyle.formGroup}>
+        <label htmlFor="solicitante_jerarquia">Jerarquía del Solicitante:</label>
+        <select name="solicitante_jerarquia" id="solicitante_jerarquia" value={solicitante_jerarquia}
+          onInput={this.handleChange}>
+          <option value="0">Otro/No especificado</option>
+          <option value="1">Funcionario</option>
+          <option value="2">Coordinación/Referente</option>
+          <option value="3">Jefatura/Subdirección</option>
+        </select>
+      </div>
+
+      <div class={formStyle.formGroup}>
+        <label htmlFor="solicitante_nombre">Nombre del Solicitante:</label>
+        <input type="text" name="solicitante_nombre" id="solicitante_nombre" value={solicitante_nombre}
+          onInput={this.handleChange} />
+      </div>
+
+      <div class={formStyle.formGroup}>
+        <label htmlFor="solicitante_telefono">Teléfono del Solicitante:</label>
+        <input type="text" name="solicitante_telefono" id="solicitante_telefono" value={solicitante_telefono}
+          onInput={this.handleChange} />
+      </div>
+
+      <div class={formStyle.formActions}>
+        <button type="submit" disabled={submitting} class={formStyle.submitButton}>
+          {submitting ? (props.asignacion ? 'Actualizando...' : 'Creando...') : (props.asignacion ? 'Actualizar Asignación' : 'Guardar')}
+        </button>
+        <button type="button" onClick={props.onCancel} class={formStyle.cancelButton} disabled={submitting}>
+          Cancelar
+        </button>
+      </div>
+
+    </form>
+  </div>
+);
   }
 }
 
