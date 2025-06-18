@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 // Función para formatear fecha como "11 / Junio / 14:30"
 export function formatearFecha(fechaStr) {
@@ -29,26 +29,62 @@ export function exportTurnosPDF(conductor, turnos, reportPeriod) {
     doc.setTextColor(100);
     doc.text(`Período del ${reportPeriod.start} al ${reportPeriod.end}`, 14, 30);
 
-    const tableColumn = ["Fecha", "Inicio Turno", "Fin Turno", "Duración"];
+    const tableColumn = ["Inicio Turno", "Fin Turno", "Duración"];
     const tableRows = [];
+    let totalDurationMs = 0;
+    let lastDateStr = null;
 
     turnos.forEach(turno => {
+        const startStr = turno.start?.fecha_hora;
+        const endStr = turno.end?.fecha_hora;
+        const turnoDate = startStr || endStr;
+
+        if (turnoDate) {
+            const date = new Date(turnoDate);
+            const currentDateStr = date.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            if (currentDateStr !== lastDateStr) {
+                tableRows.push([{
+                    content: currentDateStr,
+                    colSpan: 3,
+                    styles: { fontStyle: 'bold', fillColor: '#f0f0f0', textColor: '#333', halign: 'center' }
+                }]);
+                lastDateStr = currentDateStr;
+            }
+        }
+
+        if (startStr && endStr) {
+            const startDate = new Date(startStr);
+            const endDate = new Date(endStr);
+            if (endDate > startDate) {
+                totalDurationMs += endDate - startDate;
+            }
+        }
+
         const turnoData = [
-            formatDate(turno.start),
-            formatTime(turno.start),
-            formatTime(turno.end),
+            formatTime(startStr),
+            formatTime(endStr),
             turno.duration || 'En curso'
         ];
         tableRows.push(turnoData);
     });
 
-    doc.autoTable({
+    autoTable(doc, {
         head: [tableColumn],
         body: tableRows,
         startY: 35,
         theme: 'striped',
         headStyles: { fillColor: [41, 128, 185] },
     });
+
+    const hours = Math.floor(totalDurationMs / 3600000);
+    const minutes = Math.floor((totalDurationMs % 3600000) / 60000);
+    const totalDurationStr = `Duración Total: ${hours}h ${minutes}m`;
+    
+    const finalY = doc.lastAutoTable.finalY;
+    doc.setFontSize(12);
+    doc.setFont(undefined, 'bold');
+    doc.text(totalDurationStr, 14, finalY + 10);
 
     const today = new Date().toISOString().slice(0, 10);
     doc.save(`reporte_turnos_${conductor.apellido}_${today}.pdf`);

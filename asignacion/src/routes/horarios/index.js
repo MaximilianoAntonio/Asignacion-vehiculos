@@ -3,7 +3,6 @@ import style from './style.css';
 import { getConductores, iniciarTurno, finalizarTurno } from '../../services/conductorService';
 import { getTurnos, updateTurno, deleteTurno } from '../../services/turnoService';
 import { exportTurnosPDF } from '../../services/pdfExportService';
-import TurnoEditModal from '../../components/turnoEditModal';
 
 const DISPONIBILIDAD_LABELS = {
   disponible: 'Disponible',
@@ -11,6 +10,81 @@ const DISPONIBILIDAD_LABELS = {
   dia_libre: 'Día Libre',
   no_disponible: 'No Disponible'
 };
+
+class TurnoPairEditModal extends Component {
+    constructor(props) {
+        super(props);
+        const { turnoPair } = props;
+        const formatForInput = (iso) => iso ? new Date(new Date(iso).getTime() - new Date(iso).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+        
+        this.state = {
+            start: turnoPair.start ? formatForInput(turnoPair.start.fecha_hora) : '',
+            end: turnoPair.end ? formatForInput(turnoPair.end.fecha_hora) : '',
+        };
+    }
+
+    handleSave = (e) => {
+        e.preventDefault();
+        const { start, end } = this.state;
+        const { turnoPair } = this.props;
+
+        if (start && end && new Date(start) >= new Date(end)) {
+            alert('La hora de inicio debe ser anterior a la hora de fin.');
+            return;
+        }
+
+        const saveData = {
+            start: turnoPair.start && start ? { id: turnoPair.start.id, data: { fecha_hora: new Date(start).toISOString() } } : null,
+            end: turnoPair.end && end ? { id: turnoPair.end.id, data: { fecha_hora: new Date(end).toISOString() } } : null,
+        };
+
+        this.props.onSave(saveData);
+    }
+
+    render() {
+        const { onCancel, turnoPair } = this.props;
+        const { start, end } = this.state;
+
+        // Assuming some generic style classes that might exist for the old modal
+        return (
+            <div class={style.modalBackdrop}>
+                <div class={style.modalContent}>
+                    <h2>Editar Turno</h2>
+                    <form onSubmit={this.handleSave}>
+                        <div class={style.inputRow}>
+                            {turnoPair.start && (
+                                <div class={style.formGroup}>
+                                    <label for="start_time">Inicio</label>
+                                    <input
+                                        type="datetime-local"
+                                        id="start_time"
+                                        value={start}
+                                        onChange={e => this.setState({ start: e.target.value })}
+                                    />
+                                </div>
+                            )}
+                            {turnoPair.end && (
+                                <div class={style.formGroup}>
+                                    <label for="end_time">Fin</label>
+                                    <input
+                                        type="datetime-local"
+                                        id="end_time"
+                                        value={end}
+                                        onChange={e => this.setState({ end: e.target.value })}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                        <div class={style.modalActions}>
+                            <button type="button" class={style.button} onClick={onCancel}>Cancelar</button>
+                            <button type="submit" class={`${style.button} ${style.buttonStart}`}>Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+}
 
 class HorariosPage extends Component {
   state = {
@@ -22,7 +96,7 @@ class HorariosPage extends Component {
     processedTurnos: [],
     loadingTurnos: false,
     weekOffset: 0,
-    editingTurno: null,
+    editingTurnoPair: null,
     loadingMonthlyReport: false,
   };
 
@@ -42,6 +116,10 @@ class HorariosPage extends Component {
       try {
         await iniciarTurno(conductorId);
         this.cargarConductores();
+        // After starting, refresh the turnos view if a conductor is selected
+        if (this.state.selectedConductor?.id === conductorId) {
+            this.fetchTurnosForWeek();
+        }
       } catch (error) {
         console.error("Error al iniciar turno:", error.response?.data || error.message);
         alert(`Error al iniciar turno: ${error.response?.data?.error || 'Error desconocido'}`);
@@ -200,11 +278,8 @@ class HorariosPage extends Component {
       });
       const processed = this.processTurnos(allTurnos);
       
-      const turnosForPDF = processed.map(p => ({
-          start: p.start?.fecha_hora,
-          end: p.end?.fecha_hora,
-          duration: p.duration
-      })).reverse();
+      // Reverse back to chronological order for the PDF
+      const turnosForPDF = [...processed].reverse();
 
       if (turnosForPDF.length === 0) {
           alert('No hay turnos para exportar en el mes seleccionado.');
@@ -229,7 +304,10 @@ class HorariosPage extends Component {
 
   handleExport = () => {
     const { selectedConductor, processedTurnos, weekOffset } = this.state;
-    if (!selectedConductor || processedTurnos.length === 0) return;
+    if (!selectedConductor || processedTurnos.length === 0) {
+        alert('No hay turnos para exportar en la semana seleccionada.');
+        return;
+    }
 
     const { startOfWeek, endOfWeek } = this._getWeekDateRange(weekOffset);
     const weekRange = {
@@ -237,39 +315,55 @@ class HorariosPage extends Component {
         end: endOfWeek.toLocaleDateString('es-ES')
     };
 
-    const turnosForPDF = processedTurnos.map(p => ({
-        start: p.start?.fecha_hora,
-        end: p.end?.fecha_hora,
-        duration: p.duration
-    })).reverse(); // Reverse back to chronological order for the PDF
+    // Reverse back to chronological order for the PDF
+    const turnosForPDF = [...processedTurnos].reverse();
 
     exportTurnosPDF(selectedConductor, turnosForPDF, weekRange);
   }
 
-  handleEdit = (turnoRecord) => {
-    this.setState({ editingTurno: turnoRecord });
+  handleEditPair = (pair) => {
+    this.setState({ editingTurnoPair: pair });
   };
 
-  handleDelete = async (turnoId) => {
-    if (window.confirm('¿Está seguro de que desea eliminar este registro de turno? Esta acción no se puede deshacer.')) {
+  handleDeletePair = async (pair) => {
+    const confirmMsg = pair.start && pair.end
+        ? '¿Está seguro de que desea eliminar este turno completo (entrada y salida)?'
+        : '¿Está seguro de que desea eliminar este registro de turno?';
+    
+    if (window.confirm(`${confirmMsg} Esta acción no se puede deshacer.`)) {
         try {
-            await deleteTurno(turnoId);
-            this.fetchTurnosForWeek(); // Recargar
+            if (pair.start) await deleteTurno(pair.start.id);
+            if (pair.end) await deleteTurno(pair.end.id);
+            this.fetchTurnosForWeek();
         } catch (error) {
             alert('Error al eliminar el registro.');
         }
     }
   };
 
-  handleSaveEdit = async (turnoId, data) => {
+  handleSavePair = async ({ start, end }) => {
     try {
-        await updateTurno(turnoId, data);
-        this.setState({ editingTurno: null });
+        const updatePromises = [];
+        if (start) {
+            updatePromises.push(updateTurno(start.id, start.data));
+        }
+        if (end) {
+            updatePromises.push(updateTurno(end.id, end.data));
+        }
+        
+        await Promise.all(updatePromises);
+
+        this.setState({ editingTurnoPair: null });
         this.fetchTurnosForWeek();
     } catch (error) {
         alert('Error al guardar los cambios.');
     }
   };
+
+  formatTimeOnly = (dateStr) => {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  }
 
   formatDateTime = (dateStr, baseDateStr = null) => {
     if (!dateStr) return '—';
@@ -296,7 +390,7 @@ class HorariosPage extends Component {
     }
   };
 
-  render(_, { conductores, loading, error, selectedConductor, loadingTurnos, processedTurnos, weekOffset, editingTurno, loadingMonthlyReport }) {
+  render(_, { conductores, loading, error, selectedConductor, loadingTurnos, processedTurnos, weekOffset, editingTurnoPair, loadingMonthlyReport }) {
     const { startOfWeek, endOfWeek } = this._getWeekDateRange(weekOffset);
     const weekRange = {
         start: startOfWeek.toLocaleDateString('es-ES'),
@@ -376,43 +470,67 @@ class HorariosPage extends Component {
                   <div class={style.weekNavigator}>
                     <button onClick={() => this.changeWeek(-1)} title="Semana Anterior">‹ Ant</button>
                     <button onClick={() => this.changeWeek(1)} title="Semana Siguiente">Sig ›</button>
-                    <button class={style.exportButton} onClick={this.handleExport} title="Exportar a PDF Semanal">PDF Semanal</button>
-                    <button class={style.exportButton} onClick={this.handleExportMonthly} disabled={loadingMonthlyReport} title="Exportar Reporte Mensual">
-                      {loadingMonthlyReport ? 'Generando...' : 'PDF Mensual'}
-                    </button>
                   </div>
                 </div>
                 {loadingTurnos ? <p>Cargando turnos...</p> : (
-                  <table class={style.turnosTable}>
-                    <thead>
-                      <tr>
-                        <th>Inicio</th>
-                        <th>Fin</th>
-                        <th>Duración</th>
-                        <th>Acciones</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {processedTurnos.length > 0 ? processedTurnos.map(p => (
-                        <tr key={p.start?.id || p.end.id}>
-                          <td>{this.formatDateTime(p.start?.fecha_hora)}</td>
-                          <td>{this.formatDateTime(p.end?.fecha_hora, p.start?.fecha_hora)}</td>
-                          <td>{p.duration || 'N/A'}</td>
-                          <td class={style.turnoActions}>
-                            {p.start && <button title="Editar Inicio" class={style.editButton} onClick={() => this.handleEdit(p.start)}>✏️</button>}
-                            {p.start && <button title="Eliminar Inicio" class={style.deleteButton} onClick={() => this.handleDelete(p.start.id)}>🗑️</button>}
-                            {p.end && <button title="Editar Fin" class={style.editButton} onClick={() => this.handleEdit(p.end)}>✏️</button>}
-                            {p.end && <button title="Eliminar Fin" class={style.deleteButton} onClick={() => this.handleDelete(p.end.id)}>🗑️</button>}
-                          </td>
-                        </tr>
-                      )) : (
-                        <tr>
-                          <td colSpan="4" style={{ textAlign: 'center' }}>No hay registros de turno para esta semana.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+                  <div class={style.calendarView}>
+                    <div class={style.calendarGrid}>
+                      {
+                        (() => {
+                          const weekDates = [];
+                          for (let i = 0; i < 7; i++) {
+                            const date = new Date(startOfWeek);
+                            date.setDate(date.getDate() + i);
+                            weekDates.push(date);
+                          }
+                          const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+                          return weekDates.map((date, index) => {
+                            const dayTurnos = processedTurnos.filter(p => {
+                              if (!p.start && !p.end) return false;
+                              const turnoDate = new Date(p.start?.fecha_hora || p.end?.fecha_hora);
+                              return turnoDate.toDateString() === date.toDateString();
+                            });
+
+                            return (
+                              <div class={style.calendarDay} key={index}>
+                                <div class={style.dayHeader}>
+                                  <span>{dayNames[index]}</span>
+                                  <span>{date.getDate()}</span>
+                                </div>
+                                <div class={style.dayBody}>
+                                  {dayTurnos.length > 0 ? dayTurnos.map(p => (
+                                    <div key={p.start?.id || p.end.id} class={style.turnoEntry}>
+                                      <div>
+                                        <div class={style.turnoTimes}>
+                                          <span><strong>Inicio:</strong> {this.formatTimeOnly(p.start?.fecha_hora)}</span>
+                                          <span><strong>Fin:</strong> {this.formatTimeOnly(p.end?.fecha_hora)}</span>
+                                        </div>
+                                        <div class={style.turnoDuration}>
+                                          <strong>Duración:</strong> {p.duration || 'N/A'}
+                                        </div>
+                                      </div>
+                                      <div class={style.turnoActions}>
+                                        <button title="Editar Turno" class={style.editButton} onClick={() => this.handleEditPair(p)}>✏️</button>
+                                        <button title="Eliminar Turno" class={style.deleteButton} onClick={() => this.handleDeletePair(p)}>🗑️</button>
+                                      </div>
+                                    </div>
+                                  )) : <div class={style.noTurnos}>-</div>}
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()
+                      }
+                    </div>
+                  </div>
                 )}
+                <div class={style.reportActions}>
+                  <button class={style.exportButton} onClick={this.handleExport} title="Exportar a PDF Semanal">Generar Reporte Semanal</button>
+                  <button class={style.exportButton} onClick={this.handleExportMonthly} disabled={loadingMonthlyReport} title="Exportar Reporte Mensual">
+                    {loadingMonthlyReport ? 'Generando...' : 'Generar Reporte Mensual'}
+                  </button>
+                </div>
               </div>
             ) : (
               <div class={style.dashboardPlaceholder}>
@@ -421,17 +539,18 @@ class HorariosPage extends Component {
             )}
           </div>
         </div>
-        {editingTurno && (
-          <TurnoEditModal
-            turno={editingTurno}
-            onSave={this.handleSaveEdit}
-            onCancel={() => this.setState({ editingTurno: null })}
+        {editingTurnoPair && (
+          <TurnoPairEditModal
+            turnoPair={editingTurnoPair}
+            onSave={this.handleSavePair}
+            onCancel={() => this.setState({ editingTurnoPair: null })}
           />
         )}
       </div>
     );
   }
 }
+
 
 export default HorariosPage;
 

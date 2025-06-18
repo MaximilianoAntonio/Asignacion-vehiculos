@@ -15,12 +15,12 @@
 }
 
 .leftColumn {
-    flex: 1.5;
+    flex: 1;
     min-width: 400px;
 }
 
 .rightColumn {
-    flex: 2;
+    flex: 1.5;
 }
 
 .dashboard {
@@ -91,39 +91,101 @@
     font-size: 1.1rem;
 }
 
-.turnosTable {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
+.calendarView {
+    margin-top: 20px;
 }
-.turnosTable th, .turnosTable td {
-    text-align: left;
-    padding: 12px 10px;
-    border-bottom: 1px solid #eee;
-    vertical-align: middle;
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background-color: #fdfdfd;
 }
-.turnosTable th {
+
+.calendarDay {
+    background-color: #fff;
+    border: 1px solid #e9e9e9;
+    border-radius: 6px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.dayHeader {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background-color: #f4f6f8;
     font-weight: bold;
-    color: #555;
+    border-bottom: 1px solid #e9e9e9;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.dayHeader span:first-child {
+    color: #333;
+}
+
+.dayHeader span:last-child {
+    color: #007bff;
+}
+
+.dayBody {
+    padding: 10px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.noTurnos {
+    color: #aaa;
+    text-align: center;
+    padding-top: 20px;
+    font-style: italic;
+}
+
+.turnoEntry {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-left: 4px solid #007bff;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.turnoTimes, .turnoDuration {
+    margin-bottom: 5px;
+}
+
+.turnoTimes span {
+    display: block;
 }
 
 .turnoActions {
     display: flex;
-    gap: 8px;
-    align-items: center;
+    gap: 5px;
 }
 
 .turnoActions button {
+    padding: 4px;
+    font-size: 0.8rem;
+    line-height: 1;
+    width: 24px;
+    height: 24px;
+    gap: 0;
     margin-right: 0;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    border-radius: 5px;
     border: 1px solid;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
     transition: all 0.2s;
     font-weight: bold;
 }
@@ -150,6 +212,13 @@
 .deleteButton:hover {
     background: #dc3545;
     color: white;
+}
+
+.reportActions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .clickableRow {
@@ -243,3 +312,76 @@
     color: #dc3545;
     font-weight: bold;
 }
+
+/* Modal Styles */
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 450px;
+}
+
+.modalContent h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.inputRow {
+    display: flex;
+    gap: 15px;
+}
+
+.formGroup {
+    margin-bottom: 15px;
+    flex: 1;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.formGroup input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.modalActions {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modalActions .button {
+    width: auto;
+    padding: 10px 20px;
+}
+
+.modalActions .button:first-child {
+    background-color: #6c757d;
+}
+.modalActions .button:first-child:hover {
+    background-color: #5a6268;
+}
+
