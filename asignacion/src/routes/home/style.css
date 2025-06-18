@@ -1,63 +1,64 @@
 /* FULLSCREEN BG */
 .homeBg {
-  min-height: 100vh;
+  min-height: 90vh;
   width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
   overflow-x: hidden;
-  padding: 2rem;
+  padding: 2rem 2rem;
 }
 
 /* SPLIT CONTAINER */
 .homeSplitContainer {
   z-index: 1;
   display: flex;
-  width: 90vw;
-  max-width: 1280px;
-  gap: 2.5rem;
-  align-items: flex-start;
+  width: 100vw;
+  max-width: 1200px;
+  gap: 4rem;
+  align-items: center;
+  justify-content: center;
   height: auto;
 }
 
 /* PANELS */
 .leftPanel {
-  flex: 1;
+  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 0 1rem;
 }
 .rightPanel {
-  flex: 1;
+  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  align-items: center;
   padding: 0 1rem;
 }
 
 /* LOGO & HEADINGS */
 .logoAnimated {
-  width: 150px;
+  width: 140px;
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-soft);
   cursor: pointer;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .titleAnimated {
-  font-size: 2.5rem;
+  font-size: 2.4rem;
   color: var(--text-primary);
   font-weight: 700;
   letter-spacing: 0.5px;
   text-align: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 .subtitleAnimated {
   font-size: 1.2rem;
   color: var(--text-secondary);
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 /* RESUMEN BOX */
@@ -67,8 +68,8 @@
   justify-content: center;
   flex-wrap: wrap;
   width: 100%;
-  max-width: 580px;
-  margin: 0 auto 2rem;
+  max-width: 540px;
+  margin: 0 auto;
 }
 .resumenItem {
   background: var(--bg-card);
@@ -108,24 +109,6 @@
   /* color: var(--accent-primary); // Icons in resumenItem are text, will inherit or can be set */
 }
 
-/* CARS ROW (FRAMER MOTION) */
-.carsRow {
-  width: 220px;
-  height: 45px;
-  position: relative;
-  overflow: hidden;
-  margin: 0 auto 1.5rem;
-}
-.carWrapper {
-  position: absolute;
-  top: 0;
-}
-.carSvg {
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-}
-
 /* TUTORIAL BOX */
 .tutorialBox {
   position: relative;
@@ -135,8 +118,8 @@
   box-shadow: var(--shadow-medium);
   padding: 2rem;
   width: 100%;
-  max-width: 450px;
-  margin: 0 auto;
+  max-width: 460px;
+  margin: 0;
 }
 .tutorialBox::before {
   content: '';
@@ -214,7 +197,7 @@
   .homeSplitContainer {
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 2.5rem;
     width: 95vw;
   }
   .leftPanel, .rightPanel {
@@ -239,10 +222,10 @@
 
 @media (max-width: 768px) {
   .homeBg {
-    padding: 1rem;
+    padding: 1.5rem 1rem;
   }
   .homeSplitContainer {
-    gap: 1.5rem;
+    gap: 2rem;
     width: 100%;
   }
   .titleAnimated {
@@ -289,47 +272,47 @@
 /* Car animation dust effect */
 .dust {
   opacity: 0.45 !important; /* Retained !important as it might be overriding inline SVG styles or Framer Motion opacity */
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 2rem;
-    max-width: 100%;
-  }
-  .resumenItem {
-    flex-basis: auto;
-    width: 100%;
-    /* min-width can be removed here as width:100% takes precedence */
-  }
-  .tutorialTitle {
-    font-size: 1.2rem;
-  }
-  .tutorialStep {
-    font-size: 0.95rem;
-  }
-  .ctaButton {
-    font-size: 1rem;
-    padding: 0.8rem;
-  }
-
-
-/* Panel specific scrollbars (if internal scroll is ever needed) */
-.leftPanel::-webkit-scrollbar,
-.rightPanel::-webkit-scrollbar {
-  width: 6px;
-}
-.leftPanel::-webkit-scrollbar-thumb,
-.rightPanel::-webkit-scrollbar-thumb {
-  background: var(--accent-secondary); /* Lighter blue for panel scroll thumbs */
-  border-radius: var(--border-radius-sm);
 }
 
-/* Car animation dust effect */
-.dust {
-  opacity: 0.45 !important; /* Retained !important as it might be overriding inline SVG styles or Framer Motion opacity */
+/* CREDITS FOOTER */
+.creditsFooter {
+  position: absolute;
+  bottom: 0rem;
+  left: 0;
+  right: 0;
+  padding: -10rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
+.creditsText {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
 
-/* Panel specific scrollbars (if internal scroll is ever needed) */
-.leftPanel::-webkit-scrollbar,
+.creditsText p {
+  margin: 0;
+}
+
+.footerLogosContainer {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.footerLogo {
+  height: 35px; /* Smaller logo */
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.footerLogo:hover {
+  opacity: 1;
+}
 .rightPanel::-webkit-scrollbar {
   width: 6px;
 }
