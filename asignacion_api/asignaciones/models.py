@@ -54,6 +54,7 @@ class Vehiculo(models.Model):
         related_name='vehiculos_preferentes',
         help_text="Conductor usual o preferente para este vehículo (opcional)"
     )
+    kilometraje = models.FloatField(default=0.0, help_text="Kilometraje total del vehículo en km.")
 
     def __str__(self):
         return f"{self.marca} {self.modelo} ({self.patente}) - Año {self.anio or 'N/A'}"
@@ -164,6 +165,7 @@ class Asignacion(models.Model):
         null=True, blank=True,
         help_text="Marca temporal cuando un funcionario crea la asignación"
     )
+    distancia_recorrida_km = models.FloatField(null=True, blank=True, help_text="Distancia del viaje en km.")
 
     def __str__(self):
         conductor_str = f"{self.conductor.nombre} {self.conductor.apellido}" if self.conductor else "Por asignar"

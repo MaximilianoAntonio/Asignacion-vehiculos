@@ -7,15 +7,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(120deg, #2b5876 0%, #4e4376 100%);
     z-index: 1;
 }
 
 .loginForm {
-    background: #fff;
+    background: var(--bg-card);
     padding: 4rem 4rem 3.5rem 4rem;
-    border-radius: 24px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-hard);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -33,7 +32,7 @@
 
 h2 {
     margin-bottom: 2rem;
-    color: #2b5876;
+    color: var(--text-primary);
     font-weight: bold;
     letter-spacing: 1px;
     font-size: 2.2rem;
@@ -47,45 +46,52 @@ h2 {
 label {
     display: block;
     margin-bottom: 0.4rem;
-    color: #4e4376;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
 input[type="text"],
 input[type="password"] {
     width: 100%;
-    padding: 0.6rem;
-    border: 1px solid #b2bec3;
-    border-radius: 6px;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
     font-size: 1rem;
     transition: border 0.2s;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
 }
 
 input:focus {
-    border: 1.5px solid #2b5876;
+    border: 1.5px solid var(--accent-primary);
     outline: none;
 }
 
 .submitButton {
     width: 100%;
-    padding: 0.7rem;
-    background: linear-gradient(90deg, #2b5876 0%, #4e4376 100%);
-    color: #fff;
+    padding: 0.8rem;
+    background: var(--accent-primary);
+    color: var(--text-on-primary);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--border-radius-md);
     font-size: 1.1rem;
     font-weight: bold;
     cursor: pointer;
     transition: background 0.2s;
 }
 
+.submitButton:hover {
+    background: var(--accent-primary-darker);
+}
+
 .submitButton:disabled {
-    background: #b2bec3;
+    background: var(--text-secondary);
+    opacity: 0.7;
     cursor: not-allowed;
 }
 
 .error {
-    color: #d63031;
+    color: var(--accent-danger);
     margin-bottom: 1rem;
     font-weight: 500;
 }

@@ -3,11 +3,12 @@
   padding: 20px;
   max-width: 1600px;
   margin: 0 auto;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-primary);
 }
 
 .asignacionesPage h1 {
   margin-bottom: 25px;
+  color: var(--text-primary);
 }
 
 /* Layout de dos columnas */
@@ -25,35 +26,35 @@
 .rightColumn {
   flex: 1;
   position: sticky;
-  top: 208px;
+  top: 100px;
   align-self: flex-start;
 }
 
 /* Contenedor del formulario */
 .formContainer {
-  background: #ffffff;
+  background: var(--bg-card);
   padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
 }
 
 .formContainer h2 {
   margin-top: 0;
-  color: #333;
-  border-bottom: 2px solid #007bff;
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--accent-primary);
   padding-bottom: 10px;
   margin-bottom: 20px;
 }
 
 /* Placeholder para cuando el formulario está oculto */
 .formPlaceholder {
-  background: #f9f9f9;
+  background: var(--bg-main);
   padding: 40px 25px;
-  border-radius: 8px;
+  border-radius: var(--border-radius-lg);
   text-align: center;
-  color: #888;
-  border: 2px dashed #ddd;
+  color: var(--text-secondary);
+  border: 2px dashed var(--border-color);
   height: 100%;
   display: flex;
   align-items: center;
@@ -65,21 +66,23 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background: #fff;
+  box-shadow: var(--shadow-medium);
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
 }
 
 .table th,
 .table td {
-  border: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color-light);
   padding: 12px 15px;
   text-align: left;
   vertical-align: middle;
 }
 
 .table th {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--accent-primary);
+  color: var(--text-on-primary);
   text-transform: uppercase;
   font-size: 14px;
 }
@@ -90,45 +93,45 @@
   transition: background-color 0.2s;
 }
 .clickableRow:hover {
-  background-color: #d1dae4;
+  background-color: var(--bg-main);
 }
 
 /* Botones generales */
 .addButton, .editButton, .deleteButton, .saveButton, .cancelButton {
   padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  box-shadow: var(--shadow-soft);
 }
 
 .addButton {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--accent-primary);
+  color: var(--text-on-primary);
   /* Quita align-self y margin-bottom para que el flex funcione bien */
 }
 .addButton:hover {
-  background: #0056b3;
+  background: var(--accent-primary-darker);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  box-shadow: var(--shadow-medium);
 }
 
-.editButton { background-color: #ffc107; color: #333; }
-.editButton:hover { background-color: #ffe082; transform: translateY(-2px); }
+.editButton { background-color: var(--accent-warning); color: var(--text-primary); }
+.editButton:hover { background-color: #fbbf24; transform: translateY(-2px); }
 
-.deleteButton { background-color: #dc3545; color: white; }
-.deleteButton:hover { background-color: #c82333; transform: translateY(-2px); }
+.deleteButton { background-color: var(--accent-danger); color: var(--text-on-danger); }
+.deleteButton:hover { background-color: #b91c1c; transform: translateY(-2px); }
 
-.saveButton { background-color: #28a745; color: white; flex-grow: 1; }
-.saveButton:hover { background-color: #218838; transform: translateY(-2px); }
+.saveButton { background-color: var(--accent-success); color: var(--text-on-primary); flex-grow: 1; }
+.saveButton:hover { background-color: #15803d; transform: translateY(-2px); }
 
-.cancelButton { background-color: #6c757d; color: white; flex-grow: 1; }
-.cancelButton:hover { background-color: #495057; transform: translateY(-2px); }
+.cancelButton { background-color: var(--text-secondary); color: var(--text-on-primary); flex-grow: 1; }
+.cancelButton:hover { background-color: var(--text-primary); transform: translateY(-2px); }
 
 /* Botón de procesar a la altura de la tabla */
 
@@ -151,29 +154,29 @@
 }
 
 .processButton {
-  background: #ff9800;
-  color: #fff;
+  background: var(--accent-warning);
+  color: var(--text-primary);
   border: none;
   padding: 10px 15px;
   font-size: 14px;
   font-weight: bold;
   text-transform: uppercase;
-  border-radius: 6px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   display: inline-block;
   margin-bottom: 0; /* Quita margen para mejor alineación */
   vertical-align: middle;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  box-shadow: var(--shadow-soft);
 }
 .processButton:disabled {
-  background: #ffc107;
+  background: #fcd34d;
   cursor: not-allowed;
 }
 .processButton:hover:not(:disabled) {
-  background: #e65100;
+  background: #fbbf24;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  box-shadow: var(--shadow-medium);
 }
 
 /* Modal */
@@ -190,10 +193,10 @@
     z-index: 1000;
 }
 .modalContent {
-    background: white;
+    background: var(--bg-card);
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-hard);
     position: relative;
     width: 90%;
     max-width: 600px;
@@ -203,12 +206,12 @@
 }
 .modalContent h2 {
     margin-top: 0;
-    color: #007bff;
-    border-bottom: 2px solid #eee;
+    color: var(--accent-primary);
+    border-bottom: 2px solid var(--border-color-light);
     padding-bottom: 10px;
 }
-.modalDetails p { margin: 8px 0; font-size: 16px; color: #555; }
-.modalDetails p strong { color: #333; }
+.modalDetails p { margin: 8px 0; font-size: 16px; color: var(--text-secondary); }
+.modalDetails p strong { color: var(--text-primary); }
 .modalCloseButton {
     position: absolute;
     top: 15px;
@@ -217,52 +220,46 @@
     border: none;
     font-size: 28px;
     font-weight: bold;
-    color: #aaa;
+    color: var(--text-secondary);
     cursor: pointer;
     transition: color 0.2s;
 }
-.modalCloseButton:hover { color: #333; }
+.modalCloseButton:hover { color: var(--text-primary); }
 .modalActions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
     margin-top: 15px;
     padding-top: 15px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-color-light);
 }
 
 /* Estados */
+.estadoPendiente, .estadoEnCurso, .estadoFinalizada, .estadoCancelada {
+    border-radius: var(--border-radius-lg);
+    padding: 4px 14px;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
 .estadoPendiente {
-  color: #856404;
-  background: #fff3cd;
-  border-radius: 12px;
-  padding: 4px 14px;
-  font-weight: 500;
-  border: 1px solid #ffe69c;
+  color: #92400e;
+  background: #fef3c7;
+  border-color: #fde68a;
 }
 .estadoEnCurso {
-  color: #1a3a5b;
-  background: #e7f0fa;
-  border-radius: 12px;
-  padding: 4px 14px;
-  font-weight: 500;
-  border: 1px solid #b3cbe6;
+  color: #1e3a8a;
+  background: #dbeafe;
+  border-color: #bfdbfe;
 }
 .estadoFinalizada {
-  color: #256029;
-  background: #e6f4ea;
-  border-radius: 12px;
-  padding: 4px 14px;
-  font-weight: 500;
-  border: 1px solid #b7dfc8;
+  color: #14532d;
+  background: #dcfce7;
+  border-color: #bbf7d0;
 }
 .estadoCancelada {
-  color: #842029;
-  background: #f8d7da;
-  border-radius: 12px;
-  padding: 4px 14px;
-  font-weight: 500;
-  border: 1px solid #f1b0b7;
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
 }
 .estadoCounters {
   margin-bottom: 20px;
@@ -276,30 +273,30 @@
   gap: 6px;
   font-size: 1rem;
   padding: 4px 10px;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-  background: #f9f9f9;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-soft);
 }
 .estadoCounters .estadoPendiente {
-  border: 1px solid #ffe69c;
-  background: #fff3cd;
-  color: #856404;
+  border-color: #fde68a;
+  background: #fef3c7;
+  color: #92400e;
 }
 .estadoCounters .estadoEnCurso {
-  border: 1px solid #b3cbe6;
-  background: #e7f0fa;
-  color: #1a3a5b;
+  border-color: #bfdbfe;
+  background: #dbeafe;
+  color: #1e3a8a;
 }
 .estadoCounters .estadoFinalizada {
-  border: 1px solid #b7dfc8;
-  background: #e6f4ea;
-  color: #256029;
+  border-color: #bbf7d0;
+  background: #dcfce7;
+  color: #14532d;
 }
 .estadoCounters .estadoCancelada {
-  border: 1px solid #f1b0b7;
-  background: #f8d7da;
-  color: #842029;
+  border-color: #fecaca;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 /* Responsive */
@@ -316,25 +313,26 @@
 }
 
 .exportButton {
-  background-color: #4caf50;
-  color: white;
+  background-color: var(--accent-success);
+  color: var(--text-on-primary);
   padding: 10px 15px;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 1px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  box-shadow: var(--shadow-soft);
 }
 .exportButton:disabled {
-  background-color: #388e3c;
+  background-color: #15803d;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 .exportButton:hover:not(:disabled) {
-  background-color: #388e3c;
+  background-color: #15803d;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+  box-shadow: var(--shadow-medium);
 }

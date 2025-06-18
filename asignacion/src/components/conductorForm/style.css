@@ -1,21 +1,21 @@
 .formContainer {
-  border: 3px solid #111111;
+  border: 1px solid var(--border-color);
   position: relative;
-  padding: 20px;
+  padding: 24px;
   margin-top: 20px;
   margin-bottom: 20px;
-  border-radius: 8px;
-  background-color: #ffffff;
-  color: #333;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-medium);
 }
 
 .formContainer h3 {
   margin-top: 0;
-  border-bottom: 1px solid #111111;
+  border-bottom: 1px solid var(--border-color-light);
   padding-bottom: 10px;
   margin-bottom: 20px;
-  color: #222;
+  color: var(--text-primary);
 }
 
 .formGroup {
@@ -26,7 +26,7 @@
   display: block;
   margin-bottom: 6px;
   font-weight: bold;
-  color: #444;
+  color: var(--text-secondary);
 }
 
 .formGroup input[type="text"],
@@ -39,59 +39,80 @@
 .formGroup textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #bbb;
-  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
   box-sizing: border-box;
-  background-color: #fdfdfd;
-  color: #222;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+    border-color: var(--accent-primary);
+    outline: none;
 }
 
 .formGroup input::placeholder {
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .formActions {
   margin-top: 20px;
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .formActions button {
   padding: 10px 16px;
-  margin-left: 10px;
+  margin-left: 0;
   border: none;
-  border-radius: 5px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   font-weight: bold;
   font-size: 14px;
+  transition: background-color 0.2s;
 }
 
 .submitButton {
-  background: #1976d2;
-  color: #fff;
+  background: var(--accent-success);
+  color: var(--text-on-primary);
+}
+
+.submitButton:hover:not(:disabled) {
+    background: #15803d;
 }
 
 .submitButton:disabled {
-  background: #90caf9;
-  color: #fff;
+  background: var(--accent-success);
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .cancelButton {
-  background-color: #dc3545;
-  color: white;
+  background-color: var(--text-secondary);
+  color: var(--text-on-primary);
+}
+
+.cancelButton:hover:not(:disabled) {
+    background-color: var(--text-primary);
 }
 
 .cancelButton:disabled {
-  background-color: #e5a6a6;
-  color: #ffffff;
+  background-color: var(--text-secondary);
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .error {
-  color: #b00020;
-  background-color: #fce8e6;
-  border: 1px solid #f5c6cb;
+  color: var(--accent-danger);
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
   padding: 10px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-md);
   margin-bottom: 15px;
 }
 
@@ -101,19 +122,19 @@
   right: 20px;
   background: transparent;
   border: none;
-  font-size: 20px;
-  color:black;
+  font-size: 24px;
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
   line-height: 1;
 }
 
 .closeButton:hover {
-  color: #000;
+  color: var(--text-primary);
 }
 
 .errorMsg {
-  color: #d32f2f;
+  color: var(--accent-danger);
   font-weight: bold;
   font-size: 1.1em;
   font-family: monospace;

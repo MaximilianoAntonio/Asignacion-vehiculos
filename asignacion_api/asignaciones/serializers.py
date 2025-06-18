@@ -25,6 +25,7 @@ class VehiculoSerializer(serializers.ModelSerializer):
             'tipo_vehiculo_display', 
             'ubicacion',
             'conductor_preferente',
+            'kilometraje',  # NUEVO: Añadido campo 'kilometraje'
         ]
         extra_kwargs = { # NUEVO
             'foto': {'write_only': True, 'required': False}
@@ -113,6 +114,7 @@ class AsignacionSerializer(serializers.ModelSerializer):
             'solicitante_nombre',
             'solicitante_telefono',
             'fecha_asignacion_funcionario',
+            'distancia_recorrida_km',  # NUEVO: Añadido campo 'distancia_recorrida_km'
         ]
         read_only_fields = ['fecha_hora_solicitud']
 

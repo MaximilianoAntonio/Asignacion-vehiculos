@@ -21,10 +21,21 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                             <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
                         ) : (
                             <>
-                                <Link activeClassName={style.active} href="/vehiculos">Vehículos</Link>
-                                <Link activeClassName={style.active} href="/conductores">Conductores</Link>
-                                <Link activeClassName={style.active} href="/horarios">Horarios</Link>
-                                <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
+                                <div class={style.dropdown}>
+                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>Gestión</a>
+                                    <div class={style.dropdownContent}>
+                                        <Link activeClassName={style.active} href="/vehiculos">Vehículos</Link>
+                                        <Link activeClassName={style.active} href="/conductores">Conductores</Link>
+                                        <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
+                                    </div>
+                                </div>
+                                <div class={style.dropdown}>
+                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>Planificación</a>
+                                    <div class={style.dropdownContent}>
+                                        <Link activeClassName={style.active} href="/horarios">Horarios</Link>
+                                        <Link activeClassName={style.active} href="/mantenimiento">Mantenimiento</Link>
+                                    </div>
+                                </div>
                             </>
                         )}
                     </>

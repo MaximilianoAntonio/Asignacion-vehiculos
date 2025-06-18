@@ -1,35 +1,57 @@
 /* src/style/index.css */
 :root {
-	font-family: 'Helvetica Neue', arial, sans-serif;
+	--font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	font-family: var(--font-primary);
 	font-weight: 400;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 
-	/* Default Light Theme */
-	color: #333; /* Texto oscuro para fondo claro */
-	background: #fafafa; /* Fondo claro */
+	/* Light Theme Colors */
+	--bg-main: #F9FAFB;
+	--bg-card: #FFFFFF;
+	--accent-primary: #2563EB;
+	--accent-primary-darker: #1D4ED8;
+	--accent-secondary: #60A5FA;
+	--accent-success: #16a34a;
+	--accent-warning: #f59e0b;
+	--accent-danger: #dc2626;
+	--text-primary: #1F2937;
+	--text-secondary: #6B7280;
+	--text-on-primary: #FFFFFF;
+	--text-on-danger: #FFFFFF;
+	--border-color: #D1D5DB;
+	--border-color-light: #E5E7EB;
+	--gradient-bg: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+
+	/* Sizing & Radius */
+	--border-radius-sm: 6px;
+	--border-radius-md: 8px;
+	--border-radius-lg: 12px;
+
+	/* Shadows */
+	--shadow-soft: 0 2px 4px rgba(0,0,0,0.05);
+	--shadow-medium: 0 4px 8px rgba(0,0,0,0.08);
+	--shadow-hard: 0 8px 20px rgba(0,0,0,0.12);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
 	:root {
-		color: #e0e0e0; /* Texto claro para fondo oscuro */
-		background: #121212; /* Fondo oscuro general */
+		/* Dark Theme Colors * /
+		--bg-main: #111827;
+		--bg-card: #1F2937;
+		--accent-primary: #3B82F6;
+		--accent-primary-darker: #2563EB;
+		--accent-secondary: #60A5FA;
+		--accent-success: #22c55e;
+		--accent-warning: #f59e0b;
+		--accent-danger: #ef4444;
+		--text-primary: #F9FAFB;
+		--text-secondary: #9CA3AF;
+		--border-color: #374151;
+		--border-color-light: #4b5563;
+		--gradient-bg: linear-gradient(135deg, #1F2937 0%, #111827 100%);
 	}
-
-    /* Puedes añadir estilos específicos para elementos comunes en tema oscuro */
-    body {
-        color: #e0e0e0;
-        background-color: #121212;
-    }
-
-    a {
-        color: #bb86fc; /* Un color de enlace que contraste bien en oscuro */
-    }
-
-    a:hover {
-        color: #9e66d4;
-    }
-}
+} */
 
 html {
   box-sizing: border-box;
@@ -44,75 +66,36 @@ html, body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden; /* Para evitar scroll horizontal si algo se desborda un poco */
+  overflow-x: hidden;
 }
 
 body {
 	margin: 0;
 	padding: 0;
 	min-height: 100vh;
-    /* Asegurar que los estilos de :root se apliquen si es necesario */
-    color: var(--text-color, #333); /* Usar variables CSS si las defines */
-    background-color: var(--background-color, #fafafa);
+    color: var(--text-primary);
+    background: var(--gradient-bg);
+	font-family: var(--font-primary);
+	line-height: 1.6;
 }
 
-/* Este #app > main podría no estar siendo tan efectivo como esperas si el
-   contenido de las rutas no está directamente dentro de un <main> hijo de #app.
-   La estructura actual es <div id="app"> <Header/> <Router/> </div>
-   Las páginas se renderizan dentro de <Router>.
-*/
 #app {
-    /* Mueve los estilos de #app > main directamente a #app si es el contenedor principal real */
     display: flex;
-    flex-direction: column; /* Para que Header y Router se apilen */
+    flex-direction: column;
     min-height: 100vh;
     width: 100%;
     height: 100%;
 }
 
-/* Contenedor para el contenido de las rutas, si decides añadir uno */
 .page-content {
     flex-grow: 1;
-    padding: 20px; /* Añade padding general a las páginas */
-    max-width: 1000px; /* O el ancho que prefieras */
-    margin: 0 auto; /* Centrar el contenido */
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
     width: 100%;
 }
 
-/* Estilos para el Header (ya tienes un style.css para él, pero como referencia) */
-/* Asegúrate de que el header también tenga buen contraste */
-/* GOPH/mi-gestor-frontend/src/components/header/style.css */
-.header {
-    background-color: #1f1f1f;
-    color: white;
-    padding: 8px 0; /* ⬅️ reduce espacio vertical */
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 1.8em;
-    color: #ffffff; /* más brillante */
-    margin-bottom: 0.3rem; /* un poco de separación si lo necesitas */
-}
-
-.header nav {
-    margin-top: 0;
-    display: flex;
-    justify-content: center; /* ⬅️ centra horizontalmente */
-    gap: 2rem; /* ⬅️ espacio entre los enlaces */
-}
-
-.header nav a {
-    color: #bb86fc; /* Color de enlace sugerido para tema oscuro */
-    margin: 0 15px;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.header nav a:hover,
-.header nav a.active { /* activeClassName de preact-router */
-    color: #f0f0f0;
-    text-decoration: underline;
+/* Remove old header styles */
+.header, .header h1, .header nav, .header nav a, .header nav a:hover, .header nav a.active {
+    all: unset;
 }

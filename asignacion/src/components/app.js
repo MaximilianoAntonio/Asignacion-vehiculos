@@ -10,6 +10,7 @@ import ConductoresPage from '../routes/conductores';
 import LoginPage from '../routes/login'; // Nueva importación
 import AsignacionesPage from '../routes/asignaciones'; // Nueva importación
 import HorariosPage from '../routes/horarios'; // Importa la ruta de horarios
+import MantenimientoPage from '../routes/mantenimiento'; // 1. Importar la nueva página
 
 
 // Componente para rutas protegidas (ejemplo básico)
@@ -67,6 +68,7 @@ export default class App extends Component {
                     <PrivateRoute component={ConductoresPage} path="/conductores" />
                     <PrivateRoute component={AsignacionesPage} path="/asignaciones" userGroup={this.state.userGroup} />
                     <PrivateRoute component={HorariosPage} path="/horarios" />
+                    <PrivateRoute component={MantenimientoPage} path="/mantenimiento" />
                 </Router>
             </div>
         );
