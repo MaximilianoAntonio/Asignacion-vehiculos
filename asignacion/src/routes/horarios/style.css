@@ -94,6 +94,7 @@
 .turnosTable {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 .turnosTable th, .turnosTable td {
     text-align: left;
@@ -169,6 +170,7 @@
     background: #fff;
     border-radius: 8px;
     overflow: hidden;
+    table-layout: fixed;
 }
 
 .table th, .table td {
