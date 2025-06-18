@@ -33,7 +33,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https?://\d+\.\d+\.\d+\.\d+:8000$",
 ]
 # opcionalmente desactiva allow-all si quieres ceñirte al regex
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # Application definition

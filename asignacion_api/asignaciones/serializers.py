@@ -1,6 +1,6 @@
 # asignaciones/serializers.py
 from rest_framework import serializers
-from .models import Vehiculo, Conductor, Asignacion
+from .models import Vehiculo, Conductor, Asignacion, RegistroTurno
 from django.utils import timezone
 
 class VehiculoSerializer(serializers.ModelSerializer):
@@ -145,3 +145,11 @@ class AsignacionSerializer(serializers.ModelSerializer):
         if request and request.user and request.user.groups.filter(name__istartswith='funcionario').exists():
             validated_data['fecha_asignacion_funcionario'] = timezone.now()
         return super().update(instance, validated_data)
+
+class RegistroTurnoSerializer(serializers.ModelSerializer):
+    """
+    Serializer para el modelo RegistroTurno.
+    """
+    class Meta:
+        model = RegistroTurno
+        fields = '__all__'

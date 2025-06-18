@@ -84,7 +84,7 @@ class Conductor(models.Model):
     estado_disponibilidad = models.CharField(
         max_length=20,
         choices=ESTADO_DISPONIBILIDAD_CHOICES,
-        default='disponible'
+        default='dia_libre'
     )
     ubicacion_actual_lat = models.FloatField(null=True, blank=True, help_text="Latitud actual del conductor")
     ubicacion_actual_lon = models.FloatField(null=True, blank=True, help_text="Longitud actual del conductor")
@@ -169,3 +169,21 @@ class Asignacion(models.Model):
         conductor_str = f"{self.conductor.nombre} {self.conductor.apellido}" if self.conductor else "Por asignar"
         vehiculo_str = str(self.vehiculo.patente) if self.vehiculo else "Por asignar"
         return f"Traslado a {self.destino_descripcion} ({self.fecha_hora_requerida_inicio.strftime('%Y-%m-%d %H:%M')}) - Vehículo: {vehiculo_str}, Conductor: {conductor_str}, Solicitante: {self.solicitante_nombre or 'N/A'}"
+
+class RegistroTurno(models.Model):
+    TIPO_REGISTRO_CHOICES = [
+        ('entrada', 'Entrada de turno'),
+        ('salida', 'Salida de turno'),
+    ]
+    conductor = models.ForeignKey(Conductor, on_delete=models.CASCADE, related_name='registros_turno')
+    fecha_hora = models.DateTimeField(default=timezone.now)
+    tipo = models.CharField(max_length=10, choices=TIPO_REGISTRO_CHOICES)
+    notas = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} de {self.conductor} a las {self.fecha_hora.strftime('%Y-%m-%d %H:%M')}"
+
+    class Meta:
+        ordering = ['-fecha_hora']
+        verbose_name = "Registro de Turno"
+        verbose_name_plural = "Registros de Turno"

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 const CONDUCTORES_API_URL = `${API_BASE_URL}/conductores/`;
+const REGISTROS_TURNO_API_URL = `${API_BASE_URL}/registros-turno/`;
 
 export const getConductores = async () => {
     let results = [];
@@ -31,13 +32,29 @@ export const getConductorById = (id) => {
 };
 
 export const createConductor = (conductorData) => {
-    return axios.post(CONDUCTORES_API_URL, conductorData);
+    return axios.post(CONDUCTORES_API_URL, conductorData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
 };
 
 export const updateConductor = (id, conductorData) => {
-    return axios.put(`${CONDUCTORES_API_URL}${id}/`, conductorData);
+    return axios.put(`${CONDUCTORES_API_URL}${id}/`, conductorData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
 };
 
 export const deleteConductor = (id) => {
     return axios.delete(`${CONDUCTORES_API_URL}${id}/`);
+};
+
+export const iniciarTurno = (id) => {
+    return axios.post(`${CONDUCTORES_API_URL}${id}/iniciar-turno/`);
+};
+
+export const finalizarTurno = (id) => {
+    return axios.post(`${CONDUCTORES_API_URL}${id}/finalizar-turno/`);
+};
+
+export const getTurnosByConductor = (params) => {
+    return axios.get(REGISTROS_TURNO_API_URL, { params });
 };

@@ -1,7 +1,8 @@
 import { h, Component } from 'preact';
 import style from './style.css';
 import ConductorForm from '../../components/conductorForm';
-import { getConductores, createConductor, updateConductor, deleteConductor } from '../../services/conductorService';
+import { getConductores, createConductor, updateConductor, deleteConductor, getTurnosByConductor } from '../../services/conductorService';
+import { exportTurnosPDF, formatDate, formatTime } from '../../services/pdfExportService';
 
 const DISPONIBILIDAD_LABELS = {
   disponible: 'Disponible',
@@ -18,6 +19,9 @@ class ConductoresPage extends Component {
     formMode: null, // 'add' | 'edit'
     selectedConductor: null,
     detailModalConductor: null,
+    turnos: [],
+    turnosLoading: false,
+    weekRange: null,
   };
 
   componentDidMount() {
@@ -44,11 +48,11 @@ class ConductoresPage extends Component {
   };
 
   handleViewDetails = (conductor) => {
-    this.setState({ detailModalConductor: conductor });
+    this.setState({ detailModalConductor: conductor, turnos: [] });
   };
 
   handleHideDetails = () => {
-    this.setState({ detailModalConductor: null });
+    this.setState({ detailModalConductor: null, turnos: [] });
   };
 
   handleSave = async (formData) => {
@@ -83,7 +87,67 @@ class ConductoresPage extends Component {
     }
   };
 
-  render(_, { conductores, loading, error, formMode, selectedConductor, detailModalConductor }) {
+  handleVerTurnos = async (conductorId) => {
+    this.setState({ turnosLoading: true, turnos: [] });
+    
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); // Lunes como inicio
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const weekRange = {
+      start: startOfWeek.toLocaleDateString('es-ES'),
+      end: endOfWeek.toLocaleDateString('es-ES'),
+    };
+
+    try {
+      const registros = await getTurnosByConductor({
+        conductor: conductorId,
+        fecha_hora__gte: startOfWeek.toISOString(),
+        fecha_hora__lte: endOfWeek.toISOString(),
+      });
+
+      const turnosProcesados = [];
+      let turnoActual = null;
+
+      // Sort records by date ascending to correctly pair entry/exit
+      registros.sort((a, b) => new Date(a.fecha_hora) - new Date(b.fecha_hora));
+
+      registros.forEach(registro => {
+        if (registro.tipo === 'entrada') {
+          if (turnoActual) {
+            turnosProcesados.push({ start: turnoActual.fecha_hora, end: null, duration: 'Incompleto' });
+          }
+          turnoActual = registro;
+        } else if (registro.tipo === 'salida' && turnoActual) {
+          const start = new Date(turnoActual.fecha_hora);
+          const end = new Date(registro.fecha_hora);
+          const durationMs = end - start;
+          const hours = Math.floor(durationMs / 3600000);
+          const minutes = Math.floor((durationMs % 3600000) / 60000);
+          turnosProcesados.push({ start, end, duration: `${hours}h ${minutes}m` });
+          turnoActual = null;
+        }
+      });
+
+      if (turnoActual) {
+        turnosProcesados.push({ start: turnoActual.fecha_hora, end: null, duration: 'En curso' });
+      }
+
+      this.setState({ turnos: turnosProcesados, weekRange, turnosLoading: false });
+    } catch (error) {
+      console.error("Error al cargar los turnos:", error);
+      alert('Error al cargar los turnos del conductor.');
+      this.setState({ turnosLoading: false });
+    }
+  };
+
+  render(_, { conductores, loading, error, formMode, selectedConductor, detailModalConductor, turnos, turnosLoading, weekRange }) {
     // Contar conductores por estado de disponibilidad
     const conductoresPorEstado = conductores.reduce((acc, c) => {
         acc[c.estado_disponibilidad] = (acc[c.estado_disponibilidad] || 0) + 1;
@@ -219,6 +283,37 @@ class ConductoresPage extends Component {
                 <div class={style.modalActions}>
                   <button onClick={() => this.handleEdit(detailModalConductor)} class={style.editButton}>Editar</button>
                   <button onClick={() => this.handleDelete(detailModalConductor.id)} class={style.deleteButton}>Eliminar</button>
+                </div>
+                <div class={style.turnosSection}>
+                  <hr style={{margin: '20px 0'}} />
+                  <h4>Turnos de la Semana ({weekRange ? `${weekRange.start} - ${weekRange.end}` : ''})</h4>
+                  <button onClick={() => this.handleVerTurnos(detailModalConductor.id)} disabled={turnosLoading} class={style.actionButton}>
+                    {turnosLoading ? 'Cargando...' : 'Cargar Turnos'}
+                  </button>
+                  {turnos.length > 0 && (
+                    <button onClick={() => exportTurnosPDF(detailModalConductor, turnos, weekRange)} class={style.exportButton} style={{marginLeft: '10px'}}>
+                      Exportar PDF
+                    </button>
+                  )}
+                  {turnosLoading && <p>Cargando turnos...</p>}
+                  {turnos.length > 0 && !turnosLoading && (
+                    <table class={style.turnosTable}>
+                      <thead>
+                        <tr><th>Fecha</th><th>Inicio</th><th>Fin</th><th>Duración</th></tr>
+                      </thead>
+                      <tbody>
+                        {turnos.map(t => (
+                          <tr>
+                            <td>{formatDate(t.start)}</td>
+                            <td>{formatTime(t.start)}</td>
+                            <td>{t.end ? formatTime(t.end) : '—'}</td>
+                            <td>{t.duration}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                   {turnos.length === 0 && !turnosLoading && weekRange && <p>No hay turnos registrados para esta semana.</p>}
                 </div>
                 </div>
               </div>

@@ -1,13 +1,57 @@
 import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // Función para formatear fecha como "11 / Junio / 14:30"
-function formatearFecha(fechaStr) {
+export function formatearFecha(fechaStr) {
   if (!fechaStr) return '—';
   const fecha = new Date(fechaStr);
   const dia = fecha.getDate();
   const mes = fecha.toLocaleString('es-ES', { month: 'long' });
   const hora = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
   return `${dia} / ${mes.charAt(0).toUpperCase() + mes.slice(1)} / ${hora}`;
+}
+
+export function formatTime(dateStr) {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+export function exportTurnosPDF(conductor, turnos, reportPeriod) {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Reporte de Turnos: ${conductor.nombre} ${conductor.apellido}`, 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Período del ${reportPeriod.start} al ${reportPeriod.end}`, 14, 30);
+
+    const tableColumn = ["Fecha", "Inicio Turno", "Fin Turno", "Duración"];
+    const tableRows = [];
+
+    turnos.forEach(turno => {
+        const turnoData = [
+            formatDate(turno.start),
+            formatTime(turno.start),
+            formatTime(turno.end),
+            turno.duration || 'En curso'
+        ];
+        tableRows.push(turnoData);
+    });
+
+    doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 35,
+        theme: 'striped',
+        headStyles: { fillColor: [41, 128, 185] },
+    });
+
+    const today = new Date().toISOString().slice(0, 10);
+    doc.save(`reporte_turnos_${conductor.apellido}_${today}.pdf`);
 }
 
 export function exportAsignacionesPDF(asignaciones) {

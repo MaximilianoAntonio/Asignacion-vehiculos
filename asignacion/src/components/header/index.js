@@ -23,6 +23,7 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                             <>
                                 <Link activeClassName={style.active} href="/vehiculos">Vehículos</Link>
                                 <Link activeClassName={style.active} href="/conductores">Conductores</Link>
+                                <Link activeClassName={style.active} href="/horarios">Horarios</Link>
                                 <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
                             </>
                         )}

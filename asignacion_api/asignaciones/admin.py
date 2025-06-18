@@ -1,6 +1,6 @@
 # asignaciones/admin.py
 from django.contrib import admin
-from .models import Vehiculo, Conductor, Asignacion
+from .models import Vehiculo, Conductor, Asignacion, RegistroTurno
 from django.utils.html import format_html
 
 @admin.register(Vehiculo)
@@ -170,3 +170,9 @@ class AsignacionAdmin(admin.ModelAdmin):
     @admin.display(description='Solicitante (Jerarquía)')
     def get_solicitante_info_admin(self, obj):
         return f"{obj.solicitante_nombre or 'N/A'} ({obj.get_solicitante_jerarquia_display()})"
+
+@admin.register(RegistroTurno)
+class RegistroTurnoAdmin(admin.ModelAdmin):
+    list_display = ('conductor', 'fecha_hora', 'tipo')
+    list_filter = ('tipo', 'conductor')
+    search_fields = ('conductor__nombre', 'conductor__apellido')

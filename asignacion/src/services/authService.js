@@ -4,7 +4,6 @@ import { API_BASE_URL } from '../config';
 
 const LOGIN_API_URL = `${API_BASE_URL}/get-token/`; // Corresponde al endpoint de Django
 
-// Variable para almacenar el token globalmente (o usar localStorage/contexto Preact)
 let authToken = null;
 
 export async function loginUser({ username, password }) {
