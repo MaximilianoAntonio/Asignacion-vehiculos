@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'asignaciones',
     'django_filters',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

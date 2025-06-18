@@ -11,6 +11,7 @@ import LoginPage from '../routes/login'; // Nueva importación
 import AsignacionesPage from '../routes/asignaciones'; // Nueva importación
 import HorariosPage from '../routes/horarios'; // Importa la ruta de horarios
 import MantenimientoPage from '../routes/mantenimiento'; // 1. Importar la nueva página
+import CamaraPage from '../routes/camara/index'; // Nueva importación
 
 
 // Componente para rutas protegidas (ejemplo básico)
@@ -35,6 +36,7 @@ export default class App extends Component {
             isLoggedIn: !!getToken(),
             userGroup: JSON.parse(localStorage.getItem('userGroup') || '[]'), // <-- SIEMPRE array
         });
+
     }
 
     handleRoute = e => {
@@ -69,6 +71,7 @@ export default class App extends Component {
                     <PrivateRoute component={AsignacionesPage} path="/asignaciones" userGroup={this.state.userGroup} />
                     <PrivateRoute component={HorariosPage} path="/horarios" />
                     <PrivateRoute component={MantenimientoPage} path="/mantenimiento" />
+                    <PrivateRoute component={CamaraPage} path="/camara" />
                 </Router>
             </div>
         );

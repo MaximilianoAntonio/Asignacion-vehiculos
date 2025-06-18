@@ -4,3 +4,5 @@ django-cors-headers
 django-filter
 pillow
 geopy
+django-extensions werkzeug
+pip install pyOpenSSL

@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider preact build",
-    "serve": "sirv build --port 5000 --cors --single",
+    "serve": "sirv build --port 5000 --cors --single --host",
     "dev": "cross-env NODE_OPTIONS=--openssl-legacy-provider preact watch",
     "lint": "eslint src",
     "test": "jest"
@@ -33,8 +33,10 @@
     "framer-motion": "^12.18.1",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
+    "jsqr": "^1.4.0",
     "leaflet": "^1.9.4",
-    "preact": "^10.11.3",
+    "openssl": "^2.0.0",
+    "preact": "^10.26.9",
     "preact-render-to-string": "^5.2.6",
     "preact-router": "^3.2.1"
   },

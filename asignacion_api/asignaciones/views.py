@@ -6,12 +6,10 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAdminUser
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 import requests
 from django.http import JsonResponse
-
 
 from .models import Vehiculo, Conductor, Asignacion, RegistroTurno
 from .serializers import (
@@ -21,14 +19,11 @@ from .serializers import (
     RegistroTurnoSerializer
 )
 
-
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from .services import asignar_vehiculos_automatico_lote
 
 from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 
 class UserGroupView(APIView):

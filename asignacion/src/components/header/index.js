@@ -15,6 +15,7 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
             </div>
             <nav class={style.nav}>
                 <Link activeClassName={style.active} href="/">Inicio</Link>
+                <Link activeClassName={style.active} href="/camara">Cámara</Link>
                 {isLoggedIn && (
                     <>
                         {isFuncionario ? (

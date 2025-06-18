@@ -48,11 +48,15 @@ export const deleteConductor = (id) => {
 };
 
 export const iniciarTurno = (id) => {
-    return axios.post(`${CONDUCTORES_API_URL}${id}/iniciar-turno/`);
+    return axios.post(`${CONDUCTORES_API_URL}${id}/iniciar-turno/`, {}, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const finalizarTurno = (id) => {
-    return axios.post(`${CONDUCTORES_API_URL}${id}/finalizar-turno/`);
+    return axios.post(`${CONDUCTORES_API_URL}${id}/finalizar-turno/`, {}, {
+        headers: { 'Content-Type': 'application/json' }
+    });
 };
 
 export const getTurnosByConductor = (params) => {

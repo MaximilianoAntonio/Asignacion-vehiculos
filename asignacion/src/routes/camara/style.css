@@ -1,0 +1,27 @@
+.camaraContainer {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.camaraTitle {
+    margin-bottom: 24px;
+}
+
+.camaraError {
+    color: red;
+    margin-bottom: 16px;
+}
+
+.camaraVideo {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 12px;
+    border: 2px solid #2563EB;
+    background: #000;
+    display: block;
+    transform: scaleX(-1);
+}
