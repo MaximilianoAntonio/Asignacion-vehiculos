@@ -63,16 +63,18 @@ export default class App extends Component {
                     onLogout={this.handleLogout}
                     userGroup={this.state.userGroup} // <-- Ahora es array
                 />
-                <Router onChange={this.handleRoute}>
-                    <Home path="/" />
-                    <LoginPage path="/login" />
-                    <PrivateRoute component={VehiculosPage} path="/vehiculos" />
-                    <PrivateRoute component={ConductoresPage} path="/conductores" />
-                    <PrivateRoute component={AsignacionesPage} path="/asignaciones" userGroup={this.state.userGroup} />
-                    <PrivateRoute component={HorariosPage} path="/horarios" />
-                    <PrivateRoute component={MantenimientoPage} path="/mantenimiento" />
-                    <PrivateRoute component={CamaraPage} path="/camara" />
-                </Router>
+                <main class="page-content">
+                    <Router onChange={this.handleRoute}>
+                        <Home path="/" />
+                        <LoginPage path="/login" onLoginSuccess={this.handleLogin} />
+                        <PrivateRoute component={VehiculosPage} path="/vehiculos" />
+                        <PrivateRoute component={ConductoresPage} path="/conductores" />
+                        <PrivateRoute component={AsignacionesPage} path="/asignaciones" userGroup={this.state.userGroup} />
+                        <PrivateRoute component={HorariosPage} path="/horarios" />
+                        <PrivateRoute component={MantenimientoPage} path="/mantenimiento" />
+                        <PrivateRoute component={CamaraPage} path="/camara" />
+                    </Router>
+                </main>
             </div>
         );
     }
