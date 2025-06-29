@@ -167,3 +167,39 @@
   background: var(--bg-main);
 }
 
+/* NUEVO: Contenedor para el mapa */
+.mapContainer {
+  height: 300px;
+  width: 100%;
+  margin-bottom: 1em;
+  border-radius: var(--border-radius-md);
+  overflow: hidden; /* Asegura que el mapa respete el borde redondeado */
+  border: 1px solid var(--border-color);
+}
+
+/* NUEVO: Media query para responsividad */
+@media (max-width: 768px) {
+  .formContainer {
+    padding: 16px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .formContainer h2, .formContainer h3 {
+    font-size: 1.3rem;
+  }
+
+  .formActions {
+    flex-direction: column-reverse; /* Apila los botones, con el principal arriba */
+    align-items: stretch;
+  }
+
+  .formActions button {
+    width: 100%;
+  }
+
+  .mapContainer {
+    height: 250px; /* Reduce la altura del mapa en móviles */
+  }
+}
+
