@@ -123,74 +123,74 @@ const Vehiculos = () => {
             </div>
 
             <div class={style.pageLayout}>
+
                 <div class={style.leftColumn}>
                     <button onClick={handleAddNew} class={style.button}>
                         Agregar Nuevo Vehículo
                     </button>
-                    <table class={style.table}>
-                        <thead>
-                            <tr>
-                                <th>Patente</th>
-                                <th>Foto</th>
-                                <th>Marca</th>
-                                <th>Modelo</th>
-                                <th>Año</th>
-                                <th>Tipo</th>
-                                <th>Estado</th>
-                                <th>Capacidad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {vehiculos.map((vehiculo) => (
-                                <tr key={vehiculo.id} onClick={() => handleViewDetails(vehiculo)} class={style.clickableRow}>
-                                    <td>{vehiculo.patente}</td>
-                                    <td>
-                                      {vehiculo.foto_url ? (
-                                        <img
-                                          src={`${vehiculo.foto_url}`}
-                                          style={{ width: '100px', height: 'auto', objectFit: 'contain' }}
-                                          />
-                                      ) : (
-                                        'Sin foto'
-                                      )}
-                                    </td>
-                                    <td>{vehiculo.marca}</td>
-                                    <td>{vehiculo.modelo}</td>
-                                    <td>{vehiculo.anio}</td>
-                                    <td>{tipoVehiculoLabels[vehiculo.tipo_vehiculo] || vehiculo.tipo_vehiculo}</td>
-                                    <td class={
-                                        vehiculo.estado === 'disponible' ? style.estadoDisponible :
-                                        vehiculo.estado === 'en_uso' ? style.estadoEnUso :
-                                        vehiculo.estado === 'mantenimiento' ? style.estadoMantenimiento :
-                                        vehiculo.estado === 'reservado' ? style.estadoReservado : ''
-                                    }>
-                                        {estadoVehiculoLabels[vehiculo.estado] || vehiculo.estado}
-                                    </td>
-                                    <td>{vehiculo.capacidad_pasajeros}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <div class={style.responsiveTableWrapper}>
+                      <table class={style.table}>
+                          <thead>
+                              <tr>
+                                  <th>Patente</th>
+                                  <th>Foto</th>
+                                  <th>Marca</th>
+                                  <th>Modelo</th>
+                                  <th>Año</th>
+                                  <th>Tipo</th>
+                                  <th>Estado</th>
+                                  <th>Capacidad</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {vehiculos.map((vehiculo) => (
+                                  <tr key={vehiculo.id} onClick={() => handleViewDetails(vehiculo)} class={style.clickableRow}>
+                                      <td data-label="Patente">{vehiculo.patente}</td>
+                                      <td data-label="Foto">
+                                        {vehiculo.foto_url ? (
+                                          <img
+                                            src={`${vehiculo.foto_url}`}
+                                            style={{ width: '100px', height: 'auto', objectFit: 'contain' }}
+                                            />
+                                        ) : (
+                                          'Sin foto'
+                                        )}
+                                      </td>
+                                      <td data-label="Marca">{vehiculo.marca}</td>
+                                      <td data-label="Modelo">{vehiculo.modelo}</td>
+                                      <td data-label="Año">{vehiculo.anio}</td>
+                                      <td data-label="Tipo">{tipoVehiculoLabels[vehiculo.tipo_vehiculo] || vehiculo.tipo_vehiculo}</td>
+                                      <td data-label="Estado" class={
+                                          vehiculo.estado === 'disponible' ? style.estadoDisponible :
+                                          vehiculo.estado === 'en_uso' ? style.estadoEnUso :
+                                          vehiculo.estado === 'mantenimiento' ? style.estadoMantenimiento :
+                                          vehiculo.estado === 'reservado' ? style.estadoReservado : ''
+                                      }>
+                                          {estadoVehiculoLabels[vehiculo.estado] || vehiculo.estado}
+                                      </td>
+                                      <td data-label="Capacidad">{vehiculo.capacidad_pasajeros}</td>
+                                  </tr>
+                              ))}
+                          </tbody>
+                      </table>
+                    </div>
                 </div>
 
-                <div class={style.rightColumn}>
-                    {formMode ? (
-                        <div class={style.formContainer}>
-                            <h2>{formMode === 'edit' ? 'Editar Vehículo' : 'Agregar Vehículo'}</h2>
-                            <VehiculoForm 
-                                vehiculo={selectedVehiculo} 
-                                onSave={handleSave} 
-                                onUpdate={handleUpdate}
-                                onCancel={resetFormState}
-                            />
-                        </div>
-                    ) : (
-                        <div class={style.formPlaceholder}>
-                            <p>Seleccione "Agregar Nuevo Vehículo" o haga clic en una fila para ver sus detalles y editar.</p>
-                        </div>
-                    )}
-                </div>
             </div>
+
+            {/* MODAL flotante para el formulario */}
+            {formMode && (
+              <div class={style.modalOverlay} onClick={resetFormState}>
+                <div class={style.modalContent} onClick={e => e.stopPropagation()}>
+                  <VehiculoForm
+                    vehiculo={selectedVehiculo}
+                    onSave={handleSave}
+                    onUpdate={handleUpdate}
+                    onCancel={resetFormState}
+                  />
+                </div>
+              </div>
+            )}
 
             {detailModalVehiculo && (
                  <div class={style.modalOverlay} onClick={() => setDetailModalVehiculo(null)}>

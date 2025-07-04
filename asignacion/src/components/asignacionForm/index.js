@@ -53,6 +53,8 @@ class AsignacionForm extends Component {
     solicitante_jerarquia: 0,
     solicitante_nombre: '',
     solicitante_telefono: '',
+    responsable_nombre: '',
+    responsable_telefono: '',
     origen_calle_sugerencias: [],
     destino_calle_sugerencias: [],
     ruta: null,
@@ -92,6 +94,8 @@ class AsignacionForm extends Component {
         solicitante_jerarquia: typeof props.asignacion.solicitante_jerarquia === 'number' ? props.asignacion.solicitante_jerarquia : 0,
         solicitante_nombre: props.asignacion.solicitante_nombre || '',
         solicitante_telefono: props.asignacion.solicitante_telefono || '',
+        responsable_nombre: props.asignacion.responsable_nombre || '',
+        responsable_telefono: props.asignacion.responsable_telefono || '',
       } : {})
     };
 
@@ -289,7 +293,9 @@ class AsignacionForm extends Component {
       vehiculo, conductor, origen_descripcion, destino_descripcion,
       fecha_hora_requerida_inicio, req_pasajeros, req_tipo_vehiculo_preferente,
       req_caracteristicas_especiales, observaciones, solicitante_jerarquia,
-      solicitante_nombre, solicitante_telefono, estado,
+      solicitante_nombre, solicitante_telefono,
+      responsable_nombre, responsable_telefono,
+      estado,
       origen_lat, origen_lon, destino_lat, destino_lon,
       fecha_hora_fin_prevista, fecha_hora_fin_real,
       distancia_km,
@@ -320,6 +326,8 @@ class AsignacionForm extends Component {
       solicitante_jerarquia,
       solicitante_nombre,
       solicitante_telefono,
+      responsable_nombre,
+      responsable_telefono,
       estado,
       origen_lat: origen_lat || null,
       origen_lon: origen_lon || null,
@@ -364,14 +372,14 @@ class AsignacionForm extends Component {
 
   render(props, state) {
     const {
-      // --- REFACTOR: Leemos 'vehiculo' y 'conductor' para el renderizado ---
       vehiculo, conductor,
       origen_descripcion, destino_descripcion,
       fecha_hora_requerida_inicio, req_pasajeros,
       req_tipo_vehiculo_preferente, req_caracteristicas_especiales,
       observaciones, solicitante_jerarquia,
-      solicitante_nombre, solicitante_telefono, estado,
-      error, submitting
+      solicitante_nombre, solicitante_telefono,
+      responsable_nombre, responsable_telefono,
+      estado, error, submitting
     } = state;
 
     const { vehiculosDisponibles, conductoresDisponibles, userGroup } = props;
@@ -544,10 +552,19 @@ class AsignacionForm extends Component {
             <input type="text" name="solicitante_nombre" id="solicitante_nombre" value={solicitante_nombre}
               onInput={this.handleChange} />
           </div>
-
           <div class={formStyle.formGroup}>
             <label htmlFor="solicitante_telefono">Teléfono del Solicitante:</label>
             <input type="text" name="solicitante_telefono" id="solicitante_telefono" value={solicitante_telefono}
+              onInput={this.handleChange} />
+          </div>
+          <div class={formStyle.formGroup}>
+            <label htmlFor="responsable_nombre">Nombre del Responsable:</label>
+            <input type="text" name="responsable_nombre" id="responsable_nombre" value={responsable_nombre}
+              onInput={this.handleChange} />
+          </div>
+          <div class={formStyle.formGroup}>
+            <label htmlFor="responsable_telefono">Teléfono del Responsable:</label>
+            <input type="text" name="responsable_telefono" id="responsable_telefono" value={responsable_telefono}
               onInput={this.handleChange} />
           </div>
 

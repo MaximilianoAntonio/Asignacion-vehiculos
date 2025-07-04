@@ -1,91 +1,25 @@
-import { h, Component } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
-import { getVehiculos } from '../../services/vehicleService';
+import { h } from 'preact';
 import style from './style.css';
 
-const MANTENIMIENTO_INTERVALO_KM = 10000; // Mantenimiento cada 10.000 km
-
 const MantenimientoPage = () => {
-    const [vehiculos, setVehiculos] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                setLoading(true);
-                const data = await getVehiculos();
-                setVehiculos(data);
-                setError(null);
-            } catch (err) {
-                setError('Error al cargar los datos de mantenimiento.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadData();
-    }, []);
-
-    const calcularMantenimiento = (kilometraje) => {
-        if (typeof kilometraje !== 'number') {
-            return { proximo: 'N/A', progreso: 0, restante: 'N/A' };
-        }
-        const km = Math.round(kilometraje);
-        const proximo = Math.ceil(km / MANTENIMIENTO_INTERVALO_KM) * MANTENIMIENTO_INTERVALO_KM;
-        const ultimo = proximo - MANTENIMIENTO_INTERVALO_KM;
-        const progreso = ((km - ultimo) / MANTENIMIENTO_INTERVALO_KM) * 100;
-        const restante = proximo - km;
-        return {
-            proximo: proximo.toLocaleString('es-ES'),
-            progreso: Math.max(0, Math.min(100, progreso)),
-            restante: restante.toLocaleString('es-ES'),
-        };
-    };
-
-    if (loading) return <p>Cargando vehículos...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
-
     return (
         <div class={style.mantenimientoPage}>
-            <h1>Control de Mantenimiento de Vehículos</h1>
-            <p>El mantenimiento preventivo se recomienda cada <strong>{MANTENIMIENTO_INTERVALO_KM.toLocaleString('es-ES')} km</strong>.</p>
+            <h1>Dashboard de Mantenimiento</h1>
             
-            <table class={style.mantenimientoTable}>
-                <thead>
-                    <tr>
-                        <th>Patente</th>
-                        <th>Marca / Modelo</th>
-                        <th>Kilometraje Actual</th>
-                        <th>Próximo Mantenimiento (km)</th>
-                        <th>Progreso</th>
-                        <th>Km Restantes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {vehiculos.map(v => {
-                        const mant = calcularMantenimiento(v.kilometraje);
-                        return (
-                            <tr key={v.id}>
-                                <td>{v.patente}</td>
-                                <td>{v.marca} {v.modelo}</td>
-                                <td>{v.kilometraje ? `${Math.round(v.kilometraje).toLocaleString('es-ES')} km` : 'N/A'}</td>
-                                <td>{mant.proximo}</td>
-                                <td>
-                                    <div class={style.progressBarContainer}>
-                                        <div 
-                                            class={style.progressBar} 
-                                            style={{ width: `${mant.progreso}%` }}
-                                        />
-                                        <span class={style.progressText}>{Math.round(mant.progreso)}%</span>
-                                    </div>
-                                </td>
-                                <td>{mant.restante} km</td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+            <div class={style.powerbiContainer}>
+                {/* 
+                  INSTRUCCIONES:
+                  1. Ve a tu informe en Power BI.
+                  2. Haz clic en "Archivo" > "Insertar informe" > "Publicar en la web (público)".
+                  3. Copia el código del <iframe> que te proporciona Power BI.
+                  4. Pega ese código aquí debajo, reemplazando este comentario.
+                */}
+                <p class={style.placeholderText}>
+                {/* 
+                    Aquí va tu dashboard de Power BI. Pega el código <iframe> de Power BI para mostrarlo. 
+                */}
+                </p>
+            </div>
         </div>
     );
 };

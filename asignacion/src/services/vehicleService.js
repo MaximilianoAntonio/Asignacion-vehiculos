@@ -4,6 +4,7 @@ import { API_BASE_URL } from '../config';
 
 const VEHICULOS_API_URL = `${API_BASE_URL}/vehiculos/`;
 
+// Función para obtener todos los vehículos
 export const getVehiculos = async () => {
     let results = [];
     let nextUrl = VEHICULOS_API_URL;

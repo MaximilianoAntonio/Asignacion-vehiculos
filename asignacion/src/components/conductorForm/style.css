@@ -1,13 +1,100 @@
-.formContainer {
-  border: 1px solid var(--border-color);
+/* --- MODAL OVERLAY Y CONTENEDOR MODAL FLOTANTE --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
+  max-width: 560px; /* Aumentado de 480px a 560px */
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.8rem 1.5rem; /* Ajustado para más espacio */
+  display: flex;
+  flex-direction: column;
   position: relative;
-  padding: 24px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+  .modal-content {
+    padding: 1rem;
+    max-height: 98vh;
+  }
+}
+
+.formContainer {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* --- TABLA RESPONSIVA --- */
+.responsiveTableWrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
-  margin-bottom: 20px;
-  border-radius: var(--border-radius-lg);
-  background-color: var(--bg-card);
-  color: var(--text-primary);
   box-shadow: var(--shadow-medium);
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+.dataTable th,
+.dataTable td {
+  border-bottom: 1px solid var(--border-color-light);
+  padding: 12px 15px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+@media (max-width: 900px) {
+  .responsiveTableWrapper {
+    overflow-x: auto;
+    width: 100vw;
+    margin-left: -16px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .dataTable {
+    min-width: 600px;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+  }
+  .dataTable th,
+  .dataTable td {
+    font-size: 13px;
+    padding: 10px 8px;
+  }
 }
 
 .formContainer h3 {

@@ -160,74 +160,78 @@ class AsignacionesPage extends Component {
         </div>
         <div class={style.pageLayout}>
           <div class={style.leftColumn}>
-            <table class={style.table}>
-              <thead>
-                <tr>
-                  <th>Vehículo</th>
-                  <th>Conductor</th>
-                  <th>Origen</th>
-                  <th>Destino</th>
-                  <th>Inicio</th>
-                  <th>Fin Previsto</th>
-                  <th>Estado</th>
-                  {/* <th>Ver Mapa</th>  Eliminado */} 
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan="7">Cargando asignaciones...</td></tr>
-                ) : error ? (
-                  <tr><td colSpan="7" style={{ color: 'red' }}>{error}</td></tr>
-                ) : asignaciones.length === 0 ? (
+            <div class={style.responsiveTableWrapper}>
+              <table class={style.table}>
+                <thead>
                   <tr>
-                    <td colSpan="7">No hay asignaciones registradas.</td>
+                    <th>Vehículo</th>
+                    <th>Conductor</th>
+                    <th>Responsable</th>
+                    <th>Tel. Responsable</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Inicio</th>
+                    <th>Fin Previsto</th>
+                    <th>Estado</th>
                   </tr>
-                ) : (
-                  asignaciones.map(a => (
-                    <tr
-                      key={a.id}
-                      class={style.clickableRow}
-                      onClick={() => this.handleViewDetails(a)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <td>{a.vehiculo?.patente || '—'}</td>
-                      <td>{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
-                      <td>{this.acortarDireccion(a.origen_descripcion)}</td>
-                      <td>{this.acortarDireccion(a.destino_descripcion)}</td>
-                      <td>{this.formatearFecha(a.fecha_hora_requerida_inicio)}</td>
-                      <td>{this.formatearFecha(a.fecha_hora_fin_prevista)}</td>
-                      <td class={
-                        a.estado === 'pendiente' ? style.estadoPendiente :
-                        a.estado === 'en_curso' ? style.estadoEnCurso :
-                        a.estado === 'finalizada' ? style.estadoFinalizada :
-                        a.estado === 'cancelada' ? style.estadoCancelada : ''
-                      }>
-                        {estadosLabels[a.estado] || a.estado}
-                      </td>
-                      {/* Botón de Ver Mapa eliminado */}
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan="9">Cargando asignaciones...</td></tr>
+                  ) : error ? (
+                    <tr><td colSpan="9" style={{ color: 'red' }}>{error}</td></tr>
+                  ) : asignaciones.length === 0 ? (
+                    <tr>
+                      <td colSpan="9">No hay asignaciones registradas.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div class={style.rightColumn}>
-            {showForm ? (
-                <AsignacionForm
-                  asignacion={this.state.asignacionEditando}
-                  onAsignacionCreada={this.handleAsignacionCreada}
-                  onCancel={this.handleHideForm}
-                  vehiculosDisponibles={vehiculos}
-                  conductoresDisponibles={conductores}
-                  userGroup={this.props.userGroup}
-                />
-            ) : (
-              <div class={style.formPlaceholder}>
-                <p>Seleccione "Agregar Asignación" o haga clic en una fila para ver detalles y editar.</p>
-              </div>
-            )}
+                  ) : (
+                    asignaciones.map(a => (
+                      <tr
+                        key={a.id}
+                        class={style.clickableRow}
+                        onClick={() => this.handleViewDetails(a)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <td data-label="Vehículo">{a.vehiculo?.patente || '—'}</td>
+                        <td data-label="Conductor">{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
+                        <td data-label="Responsable">{a.responsable_nombre ? a.responsable_nombre : '—'}</td>
+                        <td data-label="Tel. Responsable">{a.responsable_telefono ? a.responsable_telefono : '—'}</td>
+                        <td data-label="Origen">{this.acortarDireccion(a.origen_descripcion)}</td>
+                        <td data-label="Destino">{this.acortarDireccion(a.destino_descripcion)}</td>
+                        <td data-label="Inicio">{this.formatearFecha(a.fecha_hora_requerida_inicio)}</td>
+                        <td data-label="Fin Previsto">{this.formatearFecha(a.fecha_hora_fin_prevista)}</td>
+                        <td data-label="Estado" class={
+                          a.estado === 'pendiente' ? style.estadoPendiente :
+                          a.estado === 'en_curso' ? style.estadoEnCurso :
+                          a.estado === 'finalizada' ? style.estadoFinalizada :
+                          a.estado === 'cancelada' ? style.estadoCancelada : ''
+                        }>
+                          {estadosLabels[a.estado] || a.estado}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+
+        {/* MODAL flotante para el formulario */}
+        {showForm && (
+          <div class={style.modalOverlay} onClick={this.handleHideForm}>
+            <div class={style.modalContent} onClick={e => e.stopPropagation()}>
+              <AsignacionForm
+                asignacion={this.state.asignacionEditando}
+                onAsignacionCreada={this.handleAsignacionCreada}
+                onCancel={this.handleHideForm}
+                vehiculosDisponibles={vehiculos}
+                conductoresDisponibles={conductores}
+                userGroup={this.props.userGroup}
+              />
+            </div>
+          </div>
+        )}
 
         {detailModalAsignacion && (
           <div class={style.modalOverlay} onClick={this.handleHideDetails}>
@@ -254,6 +258,8 @@ class AsignacionesPage extends Component {
                 <div class={style.modalDetails}>
                   <p><strong>Vehículo:</strong> {detailModalAsignacion.vehiculo?.patente || '—'}</p>
                   <p><strong>Conductor:</strong> {detailModalAsignacion.conductor ? `${detailModalAsignacion.conductor.nombre} ${detailModalAsignacion.conductor.apellido}` : '—'}</p>
+                  <p><strong>Responsable:</strong> {detailModalAsignacion.responsable_nombre ? `${detailModalAsignacion.responsable_nombre} (${detailModalAsignacion.responsable_telefono || '—'})` : '—'}</p>
+                  <p><strong>Solicitante:</strong> {detailModalAsignacion.solicitante_nombre ? `${detailModalAsignacion.solicitante_nombre} (${detailModalAsignacion.solicitante_telefono || '—'})` : '—'}</p>
                   <p><strong>Origen:</strong> {this.acortarDireccion(detailModalAsignacion.origen_descripcion)}</p>
                   <p><strong>Destino:</strong> {this.acortarDireccion(detailModalAsignacion.destino_descripcion)}</p>
                   <p><strong>Inicio:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_requerida_inicio)}</p>

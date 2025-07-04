@@ -45,39 +45,38 @@ class TurnoPairEditModal extends Component {
         const { onCancel, turnoPair } = this.props;
         const { start, end } = this.state;
 
-        // Assuming some generic style classes that might exist for the old modal
         return (
-            <div class={style.modalBackdrop}>
-                <div class={style.modalContent}>
-                    <h2>Editar Turno</h2>
-                    <form onSubmit={this.handleSave}>
-                        <div class={style.inputRow}>
+            <div class={style['modal-overlay']} onClick={onCancel}>
+                <div class={style['modal-content']} onClick={e => e.stopPropagation()}>
+                    <h3>Editar Turno</h3>
+                    <form onSubmit={this.handleSave} class={style.formContainer}>
+                        <div class={style.formGroup}>
                             {turnoPair.start && (
-                                <div class={style.formGroup}>
+                                <div class={style.inputGroup}>
                                     <label for="start_time">Inicio</label>
                                     <input
                                         type="datetime-local"
                                         id="start_time"
                                         value={start}
-                                        onChange={e => this.setState({ start: e.target.value })}
+                                        onInput={e => this.setState({ start: e.target.value })}
                                     />
                                 </div>
                             )}
                             {turnoPair.end && (
-                                <div class={style.formGroup}>
+                                <div class={style.inputGroup}>
                                     <label for="end_time">Fin</label>
                                     <input
                                         type="datetime-local"
                                         id="end_time"
                                         value={end}
-                                        onChange={e => this.setState({ end: e.target.value })}
+                                        onInput={e => this.setState({ end: e.target.value })}
                                     />
                                 </div>
                             )}
                         </div>
-                        <div class={style.modalActions}>
-                            <button type="button" class={style.button} onClick={onCancel}>Cancelar</button>
-                            <button type="submit" class={`${style.button} ${style.buttonStart}`}>Guardar</button>
+                        <div class={style.formActions}>
+                            <button type="button" class={style.cancelButton} onClick={onCancel}>Cancelar</button>
+                            <button type="submit" class={style.submitButton}>Guardar Cambios</button>
                         </div>
                     </form>
                 </div>
@@ -406,57 +405,59 @@ class HorariosPage extends Component {
             {loading && <p>Cargando...</p>}
             {error && <p class={style.error}>{error}</p>}
             {!loading && !error && (
-              <table class={style.table}>
-                <thead>
-                  <tr>
-                    <th>Conductor</th>
-                    <th>Estado Actual</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {conductores.length > 0 ? (
-                    conductores.map(c => (
-                      <tr
-                        key={c.id}
-                        onClick={() => this.handleSelectConductor(c)}
-                        class={`${style.clickableRow} ${selectedConductor?.id === c.id ? style.selectedRow : ''}`}
-                      >
-                        <td>{c.nombre} {c.apellido}</td>
-                        <td>
-                          <span class={`${style.status} ${style[c.estado_disponibilidad]}`}>
-                            {DISPONIBILIDAD_LABELS[c.estado_disponibilidad] || c.estado_disponible}
-                          </span>
-                        </td>
-                        <td>
-                          {c.estado_disponibilidad === 'en_ruta' ? (
-                            <button class={`${style.button} ${style.buttonDisabled}`} disabled>
-                              En Ruta
-                            </button>
-                          ) : (
-                            <button
-                              class={`${style.button} ${
-                                c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible'
-                                  ? style.buttonStart
-                                  : style.buttonEnd
-                              }`}
-                              onClick={e => this.handleTurnoActionClick(e, c)}
-                            >
-                              {c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible'
-                                ? 'Iniciar Turno'
-                                : 'Finalizar Turno'}
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
+              <div class={style['table-wrapper']}>
+                <table class={style.table}>
+                  <thead>
                     <tr>
-                      <td colSpan="3" style={{ textAlign: 'center' }}>No hay conductores disponibles.</td>
+                      <th>Conductor</th>
+                      <th>Estado Actual</th>
+                      <th>Acciones</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {conductores.length > 0 ? (
+                      conductores.map(c => (
+                        <tr
+                          key={c.id}
+                          onClick={() => this.handleSelectConductor(c)}
+                          class={`${style.clickableRow} ${selectedConductor?.id === c.id ? style.selectedRow : ''}`}
+                        >
+                          <td>{c.nombre} {c.apellido}</td>
+                          <td>
+                            <span class={`${style.status} ${style[c.estado_disponibilidad]}`}>
+                              {DISPONIBILIDAD_LABELS[c.estado_disponibilidad] || c.estado_disponible}
+                            </span>
+                          </td>
+                          <td>
+                            {c.estado_disponibilidad === 'en_ruta' ? (
+                              <button class={`${style.button} ${style.buttonDisabled}`} disabled>
+                                En Ruta
+                              </button>
+                            ) : (
+                              <button
+                                class={`${style.button} ${
+                                  c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible'
+                                    ? style.buttonStart
+                                    : style.buttonEnd
+                                }`}
+                                onClick={e => this.handleTurnoActionClick(e, c)}
+                              >
+                                {c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible'
+                                  ? 'Iniciar Turno'
+                                  : 'Finalizar Turno'}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: 'center' }}>No hay conductores disponibles.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
           <div class={style.rightColumn}>

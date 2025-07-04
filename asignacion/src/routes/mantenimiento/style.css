@@ -1,12 +1,13 @@
 .mantenimientoPage {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
-    font-family: Arial, sans-serif;
+    font-family: var(--font-primary);
 }
 
 .mantenimientoPage h1 {
     margin-bottom: 25px;
+    color: var(--text-primary);
 }
 
 .mantenimientoPage p {
@@ -79,4 +80,34 @@
     font-weight: bold;
     font-size: 13px;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.powerbiContainer {
+    position: relative;
+    padding-bottom: 56.25%; /* Proporción 16:9 para el iframe */
+    height: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-medium);
+}
+
+.powerbiContainer iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.placeholderText {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    padding: 2rem;
 }

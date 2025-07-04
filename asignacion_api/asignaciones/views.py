@@ -61,7 +61,7 @@ def nominatim_proxy(request):
 class VehiculoViewSet(viewsets.ModelViewSet):
     queryset = Vehiculo.objects.all().order_by('marca', 'modelo')
     serializer_class = VehiculoSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     # Asegúrate que estos campos coincidan con tu modelo Vehiculo actual

@@ -61,72 +61,78 @@ const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
     }
   };
 
+  // Modal flotante centrado y responsivo
   return (
-    <form onSubmit={handleSubmit} class={style.form}>
-      <div class={style.formGroup}>
-        <label>Nombre</label>
-        <input type="text" value={nombre} onInput={e => setNombre(e.target.value)} required />
-      </div>
-      <div class={style.formGroup}>
-        <label>Apellido</label>
-        <input type="text" value={apellido} onInput={e => setApellido(e.target.value)} required />
-      </div>
-      <div class={style.formGroup}>
-        <label>Número de Licencia</label>
-        <input type="text" value={numeroLicencia} onInput={e => setNumeroLicencia(e.target.value)} required />
-      </div>
-      <div class={style.formGroup}>
-        <label>Fecha de Vencimiento Licencia</label>
-        <input type="date" value={fechaVencimiento} onInput={e => setFechaVencimiento(e.target.value)} required />
-      </div>
-      <div class={style.formGroup}>
-        <label>Teléfono</label>
-        <input type="tel" value={telefono} onInput={e => setTelefono(e.target.value)} />
-      </div>
-      <div class={style.formGroup}>
-        <label>Email</label>
-        <input type="email" value={email} onInput={e => setEmail(e.target.value)} />
-      </div>
-      <div class={style.formGroup}>
-        <label>Tipos de Vehículo Habilitados</label>
-        <input type="text" value={tiposVehiculo} onInput={e => setTiposVehiculo(e.target.value)} placeholder="Station Wagon, Automóvil, Minibús, Camioneta, etc" />
-      </div>
-      <div class={style.formGroup}>
-        <label>Estado de Disponibilidad</label>
-        <select value={estadoDisponibilidad} onInput={e => setEstadoDisponibilidad(e.target.value)}>
-          <option value="disponible">Disponible</option>
-          <option value="en_ruta">En Ruta</option>
-          <option value="dia_libre">Día Libre</option>
-          <option value="no_disponible">No Disponible</option>
-        </select>
-      </div>
-      <div class={style.formGroup}>
-        <label for="foto">Foto del Conductor</label>
-        <input
-          id="foto"
-          type="file"
-          accept="image/*"
-          onChange={e => setFoto(e.target.files[0])}
-        />
-      </div>
-      {errores && (
-        <div class={style.errorMsg}>
-          {Object.entries(errores).map(([campo, mensajes]) =>
-            mensajes.map(msg => (
-              <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
-            ))
+    <div class={style['modal-overlay']} onClick={onCancel}>
+      <div class={style['modal-content']} onClick={e => e.stopPropagation()}>
+        <form onSubmit={handleSubmit} class={style.formContainer} style={{ width: '100%' }}>
+          <h3>{conductor ? 'Editar Conductor' : 'Nuevo Conductor'}</h3>
+          <div class={style.formGroup}>
+            <label>Nombre</label>
+            <input type="text" value={nombre} onInput={e => setNombre(e.target.value)} required />
+          </div>
+          <div class={style.formGroup}>
+            <label>Apellido</label>
+            <input type="text" value={apellido} onInput={e => setApellido(e.target.value)} required />
+          </div>
+          <div class={style.formGroup}>
+            <label>Número de Licencia</label>
+            <input type="text" value={numeroLicencia} onInput={e => setNumeroLicencia(e.target.value)} required />
+          </div>
+          <div class={style.formGroup}>
+            <label>Fecha de Vencimiento Licencia</label>
+            <input type="date" value={fechaVencimiento} onInput={e => setFechaVencimiento(e.target.value)} required />
+          </div>
+          <div class={style.formGroup}>
+            <label>Teléfono</label>
+            <input type="tel" value={telefono} onInput={e => setTelefono(e.target.value)} />
+          </div>
+          <div class={style.formGroup}>
+            <label>Email</label>
+            <input type="email" value={email} onInput={e => setEmail(e.target.value)} />
+          </div>
+          <div class={style.formGroup}>
+            <label>Tipos de Vehículo Habilitados</label>
+            <input type="text" value={tiposVehiculo} onInput={e => setTiposVehiculo(e.target.value)} placeholder="Station Wagon, Automóvil, Minibús, Camioneta, etc" />
+          </div>
+          <div class={style.formGroup}>
+            <label>Estado de Disponibilidad</label>
+            <select value={estadoDisponibilidad} onInput={e => setEstadoDisponibilidad(e.target.value)}>
+              <option value="disponible">Disponible</option>
+              <option value="en_ruta">En Ruta</option>
+              <option value="dia_libre">Día Libre</option>
+              <option value="no_disponible">No Disponible</option>
+            </select>
+          </div>
+          <div class={style.formGroup}>
+            <label for="foto">Foto del Conductor</label>
+            <input
+              id="foto"
+              type="file"
+              accept="image/*"
+              onChange={e => setFoto(e.target.files[0])}
+            />
+          </div>
+          {errores && (
+            <div class={style.errorMsg}>
+              {Object.entries(errores).map(([campo, mensajes]) =>
+                mensajes.map(msg => (
+                  <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+                ))
+              )}
+            </div>
           )}
-        </div>
-      )}
-      <div class={style.formActions}>
-        <button type="submit" class={style.saveButton}>
-          {conductor ? 'Actualizar' : 'Guardar'}
-        </button>
-        <button type="button" onClick={onCancel} class={style.cancelButton}>
-          Cancelar
-        </button>
+          <div class={style.formActions}>
+            <button type="submit" class={style.submitButton}>
+              {conductor ? 'Actualizar' : 'Guardar'}
+            </button>
+            <button type="button" onClick={onCancel} class={style.cancelButton}>
+              Cancelar
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 };
 

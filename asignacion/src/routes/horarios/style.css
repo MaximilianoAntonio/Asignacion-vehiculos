@@ -397,3 +397,177 @@
     background-color: var(--text-primary);
 }
 
+/* Responsive */
+@media (max-width: 1200px) {
+    .pageLayout {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .leftColumn, .rightColumn {
+        min-width: 100%;
+        flex: 1;
+    }
+}
+
+@media (max-width: 900px) {
+    .horariosPage {
+        padding: 15px;
+    }
+
+    .dashboard {
+        padding: 15px;
+    }
+
+    .calendarGrid {
+        gap: 8px;
+    }
+
+    .calendarDay {
+        min-height: 150px;
+    }
+
+    .table th, .table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .horariosPage {
+        padding: 10px;
+    }
+
+    .dashboardHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .weekNavigator {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .calendarView {
+        overflow-x: auto;
+        padding-bottom: 10px; /* Espacio para la barra de scroll */
+    }
+
+    .calendarGrid {
+        display: flex;
+        flex-wrap: nowrap;
+        min-width: 700px; /* Forzar un ancho mínimo para habilitar el scroll */
+    }
+
+    .calendarDay {
+        flex: 1 0 280px; /* No encoger, base de 280px, permitir crecer */
+        min-width: 280px;
+        border-right: 1px solid var(--border-color-light);
+    }
+
+    .calendarDay:last-child {
+        border-right: none;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .table {
+        min-width: 600px; /* Ancho mínimo para la tabla de conductores */
+    }
+}
+
+/* --- ESTILOS PARA EL MODAL DE EDICIÓN DE TURNOS --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-hard);
+  width: 90%;
+  max-width: 500px;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.formContainer h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color-light);
+  padding-bottom: 0.8rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formGroup label {
+  font-weight: bold;
+  color: var(--text-secondary);
+}
+
+.formGroup input[type="datetime-local"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  box-sizing: border-box;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 15px;
+}
+
+.formActions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.submitButton, .cancelButton {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.submitButton {
+  background: var(--accent-success);
+  color: var(--text-on-primary);
+}
+
+.cancelButton {
+  background-color: var(--text-secondary);
+  color: var(--text-on-primary);
+}
+

@@ -178,28 +178,27 @@
 }
 
 /* NUEVO: Media query para responsividad */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .formContainer {
-    padding: 16px;
-    margin-top: 16px;
-    margin-bottom: 16px;
+    padding: 10px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    max-width: 98vw;
+    min-width: unset;
+    box-sizing: border-box;
   }
-
   .formContainer h2, .formContainer h3 {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
   }
-
   .formActions {
-    flex-direction: column-reverse; /* Apila los botones, con el principal arriba */
+    flex-direction: column-reverse;
     align-items: stretch;
   }
-
   .formActions button {
     width: 100%;
   }
-
   .mapContainer {
-    height: 250px; /* Reduce la altura del mapa en móviles */
+    height: 180px;
   }
 }
 

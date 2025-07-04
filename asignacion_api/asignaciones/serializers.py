@@ -113,6 +113,8 @@ class AsignacionSerializer(serializers.ModelSerializer):
             'solicitante_jerarquia_display',
             'solicitante_nombre',
             'solicitante_telefono',
+            'responsable_nombre',
+            'responsable_telefono',
             'fecha_asignacion_funcionario',
             'distancia_recorrida_km',  # NUEVO: Añadido campo 'distancia_recorrida_km'
         ]

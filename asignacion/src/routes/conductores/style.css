@@ -89,6 +89,9 @@
   width: 110px;
   text-align: center;
 }
+.dataTable td:nth-child(5) {
+  padding: 8px; /* Reducir padding para que el tag encaje mejor */
+}
 .clickableRow {
     cursor: pointer;
     transition: background-color 0.2s;
@@ -199,11 +202,12 @@
 /* Estados de los conductores */
 .estadoDisponible, .estadoEnRuta, .estadoDiaLibre, .estadoNoDisponible {
     border-radius: var(--border-radius-lg);
-    padding: 4px 14px;
+    padding: 8px 14px; /* Aumentado el padding vertical */
     font-weight: 500;
     border: 1px solid transparent;
     text-align: center;
-    display: inline-block;
+    display: block; /* Cambiado a block para que ocupe todo el ancho */
+    width: 100%; /* Asegurar que ocupe todo el ancho */
 }
 .estadoDisponible {
   color: #14532d;

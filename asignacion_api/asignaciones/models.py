@@ -154,12 +154,22 @@ class Asignacion(models.Model):
     solicitante_nombre = models.CharField(
         max_length=200,
         blank=True,
-        help_text="Nombre del funcionario responsable del traslado o contacto principal de la solicitud."
+        help_text="Nombre del solicitante de la asignación."
     )
     solicitante_telefono = models.CharField(
         max_length=50,
         blank=True,
-        help_text="Teléfono de contacto del solicitante o responsable."
+        help_text="Teléfono de contacto del solicitante."
+    )
+    responsable_nombre = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text="Nombre del responsable de la asignación."
+    )
+    responsable_telefono = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Teléfono de contacto del responsable de la asignación."
     )
     fecha_asignacion_funcionario = models.DateTimeField(
         null=True, blank=True,
