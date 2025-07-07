@@ -4,23 +4,18 @@ import { API_BASE_URL } from '../config';
 
 const ASIGNACIONES_API_URL = `${API_BASE_URL}/asignaciones/`;
 
-export const getAsignaciones = async () => {
-    let results = [];
-    let nextUrl = ASIGNACIONES_API_URL;
-    while (nextUrl) {
-        const response = await axios.get(nextUrl);
-        const data = response.data;
-        if (Array.isArray(data)) {
-            results = data;
-            nextUrl = null;
-        } else if (data && Array.isArray(data.results)) {
-            results = results.concat(data.results);
-            nextUrl = data.next;
-        } else {
-            nextUrl = null;
-        }
+export const getAsignaciones = async (params) => {
+    const response = await axios.get(ASIGNACIONES_API_URL, { params });
+    // Assuming the API returns data in a consistent paginated format or a simple array.
+    if (response.data && Array.isArray(response.data.results)) {
+        // Handle paginated response
+        return response.data.results;
+    } else if (Array.isArray(response.data)) {
+        // Handle non-paginated array response
+        return response.data;
     }
-    return results;
+    // If the format is unexpected, return an empty array to avoid errors.
+    return [];
 };
 
 export const getAsignacionById = (id) => {
@@ -28,9 +23,7 @@ export const getAsignacionById = (id) => {
 };
 
 export const createAsignacion = (asignacionData) => {
-    // Para campos ForeignKey como vehiculo y conductor, esperamos IDs.
-    // Para DateTimeFields, el formato esperado es YYYY-MM-DDTHH:MM[:SS[.ffffff]][Z]
-    // o YYYY-MM-DD HH:MM[:SS[.ffffff]][Z]
+
     return axios.post(ASIGNACIONES_API_URL, asignacionData);
 };
 

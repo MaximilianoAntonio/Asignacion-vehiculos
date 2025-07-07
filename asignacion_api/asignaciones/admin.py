@@ -38,16 +38,12 @@ class VehiculoAdmin(admin.ModelAdmin):
             'fields': ('numero_chasis', 'numero_motor')
         }),
         ('Capacidad y Características', {
-            'fields': ('capacidad_pasajeros', 'caracteristicas_adicionales')
+            'fields': ('capacidad_pasajeros',)
         }),
         ('Estado y Multimedia', {
             'fields': ('estado', 'foto', 'foto_preview_vehiculo') # Renombrado para claridad
         }),
-        ('Ubicación y Conductor Preferente', {
-            'fields': ('ubicacion_actual_lat', 'ubicacion_actual_lon', 'conductor_preferente')
-        }),
     )
-    autocomplete_fields = ['conductor_preferente']
 
     def ver_foto_vehiculo(self, obj): # Renombrado para claridad
         if obj.foto:
@@ -70,12 +66,11 @@ class ConductorAdmin(admin.ModelAdmin):
         'nombre',
         'numero_licencia',
         'fecha_vencimiento_licencia',
-        'activo',
         'estado_disponibilidad',
     )
-    list_filter = ('activo', 'estado_disponibilidad', 'fecha_vencimiento_licencia')
+    list_filter = ('estado_disponibilidad', 'fecha_vencimiento_licencia')
     search_fields = ('nombre', 'apellido', 'numero_licencia')
-    list_editable = ('activo', 'estado_disponibilidad')
+    list_editable = ('estado_disponibilidad',)
     ordering = ('apellido', 'nombre')
     readonly_fields = ('foto_preview_conductor',) # NUEVO
 
@@ -87,11 +82,8 @@ class ConductorAdmin(admin.ModelAdmin):
             'fields': ('foto', 'foto_preview_conductor')
         }),
         ('Contacto y Estado', {
-            'fields': ('telefono', 'email', 'activo', 'estado_disponibilidad',
+            'fields': ('telefono', 'email', 'estado_disponibilidad',
                        'tipos_vehiculo_habilitados')
-        }),
-         ('Ubicación Actual', {
-            'fields': ('ubicacion_actual_lat', 'ubicacion_actual_lon')
         }),
     )
 
@@ -138,7 +130,7 @@ class AsignacionAdmin(admin.ModelAdmin):
     autocomplete_fields = ['vehiculo', 'conductor']
     list_editable = ('estado',)
     ordering = ('-fecha_hora_requerida_inicio',)
-    readonly_fields = ('fecha_hora_solicitud',)
+    readonly_fields = ()
 
     fieldsets = (
         ('Información del Solicitante y Destino', {
@@ -153,14 +145,14 @@ class AsignacionAdmin(admin.ModelAdmin):
         }),
         ('Requerimientos Específicos', {
             'classes': ('collapse',),
-            'fields': ('req_pasajeros', 'req_tipo_vehiculo_preferente', 'req_caracteristicas_especiales',
+            'fields': ('req_pasajeros', 'req_tipo_vehiculo_preferente',
                        'origen_lat', 'origen_lon', 'destino_lat', 'destino_lon')
         }),
         ('Asignación (Vehículo/Conductor)', {
             'fields': ('vehiculo', 'conductor')
         }),
         ('Estado y Seguimiento', {
-            'fields': ('estado', 'fecha_hora_fin_prevista', 'fecha_hora_fin_real', 'observaciones', 'fecha_hora_solicitud')
+            'fields': ('estado', 'fecha_hora_fin_prevista', 'observaciones',)
         }),
     )
 

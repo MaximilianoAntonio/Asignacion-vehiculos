@@ -63,7 +63,6 @@ class Command(BaseCommand):
                 'nombre': nombre,
                 'apellido': apellido,
                 'fecha_vencimiento_licencia': fecha_vencimiento,
-                'activo': True,
                 'estado_disponibilidad': 'dia_libre', # Estado por defecto
                 'tipos_vehiculo_habilitados': tipos_habilitados_default,
             }

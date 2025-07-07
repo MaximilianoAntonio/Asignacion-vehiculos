@@ -28,25 +28,49 @@ class Command(BaseCommand):
         locations_valparaiso = [
             {'name': 'Viña del Mar', 'lat': -33.0246, 'lon': -71.5522},
             {'name': 'Quillota', 'lat': -32.8823, 'lon': -71.2489},
+            {'name': 'Quilpué', 'lat': -33.0472, 'lon': -71.4425},
+            {'name': 'Villa Alemana', 'lat': -33.0422, 'lon': -71.3736},
+            {'name': 'Concón', 'lat': -32.9366, 'lon': -71.5265},
+            {'name': 'Limache', 'lat': -33.0117, 'lon': -71.2669},
         ]
 
         streets_by_city = {
             'Viña del Mar': [
-                'Avenida Libertad', 'Avenida San Martín', 'Calle Valparaíso', 'Avenida Borgoño',
-                'Avenida 1 Norte', 'Avenida Álvarez', 'Calle Von Schroeders', 'Avenida La Marina',
-                'Avenida Jorge Montt', 'Calle 5 Oriente'
+            'Avenida Libertad', 'Avenida San Martín', 'Calle Valparaíso', 'Avenida Borgoño',
+            'Avenida 1 Norte', 'Avenida Álvarez', 'Calle Von Schroeders', 'Avenida La Marina',
+            'Avenida Jorge Montt', 'Calle 5 Oriente'
             ],
             'Quillota': [
-                'Calle Condell', 'Calle Chacabuco', 'Avenida Valparaíso', 'Calle O\'Higgins',
-                'Calle La Concepción', 'Avenida 21 de Mayo', 'Calle Freire', 'Calle Maipú',
-                'Calle San Martín', 'Avenida Ariztía'
+            'Calle Condell', 'Calle Chacabuco', 'Avenida Valparaíso', "Calle O'Higgins",
+            'Calle La Concepción', 'Avenida 21 de Mayo', 'Calle Freire', 'Calle Maipú',
+            'Calle San Martín', 'Avenida Ariztía'
+            ],
+            'Quilpué': [
+            'Avenida Los Carrera', 'Avenida Freire', 'Calle Blanco', 'Calle Baquedano',
+            'Calle Covadonga', 'Calle Vicuña Mackenna', 'Calle Aníbal Pinto', 'Avenida Centenario',
+            'Calle Ramón Freire', 'Calle Diego Portales'
+            ],
+            'Villa Alemana': [
+            'Avenida Valparaíso', 'Calle Buenos Aires', 'Calle Santiago', 'Calle Victoria',
+            'Calle Maturana', 'Calle Manuel Montt', 'Calle Baquedano', "Calle O'Higgins",
+            'Calle San Martín', 'Calle Prat'
+            ],
+            'Concón': [
+            'Avenida Concón Reñaca', 'Avenida Blanca Estela', 'Calle Magallanes', 'Calle Vergara',
+            'Calle Los Pinos', 'Calle San Agustín', 'Calle Las Petras', 'Calle Las Encinas',
+            'Calle Los Abedules', 'Calle Los Lirios'
+            ],
+            'Limache': [
+            'Avenida Urmeneta', 'Calle República', 'Calle Prat', 'Calle Serrano',
+            'Calle Baquedano', 'Calle Independencia', "Calle O'Higgins", 'Calle San Martín',
+            'Calle Bulnes', 'Calle Echaurren'
             ]
         }
 
         # Crear Asignaciones
         asignaciones = []
         for _ in range(2000):
-            fecha_inicio = fake.date_time_between(start_date='-30d', end_date='-1d', tzinfo=timezone.get_current_timezone())
+            fecha_inicio = fake.date_time_between(start_date='-365d', end_date='-1d', tzinfo=timezone.get_current_timezone()) - timezone.timedelta(days=1)
             fecha_fin = fecha_inicio + timezone.timedelta(hours=random.randint(1, 5))
 
             origen_info = random.choice(locations_valparaiso)
@@ -93,7 +117,6 @@ class Command(BaseCommand):
                 destino_lon=destino_lon,
                 fecha_hora_requerida_inicio=fecha_inicio,
                 fecha_hora_fin_prevista=fecha_fin,
-                fecha_hora_fin_real=fecha_fin,
                 req_pasajeros=random.randint(1, 10),
                 solicitante_nombre=fake.name(),
                 responsable_nombre=fake.name(),

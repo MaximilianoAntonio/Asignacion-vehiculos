@@ -15,6 +15,13 @@ class AsignacionesPage extends Component {
     vehiculos: [],
     conductores: [],
     detailModalAsignacion: null, // Para el modal de detalles
+    currentDate: new Date(),
+    searchFilters: {
+      conductor: '',
+      vehiculo: '',
+      origen: '',
+      destino: ''
+    }
   };
 
   componentDidMount() {
@@ -24,7 +31,30 @@ class AsignacionesPage extends Component {
 
   cargarAsignaciones = () => {
     this.setState({ loading: true });
-    getAsignaciones()
+    const { currentDate, searchFilters } = this.state;
+
+    const params = {
+      search: searchFilters.conductor, // Usamos el filtro genérico `search` para el conductor
+      vehiculo__patente__icontains: searchFilters.vehiculo,
+      origen_descripcion__icontains: searchFilters.origen,
+      destino_descripcion__icontains: searchFilters.destino
+    };
+
+    const isAnyFilterActive = Object.values(searchFilters).some(filter => filter);
+
+    if (!isAnyFilterActive) {
+      const fecha = currentDate.toISOString().split('T')[0];
+      params.fecha_hora_requerida_inicio__date = fecha;
+    }
+
+    // Eliminar parámetros vacíos
+    Object.keys(params).forEach(key => {
+      if (!params[key]) {
+        delete params[key];
+      }
+    });
+
+    getAsignaciones(params)
       .then(asignaciones => {
         this.setState({
           asignaciones,
@@ -84,6 +114,55 @@ class AsignacionesPage extends Component {
     this.setState({ detailModalAsignacion: null });
   };
 
+  handleDateChange = (e) => {
+    const newDate = new Date(e.target.value);
+    // Ajustar la fecha a la zona horaria local para evitar problemas de "un día antes"
+    const userTimezoneOffset = newDate.getTimezoneOffset() * 60000;
+    this.setState({ currentDate: new Date(newDate.getTime() + userTimezoneOffset) }, this.cargarAsignaciones);
+  };
+
+  handlePrevDay = () => {
+    this.setState(prevState => {
+      const newDate = new Date(prevState.currentDate);
+      newDate.setDate(newDate.getDate() - 1);
+      return { currentDate: newDate };
+    }, this.cargarAsignaciones);
+  };
+
+  handleNextDay = () => {
+    this.setState(prevState => {
+      const newDate = new Date(prevState.currentDate);
+      newDate.setDate(newDate.getDate() + 1);
+      return { currentDate: newDate };
+    }, this.cargarAsignaciones);
+  };
+
+  handleSearchChange = (e) => {
+    const { name, value } = e.target;
+    this.setState(prevState => ({
+      searchFilters: {
+        ...prevState.searchFilters,
+        [name]: value
+      }
+    }));
+  };
+
+  handleSearchSubmit = (e) => {
+    e.preventDefault();
+    this.cargarAsignaciones();
+  };
+
+  handleClearSearch = () => {
+    this.setState({
+      searchFilters: {
+        conductor: '',
+        vehiculo: '',
+        origen: '',
+        destino: ''
+      }
+    }, this.cargarAsignaciones);
+  };
+
   handleProcesarAsignaciones = () => {
     this.setState({ loading: true });
     procesarAsignaciones()
@@ -132,6 +211,50 @@ class AsignacionesPage extends Component {
     return (
       <div class={style.asignacionesPage}>
         <h1>Gestión de Asignaciones</h1>
+        <div class={style.dateNavigation}>
+          <button onClick={this.handlePrevDay}>&lt; Día anterior</button>
+          <input 
+            type="date" 
+            value={this.state.currentDate.toISOString().split('T')[0]} 
+            onChange={this.handleDateChange} 
+            class={style.datePicker}
+          />
+          <button onClick={this.handleNextDay}>Día siguiente &gt;</button>
+        </div>
+
+        <form onSubmit={this.handleSearchSubmit} class={style.searchForm}>
+          <input
+            type="text"
+            name="conductor"
+            placeholder="Buscar por conductor..."
+            value={this.state.searchFilters.conductor}
+            onInput={this.handleSearchChange}
+          />
+          <input
+            type="text"
+            name="vehiculo"
+            placeholder="Buscar por patente..."
+            value={this.state.searchFilters.vehiculo}
+            onInput={this.handleSearchChange}
+          />
+          <input
+            type="text"
+            name="origen"
+            placeholder="Buscar por origen..."
+            value={this.state.searchFilters.origen}
+            onInput={this.handleSearchChange}
+          />
+          <input
+            type="text"
+            name="destino"
+            placeholder="Buscar por destino..."
+            value={this.state.searchFilters.destino}
+            onInput={this.handleSearchChange}
+          />
+          <button type="submit">Buscar</button>
+          <button type="button" onClick={this.handleClearSearch} class={style.clearButton}>Limpiar</button>
+        </form>
+
         {/* Mueve los contadores aquí */}
         <div class={style.estadoCounters}>
           <span class={style.estadoFinalizada}>

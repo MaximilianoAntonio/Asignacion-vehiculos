@@ -76,9 +76,9 @@ class ConductorViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['activo', 'estado_disponibilidad']
+    filterset_fields = ['estado_disponibilidad']
     search_fields = ['nombre', 'apellido', 'numero_licencia']
-    ordering_fields = ['apellido', 'nombre', 'activo', 'estado_disponibilidad']
+    ordering_fields = ['apellido', 'nombre', 'estado_disponibilidad']
 
     @action(detail=True, methods=['post'], url_path='iniciar-turno')
     def iniciar_turno(self, request, pk=None):
@@ -128,7 +128,7 @@ class RegistroTurnoViewSet(viewsets.ModelViewSet):
 
 
 class AsignacionViewSet(viewsets.ModelViewSet):
-    queryset = Asignacion.objects.all().select_related('vehiculo', 'conductor').order_by('-fecha_hora_solicitud')
+    queryset = Asignacion.objects.all().select_related('vehiculo', 'conductor').order_by('-fecha_hora_requerida_inicio')
     serializer_class = AsignacionSerializer
     permission_classes = [permissions.IsAuthenticated] # Cambiado para requerir autenticación para todas las acciones
 
