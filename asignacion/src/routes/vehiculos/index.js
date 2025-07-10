@@ -102,124 +102,126 @@ const Vehiculos = () => {
         return acc;
     }, {});
 
+    const renderTable = () => (
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Patente</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Año</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {vehiculos.map((vehiculo) => (
+                        <tr key={vehiculo.id} class="slide-in-up">
+                            <td data-label="Patente">{vehiculo.patente}</td>
+                            <td data-label="Marca">{vehiculo.marca}</td>
+                            <td data-label="Modelo">{vehiculo.modelo}</td>
+                            <td data-label="Año">{vehiculo.anio}</td>
+                            <td data-label="Estado">
+                                <span class={`${style.statusBadge} ${style[vehiculo.estado]}`}>
+                                    {estadoVehiculoLabels[vehiculo.estado] || vehiculo.estado}
+                                </span>
+                            </td>
+                            <td data-label="Acciones">
+                                <button onClick={() => handleViewDetails(vehiculo)} class="button button-outline" style={{ marginRight: '0.5rem' }}>Ver</button>
+                                <button onClick={() => handleEdit(vehiculo)} class="button button-outline">Editar</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+
+    const renderDetailModal = () => {
+        if (!detailModalVehiculo) return null;
+
+        return (
+            <div class={style.modalOverlay} onClick={() => setDetailModalVehiculo(null)}>
+                <div class={`${style.modalContent} card fade-in`} onClick={(e) => e.stopPropagation()}>
+                    <button class={style.modalCloseButton} onClick={() => setDetailModalVehiculo(null)}>×</button>
+                    <div class="card-header">
+                        <h2 class="card-title">Información del Vehículo</h2>
+                    </div>
+                    <div class={style.modalBody}>
+                        <div class={style.modalImageContainer}>
+                            <img src={detailModalVehiculo.foto_url ? `${detailModalVehiculo.foto_url}` : 'https://th.bing.com/th/id/OIP.5_RqTlUhvMdpCjGOhOmTdQHaHa?rs=1&pid=ImgDetMain'} alt="Vehículo" />
+                        </div>
+                        <div class={style.modalDetails}>
+                            <p><strong>Marca:</strong> {detailModalVehiculo.marca}</p>
+                            <p><strong>Modelo:</strong> {detailModalVehiculo.modelo}</p>
+                            <p><strong>Patente:</strong> {detailModalVehiculo.patente}</p>
+                            <p><strong>Tipo:</strong> {tipoVehiculoLabels[detailModalVehiculo.tipo_vehiculo] || detailModalVehiculo.tipo_vehiculo}</p>
+                            <p><strong>Año:</strong> {detailModalVehiculo.anio}</p>
+                            <p><strong>Capacidad:</strong> {detailModalVehiculo.capacidad_pasajeros} pasajeros</p>
+                            <p><strong>Número de Chasis:</strong> {detailModalVehiculo.numero_chasis || 'N/A'}</p>
+                            <p><strong>Motor:</strong> {detailModalVehiculo.numero_motor || 'N/A'}</p>
+                            <p><strong>Estado:</strong> <span class={`${style.statusBadge} ${style[detailModalVehiculo.estado]}`}>{estadoVehiculoLabels[detailModalVehiculo.estado] || detailModalVehiculo.estado}</span></p>
+                        </div>
+                    </div>
+                    <div class={style.modalActions}>
+                        <button onClick={() => handleEdit(detailModalVehiculo)} class="button button-primary">Editar</button>
+                        <button onClick={() => handleDelete(detailModalVehiculo.id)} class="button button-danger">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div class={style.vehiculosPage}>
-            <h1>Gestión de Vehículos</h1>
-            
-            {/* Contadores por estado */}
-            <div class={style.estadoCounters}>
-                <span class={style.estadoDisponible}>
-                    Disponible: {vehiculosPorEstado['disponible'] || 0}
-                </span>
-                <span class={style.estadoEnUso}>
-                    En Ruta: {vehiculosPorEstado['en_uso'] || 0}
-                </span>
-                <span class={style.estadoReservado}>
-                    Reservado: {vehiculosPorEstado['reservado'] || 0}
-                </span>
-                <span class={style.estadoMantenimiento}>
-                    Mantenimiento: {vehiculosPorEstado['mantenimiento'] || 0}
-                </span>
+        <div class="page-container">
+            <div class="page-header">
+                <h1 class="page-title">Gestión de Vehículos</h1>
+                <button onClick={handleAddNew} class="button button-primary">
+                    <i class="fas fa-plus" style={{ marginRight: '0.5rem' }}></i> Nuevo Vehículo
+                </button>
             </div>
 
-            <div class={style.pageLayout}>
-
-                <div class={style.leftColumn}>
-                    <button onClick={handleAddNew} class={style.button}>
-                        Agregar Nuevo Vehículo
-                    </button>
-                    <div class={style.responsiveTableWrapper}>
-                      <table class={style.table}>
-                          <thead>
-                              <tr>
-                                  <th>Patente</th>
-                                  <th>Foto</th>
-                                  <th>Marca</th>
-                                  <th>Modelo</th>
-                                  <th>Año</th>
-                                  <th>Tipo</th>
-                                  <th>Estado</th>
-                                  <th>Capacidad</th>
-                              </tr>
-                          </thead>
-                          <tbody>
-                              {vehiculos.map((vehiculo) => (
-                                  <tr key={vehiculo.id} onClick={() => handleViewDetails(vehiculo)} class={style.clickableRow}>
-                                      <td data-label="Patente">{vehiculo.patente}</td>
-                                      <td data-label="Foto">
-                                        {vehiculo.foto_url ? (
-                                          <img
-                                            src={`${vehiculo.foto_url}`}
-                                            style={{ width: '100px', height: 'auto', objectFit: 'contain' }}
-                                            />
-                                        ) : (
-                                          'Sin foto'
-                                        )}
-                                      </td>
-                                      <td data-label="Marca">{vehiculo.marca}</td>
-                                      <td data-label="Modelo">{vehiculo.modelo}</td>
-                                      <td data-label="Año">{vehiculo.anio}</td>
-                                      <td data-label="Tipo">{tipoVehiculoLabels[vehiculo.tipo_vehiculo] || vehiculo.tipo_vehiculo}</td>
-                                      <td data-label="Estado" class={
-                                          vehiculo.estado === 'disponible' ? style.estadoDisponible :
-                                          vehiculo.estado === 'en_uso' ? style.estadoEnUso :
-                                          vehiculo.estado === 'mantenimiento' ? style.estadoMantenimiento :
-                                          vehiculo.estado === 'reservado' ? style.estadoReservado : ''
-                                      }>
-                                          {estadoVehiculoLabels[vehiculo.estado] || vehiculo.estado}
-                                      </td>
-                                      <td data-label="Capacidad">{vehiculo.capacidad_pasajeros}</td>
-                                  </tr>
-                              ))}
-                          </tbody>
-                      </table>
-                    </div>
+            <div class={style.statsContainer}>
+                <div class={style.statCard}>
+                    <h3>Disponibles</h3>
+                    <p>{vehiculosPorEstado['disponible'] || 0}</p>
                 </div>
-
+                <div class={style.statCard}>
+                    <h3>En Ruta</h3>
+                    <p>{vehiculosPorEstado['en_uso'] || 0}</p>
+                </div>
+                <div class={style.statCard}>
+                    <h3>Reservados</h3>
+                    <p>{vehiculosPorEstado['reservado'] || 0}</p>
+                </div>
+                <div class={style.statCard}>
+                    <h3>Mantenimiento</h3>
+                    <p>{vehiculosPorEstado['mantenimiento'] || 0}</p>
+                </div>
             </div>
 
-            {/* MODAL flotante para el formulario */}
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Lista de Vehículos</h2>
+                </div>
+                {renderTable()}
+            </div>
+
             {formMode && (
-              <div class={style.modalOverlay} onClick={resetFormState}>
-                <div class={style.modalContent} onClick={e => e.stopPropagation()}>
-                  <VehiculoForm
-                    vehiculo={selectedVehiculo}
-                    onSave={handleSave}
-                    onUpdate={handleUpdate}
-                    onCancel={resetFormState}
-                  />
+                <div class={style.modalOverlay} onClick={resetFormState}>
+                    <div class={`${style.modalContent} card fade-in`} onClick={e => e.stopPropagation()}>
+                        <VehiculoForm
+                            vehiculo={selectedVehiculo}
+                            onSave={handleSave}
+                            onUpdate={handleUpdate}
+                            onCancel={resetFormState}
+                        />
+                    </div>
                 </div>
-              </div>
             )}
 
-            {detailModalVehiculo && (
-                 <div class={style.modalOverlay} onClick={() => setDetailModalVehiculo(null)}>
-                    <div class={style.modalContent} onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                        <div class={style.modalImageContainer} style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                            <img src={detailModalVehiculo.foto_url ? `${detailModalVehiculo.foto_url}` : 'https://th.bing.com/th/id/OIP.5_RqTlUhvMdpCjGOhOmTdQHaHa?rs=1&pid=ImgDetMain'} alt="Vehículo" style={{ width: '250px', height: 'auto', objectFit: 'contain', display: 'block' }} />
-                        </div>
-                        <div style={{ flex: '1 1 0%' }}>
-                            <button class={style.modalCloseButton} onClick={() => setDetailModalVehiculo(null)}>×</button>
-                            <h2>Información del Vehículo</h2>
-                            <div class={style.modalDetails}>
-                                <p><strong>Marca:</strong> {detailModalVehiculo.marca}</p>
-                                <p><strong>Modelo:</strong> {detailModalVehiculo.modelo}</p>
-                                <p><strong>Patente:</strong> {detailModalVehiculo.patente}</p>
-                                <p><strong>Tipo:</strong> {tipoVehiculoLabels[detailModalVehiculo.tipo_vehiculo] || detailModalVehiculo.tipo_vehiculo}</p>
-                                <p><strong>Año:</strong> {detailModalVehiculo.anio}</p>
-                                <p><strong>Capacidad:</strong> {detailModalVehiculo.capacidad_pasajeros} pasajeros</p>
-                                <p><strong>Número de Chasis:</strong> {detailModalVehiculo.numero_chasis || 'N/A'}</p>
-                                <p><strong>Motor:</strong> {detailModalVehiculo.numero_motor || 'N/A'}</p>
-                                <p><strong>Estado:</strong> {estadoVehiculoLabels[detailModalVehiculo.estado] || detailModalVehiculo.estado}</p>
-                            </div>
-                            <div class={style.modalActions}>
-                                <button onClick={() => handleEdit(detailModalVehiculo)} class={style.editButton}>Editar</button>
-                                <button onClick={() => handleDelete(detailModalVehiculo.id)} class={style.deleteButton}>Eliminar</button>
-                            </div>
-                        </div>
-                    </div>
-                 </div>
-            )}
+            {renderDetailModal()}
         </div>
     );
 };

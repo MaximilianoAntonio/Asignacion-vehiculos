@@ -1,12 +1,20 @@
 import { h } from 'preact';
+import { motion } from 'framer-motion';
 import style from './style.css';
 
 const MantenimientoPage = () => {
     return (
-        <div class={style.mantenimientoPage}>
-            <h1>Dashboard de Mantenimiento</h1>
+        <motion.div 
+            class={style.mantenimientoPage}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+        >
+            <div class="page-header">
+                <h1 class="page-title">Dashboard de Mantenimiento</h1>
+                <p class="page-subtitle">Visualización de datos de mantenimiento a través de Power BI.</p>
+            </div>
             
-            <div class={style.powerbiContainer}>
+            <div class={`card ${style.powerbiContainer}`}>
                 {/* 
                   INSTRUCCIONES:
                   1. Ve a tu informe en Power BI.
@@ -14,13 +22,15 @@ const MantenimientoPage = () => {
                   3. Copia el código del <iframe> que te proporciona Power BI.
                   4. Pega ese código aquí debajo, reemplazando este comentario.
                 */}
-                <p class={style.placeholderText}>
-                {/* 
-                    Aquí va tu dashboard de Power BI. Pega el código <iframe> de Power BI para mostrarlo. 
-                */}
-                </p>
+                <div class={style.placeholderContent}>
+                    <i class="icon-powerbi"></i>
+                    <h3>Dashboard de Power BI</h3>
+                    <p>
+                        Aquí se mostrará el dashboard interactivo. Pega el código <strong>&lt;iframe&gt;</strong> proporcionado por Power BI para activarlo.
+                    </p>
+                </div>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

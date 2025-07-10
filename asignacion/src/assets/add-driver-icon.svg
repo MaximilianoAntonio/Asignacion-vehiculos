@@ -1,0 +1,27 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="userGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="60" cy="60" r="55" fill="url(#userGradient)" opacity="0.1"/>
+  
+  <!-- User Icon -->
+  <path d="M60 35C68.284 35 75 28.284 75 20C75 11.716 68.284 5 60 5C51.716 5 45 11.716 45 20C45 28.284 51.716 35 60 35Z" fill="url(#userGradient)" opacity="0.8"/>
+  
+  <!-- Body -->
+  <path d="M60 45C41.775 45 27 59.775 27 78V85H93V78C93 59.775 78.225 45 60 45Z" fill="url(#userGradient)" opacity="0.6"/>
+  
+  <!-- Plus Icon -->
+  <circle cx="85" cy="35" r="15" fill="#f97316"/>
+  <path d="M85 26V44M76 35H94" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Form Lines -->
+  <rect x="25" y="95" width="30" height="2" fill="url(#userGradient)" opacity="0.4" rx="1"/>
+  <rect x="60" y="95" width="35" height="2" fill="url(#userGradient)" opacity="0.4" rx="1"/>
+  <rect x="25" y="102" width="25" height="2" fill="url(#userGradient)" opacity="0.3" rx="1"/>
+  <rect x="55" y="102" width="40" height="2" fill="url(#userGradient)" opacity="0.3" rx="1"/>
+</svg>

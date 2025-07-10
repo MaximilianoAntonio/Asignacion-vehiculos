@@ -1,8 +1,9 @@
 import { h, Component } from 'preact';
-import style from './style.css';
+import { motion } from 'framer-motion';
 import { getConductores, iniciarTurno, finalizarTurno } from '../../services/conductorService';
 import { getTurnos, updateTurno, deleteTurno } from '../../services/turnoService';
 import { exportTurnosPDF } from '../../services/pdfExportService';
+import style from './style.css';
 
 const DISPONIBILIDAD_LABELS = {
   disponible: 'Disponible',
@@ -46,40 +47,48 @@ class TurnoPairEditModal extends Component {
         const { start, end } = this.state;
 
         return (
-            <div class={style['modal-overlay']} onClick={onCancel}>
-                <div class={style['modal-content']} onClick={e => e.stopPropagation()}>
-                    <h3>Editar Turno</h3>
-                    <form onSubmit={this.handleSave} class={style.formContainer}>
-                        <div class={style.formGroup}>
+            <div class="modal-overlay" onClick={onCancel}>
+                <motion.div 
+                    class="modal-content card" 
+                    onClick={e => e.stopPropagation()}
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                >
+                    <h3 class="modal-title">Editar Turno</h3>
+                    <form onSubmit={this.handleSave} class="form-container">
+                        <div class="form-group">
                             {turnoPair.start && (
-                                <div class={style.inputGroup}>
+                                <div class="input-group">
                                     <label for="start_time">Inicio</label>
                                     <input
                                         type="datetime-local"
                                         id="start_time"
+                                        class="form-control"
                                         value={start}
                                         onInput={e => this.setState({ start: e.target.value })}
                                     />
                                 </div>
                             )}
                             {turnoPair.end && (
-                                <div class={style.inputGroup}>
+                                <div class="input-group">
                                     <label for="end_time">Fin</label>
                                     <input
                                         type="datetime-local"
                                         id="end_time"
+                                        class="form-control"
                                         value={end}
                                         onInput={e => this.setState({ end: e.target.value })}
                                     />
                                 </div>
                             )}
                         </div>
-                        <div class={style.formActions}>
-                            <button type="button" class={style.cancelButton} onClick={onCancel}>Cancelar</button>
-                            <button type="submit" class={style.submitButton}>Guardar Cambios</button>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-secondary" onClick={onCancel}>Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                         </div>
                     </form>
-                </div>
+                </motion.div>
             </div>
         );
     }
@@ -392,26 +401,36 @@ class HorariosPage extends Component {
   render(_, { conductores, loading, error, selectedConductor, loadingTurnos, processedTurnos, weekOffset, editingTurnoPair, loadingMonthlyReport }) {
     const { startOfWeek, endOfWeek } = this._getWeekDateRange(weekOffset);
     const weekRange = {
-        start: startOfWeek.toLocaleDateString('es-ES'),
-        end: endOfWeek.toLocaleDateString('es-ES')
+        start: startOfWeek.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
+        end: endOfWeek.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
     };
 
     return (
-      <div class={style.horariosPage}>
-        <h1>Control de Horarios de Conductores</h1>
+      <motion.div 
+        class={style.horariosPage}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <div class="page-header">
+          <h1 class="page-title">Control de Horarios</h1>
+          <p class="page-subtitle">Gestiona los turnos de los conductores y genera reportes.</p>
+        </div>
         
         <div class={style.pageLayout}>
-          <div class={style.leftColumn}>
+          <motion.div class={`card ${style.leftColumn}`} layout>
+            <div class="card-header">
+              <h3>Lista de Conductores</h3>
+            </div>
             {loading && <p>Cargando...</p>}
-            {error && <p class={style.error}>{error}</p>}
+            {error && <p class="error-message">{error}</p>}
             {!loading && !error && (
-              <div class={style['table-wrapper']}>
-                <table class={style.table}>
+              <div class="table-container">
+                <table class="table table-hover">
                   <thead>
                     <tr>
                       <th>Conductor</th>
-                      <th>Estado Actual</th>
-                      <th>Acciones</th>
+                      <th>Estado</th>
+                      <th class="text-center">Acción</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -420,31 +439,23 @@ class HorariosPage extends Component {
                         <tr
                           key={c.id}
                           onClick={() => this.handleSelectConductor(c)}
-                          class={`${style.clickableRow} ${selectedConductor?.id === c.id ? style.selectedRow : ''}`}
+                          class={selectedConductor?.id === c.id ? style.selectedRow : ''}
                         >
                           <td>{c.nombre} {c.apellido}</td>
                           <td>
-                            <span class={`${style.status} ${style[c.estado_disponibilidad]}`}>
+                            <span class={`status-badge ${c.estado_disponibilidad}`}>
                               {DISPONIBILIDAD_LABELS[c.estado_disponibilidad] || c.estado_disponible}
                             </span>
                           </td>
-                          <td>
+                          <td class="text-center">
                             {c.estado_disponibilidad === 'en_ruta' ? (
-                              <button class={`${style.button} ${style.buttonDisabled}`} disabled>
-                                En Ruta
-                              </button>
+                              <button class="btn btn-sm btn-disabled" disabled>En Ruta</button>
                             ) : (
                               <button
-                                class={`${style.button} ${
-                                  c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible'
-                                    ? style.buttonStart
-                                    : style.buttonEnd
-                                }`}
+                                class={`btn btn-sm ${c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible' ? 'btn-success' : 'btn-danger'}`}
                                 onClick={e => this.handleTurnoActionClick(e, c)}
                               >
-                                {c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible'
-                                  ? 'Iniciar Turno'
-                                  : 'Finalizar Turno'}
+                                {c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible' ? 'Iniciar' : 'Finalizar'}
                               </button>
                             )}
                           </td>
@@ -452,93 +463,65 @@ class HorariosPage extends Component {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="3" style={{ textAlign: 'center' }}>No hay conductores disponibles.</td>
+                        <td colSpan="3" class="text-center">No hay conductores disponibles.</td>
                       </tr>
                     )}
                   </tbody>
                 </table>
               </div>
             )}
-          </div>
-          <div class={style.rightColumn}>
+          </motion.div>
+          <motion.div class={`card ${style.rightColumn}`} layout>
             {selectedConductor ? (
               <div>
-                <div class={style.dashboardHeader}>
+                <div class={`card-header ${style.dashboardHeader}`}>
                   <div>
-                    <h2>Turnos de {selectedConductor.nombre} {selectedConductor.apellido}</h2>
-                    <p>Semana del {weekRange.start} al {weekRange.end}</p>
+                    <h3>Turnos de {selectedConductor.nombre}</h3>
+                    <p>Semana: {weekRange.start} - {weekRange.end}</p>
                   </div>
                   <div class={style.weekNavigator}>
-                    <button onClick={() => this.changeWeek(-1)} title="Semana Anterior">‹ Ant</button>
-                    <button onClick={() => this.changeWeek(1)} title="Semana Siguiente">Sig ›</button>
+                    <button class="btn btn-outline" onClick={() => this.changeWeek(-1)}>‹ Ant</button>
+                    <button class="btn btn-outline" onClick={() => this.changeWeek(1)}>Sig ›</button>
                   </div>
                 </div>
                 {loadingTurnos ? <p>Cargando turnos...</p> : (
                   <div class={style.calendarView}>
-                    <div class={style.calendarGrid}>
-                      {
-                        (() => {
-                          const weekDates = [];
-                          for (let i = 0; i < 7; i++) {
-                            const date = new Date(startOfWeek);
-                            date.setDate(date.getDate() + i);
-                            weekDates.push(date);
-                          }
-                          const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-
-                          return weekDates.map((date, index) => {
-                            const dayTurnos = processedTurnos.filter(p => {
-                              if (!p.start && !p.end) return false;
-                              const turnoDate = new Date(p.start?.fecha_hora || p.end?.fecha_hora);
-                              return turnoDate.toDateString() === date.toDateString();
-                            });
-
-                            return (
-                              <div class={style.calendarDay} key={index}>
-                                <div class={style.dayHeader}>
-                                  <span>{dayNames[index]}</span>
-                                  <span>{date.getDate()}</span>
-                                </div>
-                                <div class={style.dayBody}>
-                                  {dayTurnos.length > 0 ? dayTurnos.map(p => (
-                                    <div key={p.start?.id || p.end.id} class={style.turnoEntry}>
-                                      <div>
-                                        <div class={style.turnoTimes}>
-                                          <span><strong>Inicio:</strong> {this.formatTimeOnly(p.start?.fecha_hora)}</span>
-                                          <span><strong>Fin:</strong> {this.formatTimeOnly(p.end?.fecha_hora)}</span>
-                                        </div>
-                                        <div class={style.turnoDuration}>
-                                          <strong>Duración:</strong> {p.duration || 'N/A'}
-                                        </div>
-                                      </div>
-                                      <div class={style.turnoActions}>
-                                        <button title="Editar Turno" class={style.editButton} onClick={() => this.handleEditPair(p)}>✏️</button>
-                                        <button title="Eliminar Turno" class={style.deleteButton} onClick={() => this.handleDeletePair(p)}>🗑️</button>
-                                      </div>
-                                    </div>
-                                  )) : <div class={style.noTurnos}>-</div>}
-                                </div>
-                              </div>
-                            );
-                          });
-                        })()
-                      }
-                    </div>
+                    {processedTurnos.length > 0 ? processedTurnos.map(p => (
+                      <div key={p.start?.id || p.end.id} class={style.turnoEntry}>
+                        <div class={style.turnoDate}>
+                          <strong>{new Date(p.start?.fecha_hora || p.end.fecha_hora).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</strong>
+                        </div>
+                        <div class={style.turnoDetails}>
+                          <div class={style.turnoTimes}>
+                            <span><i class="icon-login"></i> {this.formatTimeOnly(p.start?.fecha_hora)}</span>
+                            <span><i class="icon-logout"></i> {this.formatTimeOnly(p.end?.fecha_hora)}</span>
+                          </div>
+                          <div class={style.turnoDuration}>
+                            <i class="icon-clock"></i> {p.duration || 'En curso'}
+                          </div>
+                        </div>
+                        <div class={style.turnoActions}>
+                          <button title="Editar" class="btn-icon" onClick={() => this.handleEditPair(p)}>✏️</button>
+                          <button title="Eliminar" class="btn-icon btn-danger" onClick={() => this.handleDeletePair(p)}>🗑️</button>
+                        </div>
+                      </div>
+                    )) : <div class={style.noTurnos}>No hay turnos registrados para esta semana.</div>}
                   </div>
                 )}
-                <div class={style.reportActions}>
-                  <button class={style.exportButton} onClick={this.handleExport} title="Exportar a PDF Semanal">Generar Reporte Semanal</button>
-                  <button class={style.exportButton} onClick={this.handleExportMonthly} disabled={loadingMonthlyReport} title="Exportar Reporte Mensual">
-                    {loadingMonthlyReport ? 'Generando...' : 'Generar Reporte Mensual'}
+                <div class="card-footer">
+                  <button class="btn btn-secondary" onClick={this.handleExport} title="Exportar a PDF Semanal">Reporte Semanal</button>
+                  <button class="btn btn-success" onClick={this.handleExportMonthly} disabled={loadingMonthlyReport} title="Exportar Reporte Mensual">
+                    {loadingMonthlyReport ? 'Generando...' : 'Reporte Mensual'}
                   </button>
                 </div>
               </div>
             ) : (
               <div class={style.dashboardPlaceholder}>
+                <i class="icon-user-check"></i>
                 <p>Seleccione un conductor para ver sus turnos.</p>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
         {editingTurnoPair && (
           <TurnoPairEditModal
@@ -547,11 +530,10 @@ class HorariosPage extends Component {
             onCancel={() => this.setState({ editingTurnoPair: null })}
           />
         )}
-      </div>
+      </motion.div>
     );
   }
 }
-
 
 export default HorariosPage;
 

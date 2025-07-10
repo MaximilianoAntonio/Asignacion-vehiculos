@@ -3,6 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import style from './style.css';
 
 const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
+  const [run, setRun] = useState('');
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [numeroLicencia, setNumeroLicencia] = useState('');
@@ -15,6 +16,7 @@ const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
   const [foto, setFoto] = useState(null);
 
   useEffect(() => {
+    setRun(conductor?.run || '');
     setNombre(conductor?.nombre || '');
     setApellido(conductor?.apellido || '');
     setNumeroLicencia(conductor?.numero_licencia || '');
@@ -30,6 +32,7 @@ const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
+    formData.append('run', run);
     formData.append('nombre', nombre);
     formData.append('apellido', apellido);
     formData.append('numero_licencia', numeroLicencia);
@@ -67,6 +70,10 @@ const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
       <div class={style['modal-content']} onClick={e => e.stopPropagation()}>
         <form onSubmit={handleSubmit} class={style.formContainer} style={{ width: '100%' }}>
           <h3>{conductor ? 'Editar Conductor' : 'Nuevo Conductor'}</h3>
+          <div class={style.formGroup}>
+            <label>RUN</label>
+            <input type="text" value={run} onInput={e => setRun(e.target.value)} placeholder="Ej: 12345678-9" />
+          </div>
           <div class={style.formGroup}>
             <label>Nombre</label>
             <input type="text" value={nombre} onInput={e => setNombre(e.target.value)} required />

@@ -1,44 +1,4 @@
-/* --- MODAL OVERLAY Y CONTENEDOR MODAL FLOTANTE --- */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  box-sizing: border-box;
-}
-
-.modal-content {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.18);
-  max-width: 560px; /* Aumentado de 480px a 560px */
-  width: 95vw;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 1.8rem 1.5rem; /* Ajustado para más espacio */
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-sizing: border-box;
-}
-
-@media (max-width: 600px) {
-  .modal-overlay {
-    padding: 0.5rem;
-  }
-  .modal-content {
-    padding: 1rem;
-    max-height: 98vh;
-  }
-}
-
+/* Formulario de Conductor - Estilos Normalizados */
 .formContainer {
   border: none;
   background: transparent;
@@ -51,28 +11,58 @@
   align-items: stretch;
 }
 
-/* --- TABLA RESPONSIVA --- */
+.formContainer h3 {
+  margin-top: 0;
+  border-bottom: 2px solid var(--border-color-light);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+/* Tabla responsiva */
 .responsiveTableWrapper {
   width: 100%;
   overflow-x: auto;
+  margin-bottom: 24px;
 }
 
 .dataTable {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-  box-shadow: var(--shadow-medium);
-  background-color: var(--bg-card);
+  background: var(--white);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-color-light);
 }
 
-.dataTable th,
-.dataTable td {
-  border-bottom: 1px solid var(--border-color-light);
-  padding: 12px 15px;
+.dataTable th {
+  background: var(--accent-primary);
+  color: var(--text-on-primary);
+  padding: 16px;
   text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+}
+
+.dataTable td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color-light);
+  transition: all var(--transition-fast);
   vertical-align: middle;
+}
+
+.dataTable tr:last-child td {
+  border-bottom: none;
+}
+
+.dataTable tr:hover td {
+  background: var(--primary-lighter);
 }
 
 @media (max-width: 900px) {
@@ -83,6 +73,7 @@
     padding-left: 0;
     padding-right: 0;
   }
+  
   .dataTable {
     min-width: 600px;
     width: 100%;
@@ -90,6 +81,7 @@
     box-shadow: none;
     margin: 0;
   }
+  
   .dataTable th,
   .dataTable td {
     font-size: 13px;
@@ -97,23 +89,17 @@
   }
 }
 
-.formContainer h3 {
-  margin-top: 0;
-  border-bottom: 1px solid var(--border-color-light);
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-  color: var(--text-primary);
-}
-
+/* Formulario - Campos y Botones Normalizados */
 .formGroup {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .formGroup label {
   display: block;
   margin-bottom: 6px;
-  font-weight: bold;
+  font-weight: 600;
   color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .formGroup input[type="text"],
@@ -125,84 +111,103 @@
 .formGroup select,
 .formGroup textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  box-sizing: border-box;
-  background-color: var(--bg-main);
+  font-size: 14px;
+  transition: all var(--transition-fast);
+  background: var(--white);
   color: var(--text-primary);
-  font-size: 15px;
-  transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
 .formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
-    border-color: var(--accent-primary);
-    outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
 }
 
 .formGroup input::placeholder {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .formActions {
-  margin-top: 20px;
+  margin-top: 24px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .formActions button {
-  padding: 10px 16px;
-  margin-left: 0;
+  padding: 12px 24px;
   border: none;
   border-radius: var(--border-radius-md);
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 14px;
-  transition: background-color 0.2s;
+  transition: all var(--transition-fast);
+  min-height: 40px;
+  min-width: 120px;
 }
 
 .submitButton {
   background: var(--accent-success);
   color: var(--text-on-primary);
+  box-shadow: var(--shadow-soft);
 }
 
 .submitButton:hover:not(:disabled) {
-    background: #15803d;
+  background: var(--success-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
 }
 
 .submitButton:disabled {
-  background: var(--accent-success);
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 .cancelButton {
-  background-color: var(--text-secondary);
+  background: var(--accent-secondary);
   color: var(--text-on-primary);
+  box-shadow: var(--shadow-soft);
 }
 
 .cancelButton:hover:not(:disabled) {
-    background-color: var(--text-primary);
+  background: var(--secondary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
 }
 
 .cancelButton:disabled {
-  background-color: var(--text-secondary);
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
+/* Estados de error */
 .error {
   color: var(--accent-danger);
-  background-color: #fee2e2;
-  border: 1px solid #fecaca;
-  padding: 10px;
+  background: var(--danger-light);
+  border: 1px solid var(--accent-danger);
+  padding: 12px;
   border-radius: var(--border-radius-md);
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
 }
 
+.errorMsg {
+  color: var(--accent-danger);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Botón de cierre */
 .closeButton {
   position: absolute;
   top: 16px;
@@ -214,17 +219,21 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  transition: color var(--transition-fast);
 }
 
 .closeButton:hover {
   color: var(--text-primary);
 }
 
-.errorMsg {
-  color: var(--accent-danger);
-  font-weight: bold;
-  font-size: 1.1em;
-  font-family: monospace;
-  margin-bottom: 1em;
-  letter-spacing: 0.5px;
+/* Responsive */
+@media (max-width: 640px) {
+  .formActions {
+    flex-direction: column;
+  }
+  
+  .formActions button {
+    width: 100%;
+    min-width: auto;
+  }
 }

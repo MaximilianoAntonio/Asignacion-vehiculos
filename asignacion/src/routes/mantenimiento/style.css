@@ -1,95 +1,15 @@
 .mantenimientoPage {
-    padding: 20px;
-    max-width: 100%;
-    margin: 0 auto;
-    font-family: var(--font-primary);
-}
-
-.mantenimientoPage h1 {
-    margin-bottom: 25px;
-    color: var(--text-primary);
-}
-
-.mantenimientoPage p {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 20px;
-}
-
-.mantenimientoTable {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.mantenimientoTable th,
-.mantenimientoTable td {
-    border-bottom: 1px solid #ddd;
-    padding: 14px 18px;
-    text-align: left;
-    vertical-align: middle;
-}
-
-.mantenimientoTable th {
-    background-color: #007bff;
-    color: white;
-    text-transform: uppercase;
-    font-size: 14px;
-}
-
-.mantenimientoTable tbody tr {
-    transition: background-color 0.2s;
-}
-
-.mantenimientoTable tbody tr:hover {
-    background-color: #d1dae4;
-}
-
-.mantenimientoTable tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.progressBarContainer {
-    width: 100%;
-    background-color: #e9ecef;
-    border-radius: 12px;
-    position: relative;
-    height: 24px;
-    overflow: hidden;
-    border: 1px solid #dee2e6;
-}
-
-.progressBar {
-    height: 100%;
-    background: linear-gradient(90deg, #28a745, #218838);
-    border-radius: 12px;
-    transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.1);
-}
-
-.progressText {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-weight: bold;
-    font-size: 13px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    padding: 2rem;
 }
 
 .powerbiContainer {
     position: relative;
-    padding-bottom: 56.25%; /* Proporción 16:9 para el iframe */
-    height: 0;
+    width: 100%;
+    height: 75vh; /* Adjust height as needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-medium);
 }
 
 .powerbiContainer iframe {
@@ -101,13 +21,41 @@
     border: none;
 }
 
-.placeholderText {
+.placeholderContent {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 400px;
     text-align: center;
-    color: var(--text-secondary);
-    font-size: 1.2rem;
+    color: var(--text-muted);
     padding: 2rem;
+}
+
+.placeholderContent .icon-powerbi {
+    font-size: 4rem; /* Make icon larger */
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.placeholderContent h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.placeholderContent p {
+    max-width: 500px;
+    line-height: 1.6;
+}
+
+/* Remove old, unused styles */
+.mantenimientoTable,
+.mantenimientoTable th,
+.mantenimientoTable td,
+.progressBarContainer,
+.progressBar,
+.progressText,
+.placeholderText {
+    /* These are no longer used in the refactored component */
+    display: none;
 }

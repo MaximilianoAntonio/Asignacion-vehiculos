@@ -38,6 +38,7 @@ class ConductorSerializer(serializers.ModelSerializer):
         model = Conductor
         fields = [
             'id',
+            'run',
             'nombre',
             'apellido',
             'numero_licencia',

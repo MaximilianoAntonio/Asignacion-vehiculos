@@ -195,6 +195,96 @@ class AsignacionesPage extends Component {
     return direccion.trim();
   }
 
+  renderTable() {
+    const { asignaciones, loading, error } = this.state;
+    const estadosLabels = {
+      pendiente: 'Pendiente',
+      en_curso: 'En Curso',
+      finalizada: 'Finalizada',
+      cancelada: 'Cancelada'
+    };
+
+    if (loading) return <p>Cargando asignaciones...</p>;
+    if (error) return <p class="error-message">{error}</p>;
+
+    return (
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Vehículo</th>
+              <th>Conductor</th>
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>Inicio</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {asignaciones.length === 0 ? (
+              <tr><td colSpan="7">No hay asignaciones para la fecha o filtros seleccionados.</td></tr>
+            ) : (
+              asignaciones.map(a => (
+                <tr key={a.id} class="slide-in-up">
+                  <td data-label="Vehículo">{a.vehiculo?.patente || '—'}</td>
+                  <td data-label="Conductor">{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
+                  <td data-label="Origen">{this.acortarDireccion(a.origen_descripcion)}</td>
+                  <td data-label="Destino">{this.acortarDireccion(a.destino_descripcion)}</td>
+                  <td data-label="Inicio">{this.formatearFecha(a.fecha_hora_requerida_inicio)}</td>
+                  <td data-label="Estado">
+                    <span class={`${style.statusBadge} ${style[a.estado]}`}>
+                      {estadosLabels[a.estado] || a.estado}
+                    </span>
+                  </td>
+                  <td data-label="Acciones">
+                    <button onClick={() => this.handleViewDetails(a)} class="button button-outline">Ver Detalles</button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+
+  renderDetailModal() {
+    const { detailModalAsignacion } = this.state;
+    if (!detailModalAsignacion) return null;
+
+    return (
+      <div class={style.modalOverlay} onClick={this.handleHideDetails}>
+        <div class={`${style.modalContent} card fade-in`} onClick={e => e.stopPropagation()}>
+          <button class={style.modalCloseButton} onClick={this.handleHideDetails}>×</button>
+          <div class="card-header">
+            <h2 class="card-title">Información de la Asignación</h2>
+          </div>
+          <div class={style.modalBody}>
+            <div class={style.mapContainer}>
+              <MapView asignacion={detailModalAsignacion} />
+            </div>
+            <div class={style.modalDetails}>
+              <p><strong>Vehículo:</strong> {detailModalAsignacion.vehiculo?.patente || '—'}</p>
+              <p><strong>Conductor:</strong> {detailModalAsignacion.conductor ? `${detailModalAsignacion.conductor.nombre} ${detailModalAsignacion.conductor.apellido}` : '—'}</p>
+              <p><strong>Responsable:</strong> {detailModalAsignacion.responsable_nombre ? `${detailModalAsignacion.responsable_nombre} (${detailModalAsignacion.responsable_telefono || '—'})` : '—'}</p>
+              <p><strong>Solicitante:</strong> {detailModalAsignacion.solicitante_nombre ? `${detailModalAsignacion.solicitante_nombre} (${detailModalAsignacion.solicitante_telefono || '—'})` : '—'}</p>
+              <p><strong>Origen:</strong> {this.acortarDireccion(detailModalAsignacion.origen_descripcion)}</p>
+              <p><strong>Destino:</strong> {this.acortarDireccion(detailModalAsignacion.destino_descripcion)}</p>
+              <p><strong>Inicio:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_requerida_inicio)}</p>
+              <p><strong>Fin Previsto:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_fin_prevista)}</p>
+              <p><strong>Estado:</strong> <span class={`${style.statusBadge} ${style[detailModalAsignacion.estado]}`}>{detailModalAsignacion.estado}</span></p>
+            </div>
+          </div>
+          <div class={style.modalActions}>
+            <button onClick={() => { this.handleEditAsignacion(detailModalAsignacion); this.handleHideDetails(); }} class="button button-primary">Editar</button>
+            <button onClick={() => { this.handleDeleteAsignacion(detailModalAsignacion); this.handleHideDetails(); }} class="button button-danger">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   render(_, { asignaciones, loading, error, showForm, vehiculos, conductores, detailModalAsignacion }) {
     const estadosLabels = {
       pendiente: 'Pendiente',
@@ -209,141 +299,92 @@ class AsignacionesPage extends Component {
     }, {});
 
     return (
-      <div class={style.asignacionesPage}>
-        <h1>Gestión de Asignaciones</h1>
-        <div class={style.dateNavigation}>
-          <button onClick={this.handlePrevDay}>&lt; Día anterior</button>
-          <input 
-            type="date" 
-            value={this.state.currentDate.toISOString().split('T')[0]} 
-            onChange={this.handleDateChange} 
-            class={style.datePicker}
-          />
-          <button onClick={this.handleNextDay}>Día siguiente &gt;</button>
+      <div class="page-container">
+        <div class="page-header">
+          <h1 class="page-title">Gestión de Asignaciones</h1>
+          <button class="button button-primary" onClick={this.handleShowForm}>
+            <i class="fas fa-plus" style={{marginRight: '0.5rem'}}></i> Nueva Asignación
+          </button>
         </div>
 
-        <form onSubmit={this.handleSearchSubmit} class={style.searchForm}>
-          <input
-            type="text"
-            name="conductor"
-            placeholder="Buscar por conductor..."
-            value={this.state.searchFilters.conductor}
-            onInput={this.handleSearchChange}
-          />
-          <input
-            type="text"
-            name="vehiculo"
-            placeholder="Buscar por patente..."
-            value={this.state.searchFilters.vehiculo}
-            onInput={this.handleSearchChange}
-          />
-          <input
-            type="text"
-            name="origen"
-            placeholder="Buscar por origen..."
-            value={this.state.searchFilters.origen}
-            onInput={this.handleSearchChange}
-          />
-          <input
-            type="text"
-            name="destino"
-            placeholder="Buscar por destino..."
-            value={this.state.searchFilters.destino}
-            onInput={this.handleSearchChange}
-          />
-          <button type="submit">Buscar</button>
-          <button type="button" onClick={this.handleClearSearch} class={style.clearButton}>Limpiar</button>
-        </form>
+        <div class={`${style.filtersCard} card`}>
+          <div class={style.dateNavigation}>
+            <button onClick={this.handlePrevDay} class="button button-outline">&lt;</button>
+            <input 
+              type="date" 
+              value={this.state.currentDate.toISOString().split('T')[0]} 
+              onChange={this.handleDateChange} 
+              class="form-control"
+            />
+            <button onClick={this.handleNextDay} class="button button-outline">&gt;</button>
+          </div>
+          <form onSubmit={this.handleSearchSubmit} class={style.filtersGrid}>
+            <input
+              type="text"
+              name="conductor"
+              placeholder="Buscar por conductor..."
+              value={this.state.searchFilters.conductor}
+              onInput={this.handleSearchChange}
+              class="form-control"
+            />
+            <input
+              type="text"
+              name="vehiculo"
+              placeholder="Buscar por patente..."
+              value={this.state.searchFilters.vehiculo}
+              onInput={this.handleSearchChange}
+              class="form-control"
+            />
+            <input
+              type="text"
+              name="origen"
+              placeholder="Buscar por origen..."
+              value={this.state.searchFilters.origen}
+              onInput={this.handleSearchChange}
+              class="form-control"
+            />
+            <input
+              type="text"
+              name="destino"
+              placeholder="Buscar por destino..."
+              value={this.state.searchFilters.destino}
+              onInput={this.handleSearchChange}
+              class="form-control"
+            />
+            <div class={style.filterActions}>
+              <button type="submit" class="button button-primary">Buscar</button>
+              <button type="button" onClick={this.handleClearSearch} class="button button-outline">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        
+        <div class={style.statsContainer}>
+          <div class={style.statCard}><h3>Finalizadas</h3><p>{asignacionesPorEstado['finalizada'] || 0}</p></div>
+          <div class={style.statCard}><h3>En Curso</h3><p>{asignacionesPorEstado['en_curso'] || 0}</p></div>
+          <div class={style.statCard}><h3>Pendientes</h3><p>{asignacionesPorEstado['pendiente'] || 0}</p></div>
+          <div class={style.statCard}><h3>Canceladas</h3><p>{asignacionesPorEstado['cancelada'] || 0}</p></div>
+        </div>
 
-        {/* Mueve los contadores aquí */}
-        <div class={style.estadoCounters}>
-          <span class={style.estadoFinalizada}>
-            Finalizada: {asignacionesPorEstado['finalizada'] || 0}
-          </span>
-          <span class={style.estadoEnCurso}>
-            En Curso: {asignacionesPorEstado['en_curso'] || 0}
-          </span>
-          <span class={style.estadoPendiente}>
-            Pendiente: {asignacionesPorEstado['pendiente'] || 0}
-          </span>
-          <span class={style.estadoCancelada}>
-            Cancelada: {asignacionesPorEstado['cancelada'] || 0}
-          </span>
-        </div>
-        <div class={style.tableActions}>
-          <button class={style.addButton} onClick={this.handleShowForm}>
-            Agregar asignación
-          </button>
-          <button class={style.processButton} onClick={this.handleProcesarAsignaciones} disabled={loading}>
-            Procesar asignaciones
-          </button>
-          <button class={style.exportButton} onClick={() => exportAsignacionesPDF(asignaciones)} disabled={loading || asignaciones.length === 0}>
-            Exportar PDF
-          </button>
-        </div>
-        <div class={style.pageLayout}>
-          <div class={style.leftColumn}>
-            <div class={style.responsiveTableWrapper}>
-              <table class={style.table}>
-                <thead>
-                  <tr>
-                    <th>Vehículo</th>
-                    <th>Conductor</th>
-                    <th>Responsable</th>
-                    <th>Tel. Responsable</th>
-                    <th>Origen</th>
-                    <th>Destino</th>
-                    <th>Inicio</th>
-                    <th>Fin Previsto</th>
-                    <th>Estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (
-                    <tr><td colSpan="9">Cargando asignaciones...</td></tr>
-                  ) : error ? (
-                    <tr><td colSpan="9" style={{ color: 'red' }}>{error}</td></tr>
-                  ) : asignaciones.length === 0 ? (
-                    <tr>
-                      <td colSpan="9">No hay asignaciones registradas.</td>
-                    </tr>
-                  ) : (
-                    asignaciones.map(a => (
-                      <tr
-                        key={a.id}
-                        class={style.clickableRow}
-                        onClick={() => this.handleViewDetails(a)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <td data-label="Vehículo">{a.vehiculo?.patente || '—'}</td>
-                        <td data-label="Conductor">{a.conductor ? `${a.conductor.nombre} ${a.conductor.apellido}` : '—'}</td>
-                        <td data-label="Responsable">{a.responsable_nombre ? a.responsable_nombre : '—'}</td>
-                        <td data-label="Tel. Responsable">{a.responsable_telefono ? a.responsable_telefono : '—'}</td>
-                        <td data-label="Origen">{this.acortarDireccion(a.origen_descripcion)}</td>
-                        <td data-label="Destino">{this.acortarDireccion(a.destino_descripcion)}</td>
-                        <td data-label="Inicio">{this.formatearFecha(a.fecha_hora_requerida_inicio)}</td>
-                        <td data-label="Fin Previsto">{this.formatearFecha(a.fecha_hora_fin_prevista)}</td>
-                        <td data-label="Estado" class={
-                          a.estado === 'pendiente' ? style.estadoPendiente :
-                          a.estado === 'en_curso' ? style.estadoEnCurso :
-                          a.estado === 'finalizada' ? style.estadoFinalizada :
-                          a.estado === 'cancelada' ? style.estadoCancelada : ''
-                        }>
-                          {estadosLabels[a.estado] || a.estado}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+        <div class="card">
+          <div class={`${style.cardHeaderActions} card-header`}>
+            <h2 class="card-title">
+              Asignaciones para {this.state.currentDate.toLocaleDateString('es-ES', { month: 'long', day: 'numeric' })}
+            </h2>
+            <div class={style.tableActions}>
+              <button class="button button-secondary" onClick={this.handleProcesarAsignaciones} disabled={loading}>
+                Procesar
+              </button>
+              <button class="button button-outline" onClick={() => exportAsignacionesPDF(asignaciones)} disabled={loading || asignaciones.length === 0}>
+                Exportar PDF
+              </button>
             </div>
           </div>
+          {this.renderTable()}
         </div>
 
-        {/* MODAL flotante para el formulario */}
         {showForm && (
           <div class={style.modalOverlay} onClick={this.handleHideForm}>
-            <div class={style.modalContent} onClick={e => e.stopPropagation()}>
+            <div class={`${style.modalContent} card fade-in`} onClick={e => e.stopPropagation()}>
               <AsignacionForm
                 asignacion={this.state.asignacionEditando}
                 onAsignacionCreada={this.handleAsignacionCreada}
@@ -356,56 +397,7 @@ class AsignacionesPage extends Component {
           </div>
         )}
 
-        {detailModalAsignacion && (
-          <div class={style.modalOverlay} onClick={this.handleHideDetails}>
-            <div
-              class={style.modalContent}
-              onClick={e => e.stopPropagation()}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                gap: '32px',
-                minWidth: '900px'
-              }}
-            >
-              {/* Mapa a la izquierda */}
-              <div style={{ flex: '1 1 0%', minWidth: '400px', minHeight: '350px' }}>
-                <h3>Ruta en el Mapa</h3>
-                <MapView asignacion={detailModalAsignacion} />
-              </div>
-              {/* Detalles a la derecha */}
-              <div style={{ flex: '1 1 0%' }}>
-                <button class={style.modalCloseButton} onClick={this.handleHideDetails}>×</button>
-                <h2>Información de la Asignación</h2>
-                <div class={style.modalDetails}>
-                  <p><strong>Vehículo:</strong> {detailModalAsignacion.vehiculo?.patente || '—'}</p>
-                  <p><strong>Conductor:</strong> {detailModalAsignacion.conductor ? `${detailModalAsignacion.conductor.nombre} ${detailModalAsignacion.conductor.apellido}` : '—'}</p>
-                  <p><strong>Responsable:</strong> {detailModalAsignacion.responsable_nombre ? `${detailModalAsignacion.responsable_nombre} (${detailModalAsignacion.responsable_telefono || '—'})` : '—'}</p>
-                  <p><strong>Solicitante:</strong> {detailModalAsignacion.solicitante_nombre ? `${detailModalAsignacion.solicitante_nombre} (${detailModalAsignacion.solicitante_telefono || '—'})` : '—'}</p>
-                  <p><strong>Origen:</strong> {this.acortarDireccion(detailModalAsignacion.origen_descripcion)}</p>
-                  <p><strong>Destino:</strong> {this.acortarDireccion(detailModalAsignacion.destino_descripcion)}</p>
-                  <p><strong>Inicio:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_requerida_inicio)}</p>
-                  <p><strong>Fin Previsto:</strong> {this.formatearFecha(detailModalAsignacion.fecha_hora_fin_prevista)}</p>
-                  <p><strong>Estado:</strong> {detailModalAsignacion.estado}</p>
-                </div>
-                <div class={style.modalActions}>
-                  <button onClick={() => { this.handleEditAsignacion(detailModalAsignacion); this.handleHideDetails(); }} class={style.editButton}>Editar</button>
-                  <button onClick={() => { this.handleDeleteAsignacion(detailModalAsignacion); this.handleHideDetails(); }} class={style.deleteButton}>Eliminar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        {this.state.mapaModalAsignacion && (
-          <div class={style.modalOverlay} onClick={() => this.setState({ mapaModalAsignacion: null })}>
-            <div class={style.modalContent} onClick={e => e.stopPropagation()} style={{ width: '600px', height: '450px' }}>
-              <button class={style.modalCloseButton} onClick={() => this.setState({ mapaModalAsignacion: null })}>×</button>
-              <h2>Ruta en el Mapa</h2>
-              <MapView asignacion={this.state.mapaModalAsignacion} />
-            </div>
-          </div>
-        )}
+        {this.renderDetailModal()}
       </div>
     );
   }

@@ -1,0 +1,24 @@
+<!-- Driver Management Icon -->
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="driverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#059669;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#065f46;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    
+    <rect x="10" y="10" width="80" height="80" rx="15" fill="url(#driverGradient)"/>
+    
+    <!-- Person silhouette -->
+    <circle cx="50" cy="35" r="10" fill="white"/>
+    <path d="M35 55 Q35 50 40 48 L60 48 Q65 50 65 55 L65 75 L35 75 Z" fill="white"/>
+    
+    <!-- Driver's cap -->
+    <ellipse cx="50" cy="30" rx="12" ry="6" fill="white"/>
+    <rect x="38" y="27" width="24" height="3" fill="#059669"/>
+    
+    <!-- Badge/ID -->
+    <rect x="45" y="58" width="10" height="8" rx="2" fill="#059669"/>
+    <rect x="46" y="60" width="8" height="2" fill="white"/>
+    <rect x="46" y="63" width="8" height="1" fill="white"/>
+</svg>

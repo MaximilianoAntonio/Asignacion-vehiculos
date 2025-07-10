@@ -1,27 +1,24 @@
 .horariosPage {
-    padding: 20px;
-    max-width: 1500px;
-    margin: 0 auto;
-    font-family: var(--font-primary);
-}
-
-.horariosPage h1 {
-    margin-bottom: 25px;
-    color: var(--text-primary);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 .pageLayout {
-    display: flex;
-    gap: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
 }
 
-.leftColumn {
-    flex: 1;
-    min-width: 400px;
+.leftColumn, .rightColumn {
+    min-width: 0; /* Prevents overflow issues in grid children */
 }
 
-.rightColumn {
-    flex: 1.5;
+.selectedRow {
+    background-color: var(--primary-light) !important;
+    font-weight: 600;
+    color: var(--primary-dark);
 }
 
 .dashboard {
@@ -35,30 +32,22 @@
 .dashboardHeader {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color-light);
-    gap: 16px;
+    align-items: center;
+    margin-bottom: 1rem; /* From card-header */
 }
 
-.dashboardHeader h2 {
+.dashboardHeader h3 {
     margin: 0;
-    font-size: 1.5rem;
-    color: var(--text-primary);
-    line-height: 1.2;
 }
 
 .dashboardHeader p {
-    margin: 4px 0 0;
-    font-size: 1.1rem;
-    color: var(--text-secondary);
+    margin: 0;
+    color: var(--text-muted);
 }
 
 .weekNavigator {
     display: flex;
-    gap: 8px;
-    flex-shrink: 0;
+    gap: 0.5rem;
 }
 
 .weekNavigator button, .exportButton {
@@ -85,489 +74,100 @@
 
 .dashboardPlaceholder {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    height: 300px;
-    background-color: var(--bg-main);
-    border: 2px dashed var(--border-color);
-    border-radius: var(--border-radius-lg);
-    color: var(--text-secondary);
-    font-size: 1.1rem;
+    justify-content: center;
+    height: 100%;
+    min-height: 300px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.dashboardPlaceholder .icon-user-check {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
 }
 
 .calendarView {
-    margin-top: 20px;
-}
-
-.calendarGrid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-lg);
-    padding: 10px;
-    background-color: var(--bg-main);
-}
-
-.calendarDay {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-color-light);
-    border-radius: var(--border-radius-md);
-    min-height: 200px;
     display: flex;
     flex-direction: column;
-}
-
-.dayHeader {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 12px;
-    background-color: var(--bg-main);
-    font-weight: bold;
-    border-bottom: 1px solid var(--border-color-light);
-    border-top-left-radius: var(--border-radius-md);
-    border-top-right-radius: var(--border-radius-md);
-}
-
-.dayHeader span:first-child {
-    color: var(--text-primary);
-}
-
-.dayHeader span:last-child {
-    color: var(--accent-primary);
-}
-
-.dayBody {
-    padding: 10px;
-    flex-grow: 1;
+    gap: 1rem;
+    max-height: 500px; /* Or adjust as needed */
     overflow-y: auto;
-}
-
-.noTurnos {
-    color: var(--text-secondary);
-    text-align: center;
-    padding-top: 20px;
-    font-style: italic;
+    padding-right: 0.5rem; /* For scrollbar */
 }
 
 .turnoEntry {
-    background-color: var(--bg-main);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background-color: var(--neutral-100);
+    border-radius: var(--border-radius-md);
     border: 1px solid var(--border-color-light);
-    border-left: 4px solid var(--accent-primary);
-    border-radius: var(--border-radius-sm);
-    padding: 10px;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
+}
+
+.turnoDate {
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.turnoDetails {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: 1rem;
 }
 
 .turnoTimes, .turnoDuration {
-    margin-bottom: 5px;
-}
-
-.turnoTimes span {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
 }
 
 .turnoActions {
     display: flex;
-    gap: 5px;
+    gap: 0.5rem;
 }
 
-.turnoActions button {
-    padding: 4px;
-    font-size: 0.8rem;
-    line-height: 1;
-    width: 24px;
-    height: 24px;
-    gap: 0;
-    margin-right: 0;
-    border: 1px solid;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    font-weight: bold;
-    border-radius: 50%;
-}
-
-.turnoActions button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.editButton {
-    border-color: var(--accent-warning);
-    background: #fef3c7;
-    color: #92400e;
-}
-.editButton:hover {
-    background: var(--accent-warning);
-    color: var(--text-primary);
-}
-.deleteButton {
-    border-color: var(--accent-danger);
-    background: #fee2e2;
-    color: #991b1b;
-}
-.deleteButton:hover {
-    background: var(--accent-danger);
-    color: var(--text-on-danger);
-}
-
-.reportActions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.clickableRow {
-    cursor: pointer;
-}
-.clickableRow:hover {
-    background-color: var(--bg-main);
-}
-.selectedRow {
-    background-color: #dbeafe;
-    font-weight: bold;
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    box-shadow: var(--shadow-medium);
-    background: var(--bg-card);
-    border-radius: var(--border-radius-lg);
-    overflow: hidden;
-    table-layout: fixed;
-}
-
-.table th, .table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color-light);
-}
-
-.table th {
-    background-color: var(--accent-primary);
-    font-weight: bold;
-    color: var(--text-on-primary);
-    text-transform: uppercase;
-    font-size: 14px;
-}
-
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.table tbody tr:hover {
-    background-color: var(--bg-main);
-}
-
-.status {
-    padding: 4px 8px;
-    border-radius: var(--border-radius-lg);
-    font-size: 0.9em;
-    color: #fff;
-    text-transform: capitalize;
-    display: inline-block;
-    min-width: 90px;
+.noTurnos {
     text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
-.status.disponible { background-color: var(--accent-success); }
-.status.en_ruta { background-color: var(--accent-secondary); }
-.status.dia_libre { background-color: var(--text-secondary); }
-.status.no_disponible { background-color: var(--accent-warning); color: var(--text-primary); }
-
-.button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    color: var(--text-on-primary);
-    font-weight: bold;
-    transition: background-color 0.2s;
-    width: 120px;
-    text-align: center;
-}
-
-.buttonStart {
-    background-color: var(--accent-primary);
-}
-.buttonStart:hover {
-    background-color: var(--accent-primary-darker);
-}
-
-.buttonEnd {
-    background-color: var(--accent-danger);
-}
-.buttonEnd:hover {
-    background-color: #b91c1c;
-}
-
-.buttonDisabled {
-    background-color: var(--text-secondary);
-    opacity: 0.7;
-    cursor: not-allowed;
-}
-
-.error {
-    color: var(--accent-danger);
-    font-weight: bold;
-}
-
-/* Modal Styles */
-.modalBackdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modalContent {
-    background: var(--bg-card);
-    padding: 25px;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-hard);
-    width: 100%;
-    max-width: 450px;
-}
-
-.modalContent h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: var(--text-primary);
-}
-
-.inputRow {
-    display: flex;
-    gap: 15px;
-}
-
-.formGroup {
-    margin-bottom: 15px;
-    flex: 1;
-}
-
-.formGroup label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: var(--text-secondary);
-}
-
-.formGroup input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    box-sizing: border-box;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-}
-
-.modalActions {
-    margin-top: 25px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.modalActions .button {
-    width: auto;
-    padding: 10px 20px;
-}
-
-.modalActions .button:first-child {
-    background-color: var(--text-secondary);
-}
-.modalActions .button:first-child:hover {
-    background-color: var(--text-primary);
-}
-
-/* Responsive */
+/* Responsive adjustments */
 @media (max-width: 1200px) {
     .pageLayout {
-        flex-direction: column;
-        gap: 24px;
-    }
-    .leftColumn, .rightColumn {
-        min-width: 100%;
-        flex: 1;
-    }
-}
-
-@media (max-width: 900px) {
-    .horariosPage {
-        padding: 15px;
-    }
-
-    .dashboard {
-        padding: 15px;
-    }
-
-    .calendarGrid {
-        gap: 8px;
-    }
-
-    .calendarDay {
-        min-height: 150px;
-    }
-
-    .table th, .table td {
-        padding: 10px;
-        font-size: 14px;
-    }
-
-    .button {
-        width: 100%;
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 768px) {
     .horariosPage {
-        padding: 10px;
+        padding: 1rem;
     }
-
+    .pageLayout {
+        gap: 1rem;
+    }
     .dashboardHeader {
         flex-direction: column;
         align-items: flex-start;
+        gap: 0.5rem;
     }
-
-    .weekNavigator {
-        margin-top: 10px;
-        width: 100%;
-        justify-content: space-between;
+    .turnoEntry {
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
-
-    .calendarView {
-        overflow-x: auto;
-        padding-bottom: 10px; /* Espacio para la barra de scroll */
+    .turnoDetails {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
-
-    .calendarGrid {
-        display: flex;
-        flex-wrap: nowrap;
-        min-width: 700px; /* Forzar un ancho mínimo para habilitar el scroll */
-    }
-
-    .calendarDay {
-        flex: 1 0 280px; /* No encoger, base de 280px, permitir crecer */
-        min-width: 280px;
-        border-right: 1px solid var(--border-color-light);
-    }
-
-    .calendarDay:last-child {
-        border-right: none;
-    }
-
-    .table-wrapper {
-        overflow-x: auto;
-    }
-
-    .table {
-        min-width: 600px; /* Ancho mínimo para la tabla de conductores */
-    }
-}
-
-/* --- ESTILOS PARA EL MODAL DE EDICIÓN DE TURNOS --- */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: var(--bg-card);
-  padding: 2rem;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-hard);
-  width: 90%;
-  max-width: 500px;
-}
-
-.formContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.formContainer h3 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color-light);
-  padding-bottom: 0.8rem;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.inputGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.formGroup label {
-  font-weight: bold;
-  color: var(--text-secondary);
-}
-
-.formGroup input[type="datetime-local"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-md);
-  box-sizing: border-box;
-  background-color: var(--bg-main);
-  color: var(--text-primary);
-  font-size: 15px;
-}
-
-.formActions {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.submitButton, .cancelButton {
-  padding: 10px 16px;
-  border: none;
-  border-radius: var(--border-radius-md);
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
-
-.submitButton {
-  background: var(--accent-success);
-  color: var(--text-on-primary);
-}
-
-.cancelButton {
-  background-color: var(--text-secondary);
-  color: var(--text-on-primary);
 }
 

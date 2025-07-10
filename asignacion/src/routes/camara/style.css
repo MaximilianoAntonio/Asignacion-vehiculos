@@ -1,27 +1,115 @@
 .camaraContainer {
-    min-height: 80vh;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 24px;
+    gap: 1.5rem;
 }
 
-.camaraTitle {
-    margin-bottom: 24px;
+/* pageHeader is now global, but we can add specific alignment */
+.pageHeader {
+    text-align: center;
 }
 
-.camaraError {
-    color: red;
-    margin-bottom: 16px;
+.camaraInstructions {
+    background: var(--primary-light);
+    border: 1px solid var(--primary);
+    border-radius: var(--border-radius-md);
+    padding: 1rem 1.5rem;
+    max-width: 650px;
+    width: 100%;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.camaraCard {
+    padding: 2rem;
+    max-width: 650px;
+    width: 100%;
+}
+
+.videoWrapper {
+    position: relative;
+    width: 100%;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    margin-bottom: 1.5rem;
 }
 
 .camaraVideo {
-    width: 100%;
-    max-width: 600px;
-    border-radius: 12px;
-    border: 2px solid #2563EB;
-    background: #000;
     display: block;
-    transform: scaleX(-1);
+    width: 100%;
+    transform: scaleX(-1); /* Mirror mode */
+    transition: all var(--transition-normal);
+}
+
+.scanOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 5px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.3);
+    border-radius: var(--border-radius-lg);
+}
+
+.qrResult {
+    background: var(--neutral-100);
+    border-radius: var(--border-radius-md);
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.qrResult h4 {
+    color: var(--text-primary);
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.qrResult .qrData {
+    background: var(--neutral-200);
+    border-radius: var(--border-radius-sm);
+    padding: 0.75rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    word-break: break-all;
+    color: var(--text-secondary);
+    min-height: 100px;
+}
+
+.qrResult .qrData.detected {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: var(--success-dark);
+    font-weight: 500;
+}
+
+/* Status messages are now global, but we can add local overrides */
+.statusMessage {
+    width: 100%;
+    max-width: 650px;
+    text-align: center;
+}
+
+.statusMessage.success {
+    background-color: var(--success);
+    color: var(--text-on-primary);
+}
+
+.statusMessage.error {
+    background-color: var(--danger);
+    color: var(--text-on-primary);
+}
+
+@media (max-width: 768px) {
+    .camaraContainer {
+        padding: 1rem;
+    }
+    
+    .camaraCard {
+        padding: 1.5rem;
+    }
 }

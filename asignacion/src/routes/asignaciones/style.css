@@ -1,17 +1,34 @@
 /* Estilos generales de la página */
 .asignacionesPage {
-  padding: 20px;
+  padding: 32px;
   max-width: 1600px;
   margin: 0 auto;
   font-family: var(--font-primary);
+  background: var(--bg-main);
+  min-height: 100vh;
 }
 
 .asignacionesPage h1 {
-  margin-bottom: 25px;
+  font-size: 2.5rem;
+  font-weight: 700;
   color: var(--text-primary);
-  color: #333;
+  margin-bottom: 32px;
   text-align: center;
-  margin-bottom: 20px;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.pageIcon {
+    width: 48px;
+    height: 48px;
+    color: var(--accent-primary);
+    opacity: 0.9;
 }
 
 /* Navegación de fechas */
@@ -19,113 +36,157 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .dateNavigation button {
-  background-color: #007bff;
-  color: white;
+  background: var(--accent-primary);
+  color: var(--text-on-primary);
   border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
+  padding: 12px 20px;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
-  font-size: 1em;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-soft);
 }
 
 .dateNavigation button:hover {
-  background-color: #0056b3;
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
 }
 
 .currentDate {
-  margin: 0 20px;
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--primary-lighter);
+  padding: 12px 20px;
+  border-radius: var(--border-radius-md);
+  border: 2px solid var(--accent-primary);
 }
 
 /* Formulario de búsqueda */
-.searchForm {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-  gap: 10px;
-}
-
-.searchForm input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.searchForm button {
-  padding: 8px 12px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.searchForm button:hover {
-  background-color: #218838;
-}
-
-.clearButton {
-  background-color: #dc3545;
-}
-
-.clearButton:hover {
-  background-color: #c82333;
-}
-
-/* Layout de dos columnas */
-.pageLayout {
-  display: flex;
-  gap: 30px;
-}
-
-.leftColumn {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-}
-
-.rightColumn {
-  flex: 1;
-  position: sticky;
-  top: 100px;
-  align-self: flex-start;
-}
-
-/* Contenedor del formulario */
-.formContainer {
+.filtersSection {
   background: var(--bg-card);
-  padding: 25px;
+  padding: 24px;
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-medium);
-  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 24px;
+  border: 1px solid var(--border-color-light);
 }
 
-.formContainer h2 {
-  margin-top: 0;
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--accent-primary);
-  padding-bottom: 10px;
+.filtersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
   margin-bottom: 20px;
 }
 
-/* Placeholder para cuando el formulario está oculto */
-.formPlaceholder {
-  background: var(--bg-main);
-  padding: 40px 25px;
-  border-radius: var(--border-radius-lg);
-  text-align: center;
-  color: var(--text-secondary);
-  border: 2px dashed var(--border-color);
-  height: 100%;
+.filterInput {
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 14px;
+  transition: all var(--transition-fast);
+  background: var(--white);
+}
+
+.filterInput:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.filterActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.btnPrimary {
+  background: var(--accent-primary);
+  color: var(--text-on-primary);
+  box-shadow: var(--shadow-soft);
+}
+
+.btnPrimary:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+.btnSecondary {
+  background: var(--accent-secondary);
+  color: var(--text-on-primary);
+  box-shadow: var(--shadow-soft);
+}
+
+.btnSecondary:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+/* Estados counters */
+.estadoCounters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
   justify-content: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.estadoCounters span {
+  padding: 10px 16px;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  font-size: 0.9rem;
+  background: var(--white);
+  border: 2px solid;
+  transition: all var(--transition-fast);
+}
+
+.estadoCounters span:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.estadoPendiente {
+  border-color: var(--accent-warning);
+  color: var(--accent-warning);
+}
+
+.estadoEnCurso {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.estadoFinalizada {
+  border-color: var(--accent-success);
+  color: var(--accent-success);
+}
+
+.estadoCancelada {
+  border-color: var(--accent-danger);
+  color: var(--accent-danger);
 }
 
 /* Tabla */
@@ -138,11 +199,83 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-  box-shadow: var(--shadow-medium);
+  margin-top: 24px;
+  box-shadow: var(--shadow-hard);
   background: var(--bg-card);
   border-radius: var(--border-radius-lg);
   min-width: 800px;
+  border: 1px solid var(--border-color-light);
+  overflow: hidden;
+}
+
+.table th {
+  background: var(--accent-primary);
+  color: var(--text-on-primary);
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color-light);
+  transition: all var(--transition-fast);
+}
+
+.table tr:hover td {
+  background: var(--primary-lighter);
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+/* Estados en la tabla */
+.estadoPendiente {
+  color: var(--accent-warning);
+  font-weight: 600;
+  background: rgba(234, 179, 8, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+}
+
+.estadoEnCurso {
+  color: var(--accent-primary);
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+}
+
+.estadoCompletada {
+  color: var(--accent-success);
+  font-weight: 600;
+  background: rgba(5, 150, 105, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+}
+
+.estadoFinalizada {
+  color: var(--accent-success);
+  font-weight: 600;
+  background: rgba(5, 150, 105, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
+}
+
+.estadoCancelada {
+  color: var(--accent-danger);
+  font-weight: 600;
+  background: rgba(220, 38, 38, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--border-radius-sm);
 }
 /* Responsive tabla: formato tipo card en móviles */
 @media (max-width: 900px) {

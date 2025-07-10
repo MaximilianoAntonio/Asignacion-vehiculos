@@ -55,6 +55,7 @@ class Conductor(models.Model):
         ('dia_libre', 'Día Libre'),
         ('no_disponible', 'No Disponible'),
     ]
+    run = models.CharField(max_length=12, unique=True, null=True, blank=True, help_text="Rol Único Nacional (ej: 12345678-9)")
     nombre = models.CharField(max_length=100, help_text="Nombre del conductor")
     apellido = models.CharField(max_length=100, help_text="Apellido del conductor")
     numero_licencia = models.CharField(max_length=50, unique=True, help_text="Número de licencia de conducir")
@@ -76,7 +77,7 @@ class Conductor(models.Model):
     )
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido} ({self.numero_licencia})"
+        return f"{self.nombre} {self.apellido} ({self.run or self.numero_licencia})"
 
     class Meta:
         verbose_name = "Conductor"

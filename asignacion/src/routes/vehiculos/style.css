@@ -1,3 +1,157 @@
+/* Página de Vehículos - Estilos Normalizados */
+.vehiculosPage {
+    padding: 32px;
+    max-width: 1600px;
+    margin: 0 auto;
+    font-family: var(--font-primary);
+    background: var(--bg-main);
+    min-height: 100vh;
+}
+
+.vehiculosPage h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.pageHeader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.pageIcon {
+    width: 48px;
+    height: 48px;
+    color: var(--accent-secondary);
+}
+
+.addButton {
+    background: var(--accent-secondary);
+    color: var(--text-on-primary);
+    border: none;
+    padding: 16px 32px;
+    border-radius: var(--border-radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.addButton:hover {
+    background: var(--secondary-dark);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color-light);
+}
+
+.table th {
+    background: var(--accent-secondary);
+    color: var(--text-on-primary);
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color-light);
+    transition: all var(--transition-fast);
+}
+
+.table tr:hover td {
+    background: var(--secondary-light);
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.clickableRow {
+    cursor: pointer;
+}
+
+.clickableRow:hover {
+    background: var(--secondary-light);
+}
+
+/* Estados de vehículos normalizados */
+.estadoDisponible {
+    background: var(--success-light);
+    color: var(--success-dark);
+    border: 1px solid var(--accent-success);
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.estadoEnUso {
+    background: var(--warning-light);
+    color: var(--warning-dark);
+    border: 1px solid var(--accent-warning);
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.estadoMantenimiento {
+    background: var(--danger-light);
+    color: var(--danger-dark);
+    border: 1px solid var(--accent-danger);
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.estadoReservado {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border: 1px solid var(--accent-primary);
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.estadoFueraDeServicio {
+    background: var(--neutral-100);
+    color: var(--neutral-600);
+    border: 1px solid var(--neutral-400);
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 /* Responsive tabla: formato tipo card en móviles */
 @media (max-width: 900px) {
   .responsiveTableWrapper {
@@ -373,4 +527,316 @@
     border-color: #fde68a;
     background: #fef3c7;
     color: #92400e;
+}
+
+/* Contadores de estado de vehículos normalizados */
+.estadoCounters {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color-light);
+}
+
+.estadoCounters .counter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    font-size: 14px;
+    background: var(--white);
+    border: 2px solid var(--border-color);
+    transition: all var(--transition-fast);
+    min-width: 120px;
+    justify-content: center;
+}
+
+.estadoCounters .counter:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+.estadoCounters .counter.disponible {
+    border-color: var(--accent-success);
+    background: var(--success-light);
+    color: var(--success-dark);
+}
+
+.estadoCounters .counter.en-uso {
+    border-color: var(--accent-warning);
+    background: var(--warning-light);
+    color: var(--warning-dark);
+}
+
+.estadoCounters .counter.mantenimiento {
+    border-color: var(--accent-danger);
+    background: var(--danger-light);
+    color: var(--danger-dark);
+}
+
+.estadoCounters .counter.reservado {
+    border-color: var(--accent-primary);
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+/* Layout */
+.pageLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.leftColumn {
+    flex: 1;
+}
+
+/* Modal styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+.modalContent {
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  line-height: 1;
+}
+
+.modalCloseButton:hover {
+  color: var(--text-primary);
+}
+
+.modalBody {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.modalImageContainer {
+  flex-shrink: 0;
+}
+
+.modalImageContainer img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-medium);
+}
+
+.modalDetails p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.modalDetails p strong {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+}
+
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color-light);
+}
+
+/* Container for the stats cards */
+.statsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-soft);
+  border-left: 5px solid;
+  transition: all var(--transition-normal);
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-medium);
+}
+
+.statCard h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.statCard p {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Color coding for stat cards */
+.statCard:nth-child(1) { border-color: var(--success); }
+.statCard:nth-child(2) { border-color: var(--primary); }
+.statCard:nth-child(3) { border-color: var(--secondary); }
+.statCard:nth-child(4) { border-color: var(--danger); }
+
+
+/* Status Badges for table */
+.statusBadge {
+  padding: 0.3rem 0.75rem;
+  border-radius: 50px; /* pill shape */
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusBadge.disponible {
+  background-color: var(--success-light);
+  color: var(--success-dark);
+}
+.statusBadge.en_uso {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+.statusBadge.reservado {
+  background-color: var(--secondary-light);
+  color: var(--secondary-dark);
+}
+.statusBadge.mantenimiento {
+  background-color: var(--danger-light);
+  color: var(--danger-dark);
+}
+
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+.modalContent {
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+  line-height: 1;
+}
+
+.modalCloseButton:hover {
+  color: var(--text-primary);
+}
+
+.modalBody {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.modalImageContainer {
+  flex-shrink: 0;
+}
+
+.modalImageContainer img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-medium);
+}
+
+.modalDetails p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.modalDetails p strong {
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+}
+
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modalBody {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .modalActions {
+    flex-direction: column;
+  }
+  .modalActions .button {
+    width: 100%;
+  }
 }

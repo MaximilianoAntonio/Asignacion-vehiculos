@@ -14,27 +14,47 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                 <span class={style.title}>Gestión de Flota</span>
             </div>
             <nav class={style.nav}>
-                <Link activeClassName={style.active} href="/">Inicio</Link>
-                <Link activeClassName={style.active} href="/camara">Cámara</Link>
+                <Link activeClassName={style.active} href="/">
+                    Inicio
+                </Link>
+                <Link activeClassName={style.active} href="/camara">
+                    Cámara QR
+                </Link>
                 {isLoggedIn && (
                     <>
                         {isFuncionario ? (
-                            <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
+                            <Link activeClassName={style.active} href="/asignaciones">
+                                Asignaciones
+                            </Link>
                         ) : (
                             <>
                                 <div class={style.dropdown}>
-                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>Gestión</a>
+                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>
+                                        Gestión
+                                    </a>
                                     <div class={style.dropdownContent}>
-                                        <Link activeClassName={style.active} href="/vehiculos">Vehículos</Link>
-                                        <Link activeClassName={style.active} href="/conductores">Conductores</Link>
-                                        <Link activeClassName={style.active} href="/asignaciones">Asignaciones</Link>
+                                        <Link activeClassName={style.active} href="/vehiculos">
+                                            Vehículos
+                                        </Link>
+                                        <Link activeClassName={style.active} href="/conductores">
+                                            Conductores
+                                        </Link>
+                                        <Link activeClassName={style.active} href="/asignaciones">
+                                            Asignaciones
+                                        </Link>
                                     </div>
                                 </div>
                                 <div class={style.dropdown}>
-                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>Planificación</a>
+                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>
+                                        Planificación
+                                    </a>
                                     <div class={style.dropdownContent}>
-                                        <Link activeClassName={style.active} href="/horarios">Horarios</Link>
-                                        <Link activeClassName={style.active} href="/mantenimiento">Mantenimiento</Link>
+                                        <Link activeClassName={style.active} href="/horarios">
+                                            Horarios
+                                        </Link>
+                                        <Link activeClassName={style.active} href="/mantenimiento">
+                                            Mantenimiento
+                                        </Link>
                                     </div>
                                 </div>
                             </>
@@ -42,9 +62,13 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                     </>
                 )}
                 {isLoggedIn ? (
-                    <a href="#" onClick={onLogout} class={style.logout}>Logout</a>
+                    <a href="#" onClick={onLogout} class={style.logout}>
+                        Logout
+                    </a>
                 ) : (
-                    <Link activeClassName={style.active} href="/login">Login</Link>
+                    <Link activeClassName={style.active} href="/login">
+                        Login
+                    </Link>
                 )}
             </nav>
         </header>

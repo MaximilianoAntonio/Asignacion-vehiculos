@@ -1,5 +1,5 @@
 .loginPage {
-    position: fixed; /* Asegura que ocupe toda la pantalla */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
@@ -7,91 +7,50 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    background: var(--bg-main); /* Use global background */
+    z-index: 1000; /* Ensure it's on top */
 }
 
 .loginForm {
     background: var(--bg-card);
-    padding: 4rem 4rem 3.5rem 4rem;
+    padding: 3rem;
     border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-hard);
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 480px;
-    max-width: 95vw;
+    width: 100%;
+    max-width: 450px;
+    border: 1px solid var(--border-color-light);
 }
 
 .logo {
-    width: 180px;
+    width: 150px;
     height: auto;
     margin-bottom: 2rem;
-    display: block;
-    object-fit: contain;
+    border-radius: var(--border-radius-md);
 }
 
 h2 {
     margin-bottom: 2rem;
     color: var(--text-primary);
-    font-weight: bold;
-    letter-spacing: 1px;
-    font-size: 2.2rem;
+    font-weight: 700;
+    font-size: 2rem;
 }
 
-.formGroup {
-    margin-bottom: 1.2rem;
-    width: 100%;
-}
-
-label {
-    display: block;
-    margin-bottom: 0.4rem;
-    color: var(--text-secondary);
-    font-weight: 500;
-}
-
+/* Remove redundant form styles, as global styles will be used */
+.formGroup,
+label,
 input[type="text"],
-input[type="password"] {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
-    font-size: 1rem;
-    transition: border 0.2s;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-}
-
-input:focus {
-    border: 1.5px solid var(--accent-primary);
-    outline: none;
-}
-
+input[type="password"],
 .submitButton {
-    width: 100%;
-    padding: 0.8rem;
-    background: var(--accent-primary);
-    color: var(--text-on-primary);
-    border: none;
-    border-radius: var(--border-radius-md);
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.submitButton:hover {
-    background: var(--accent-primary-darker);
-}
-
-.submitButton:disabled {
-    background: var(--text-secondary);
-    opacity: 0.7;
-    cursor: not-allowed;
+    /* These will be handled by global .form-group, .form-control, and .btn classes */
+    all: unset; /* Resetting styles to defer to global ones */
 }
 
 .error {
-    color: var(--accent-danger);
-    margin-bottom: 1rem;
-    font-weight: 500;
+    /* This class is now an addition to the global error-message */
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1.5rem;
 }

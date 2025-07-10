@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="vehiclesGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#eab308;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f9fafb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="200" height="200" fill="url(#bgGradient)" rx="20"/>
+  
+  <!-- Main vehicles -->
+  <g fill="url(#vehiclesGradient)">
+    <!-- Vehicle 1 -->
+    <rect x="30" y="40" width="60" height="35" rx="8"/>
+    <circle cx="45" cy="85" r="8"/>
+    <circle cx="75" cy="85" r="8"/>
+    
+    <!-- Vehicle 2 -->
+    <rect x="110" y="40" width="60" height="35" rx="8"/>
+    <circle cx="125" cy="85" r="8"/>
+    <circle cx="155" cy="85" r="8"/>
+    
+    <!-- Vehicle 3 -->
+    <rect x="30" y="110" width="60" height="35" rx="8"/>
+    <circle cx="45" cy="155" r="8"/>
+    <circle cx="75" cy="155" r="8"/>
+    
+    <!-- Vehicle 4 -->
+    <rect x="110" y="110" width="60" height="35" rx="8"/>
+    <circle cx="125" cy="155" r="8"/>
+    <circle cx="155" cy="155" r="8"/>
+  </g>
+  
+  <!-- Vehicle details -->
+  <g fill="white">
+    <!-- Windows -->
+    <rect x="35" y="45" width="15" height="10" rx="2"/>
+    <rect x="70" y="45" width="15" height="10" rx="2"/>
+    <rect x="115" y="45" width="15" height="10" rx="2"/>
+    <rect x="150" y="45" width="15" height="10" rx="2"/>
+    
+    <rect x="35" y="115" width="15" height="10" rx="2"/>
+    <rect x="70" y="115" width="15" height="10" rx="2"/>
+    <rect x="115" y="115" width="15" height="10" rx="2"/>
+    <rect x="150" y="115" width="15" height="10" rx="2"/>
+  </g>
+  
+  <!-- Status indicators -->
+  <g>
+    <circle cx="90" cy="50" r="4" fill="#059669"/>
+    <circle cx="170" cy="50" r="4" fill="#dc2626"/>
+    <circle cx="90" cy="120" r="4" fill="#eab308"/>
+    <circle cx="170" cy="120" r="4" fill="#059669"/>
+  </g>
+  
+  <!-- Decorative road lines -->
+  <g fill="#3b82f6" opacity="0.3">
+    <rect x="0" y="175" width="200" height="3" rx="1"/>
+    <rect x="0" y="185" width="200" height="3" rx="1"/>
+  </g>
+</svg>

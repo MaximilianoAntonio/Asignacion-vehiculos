@@ -1,34 +1,38 @@
+/* Formulario de Asignaciones - Estilos Normalizados */
 .formContainer {
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color-light);
   position: relative;
   padding: 24px;
   margin-top: 20px;
   margin-bottom: 20px;
   border-radius: var(--border-radius-lg);
-  background-color: var(--bg-card);
+  background: var(--bg-card);
   color: var(--text-primary);
-  box-shadow: var(--shadow-medium);
+  box-shadow: var(--shadow-soft);
 }
 
-.formContainer h2, .formContainer h3 {
-  border-bottom: 1px solid var(--border-color-light);
+.formContainer h2, 
+.formContainer h3 {
+  border-bottom: 2px solid var(--border-color-light);
   color: var(--text-primary);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  margin-top: 0;
 }
 
 .formGroup {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   position: relative;
 }
 
 .formGroup label {
   display: block;
   margin-bottom: 6px;
-  font-weight: bold;
+  font-weight: 600;
   color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .formGroup input[type="text"],
@@ -41,86 +45,99 @@
 .formGroup select,
 .formGroup textarea {
   width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  box-sizing: border-box;
-  background-color: var(--bg-main);
+  font-size: 14px;
+  transition: all var(--transition-fast);
+  background: var(--white);
   color: var(--text-primary);
-  font-size: 15px;
-  transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
-.formGroup input[type="text"]:focus,
-.formGroup input[type="date"]:focus,
-.formGroup input[type="tel"]:focus,
-.formGroup input[type="email"]:focus,
-.formGroup input[type="number"]:focus,
-.formGroup input[type="file"]:focus,
-.formGroup input[type="datetime-local"]:focus,
+.formGroup input:focus,
 .formGroup select:focus,
 .formGroup textarea:focus {
   border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   outline: none;
 }
 
 .formActions {
-  margin-top: 20px;
+  margin-top: 24px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .formActions button {
-  padding: 10px 16px;
-  margin-left: 0;
+  padding: 12px 24px;
   border: none;
   border-radius: var(--border-radius-md);
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   font-size: 14px;
-  transition: background-color 0.2s;
+  transition: all var(--transition-fast);
+  min-height: 40px;
+  min-width: 120px;
 }
 
 .submitButton {
-  background-color: var(--accent-success);
+  background: var(--accent-success);
   color: var(--text-on-primary);
+  box-shadow: var(--shadow-soft);
 }
 
 .submitButton:hover:not(:disabled) {
-    background: #15803d;
+  background: var(--success-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
 }
 
 .submitButton:disabled {
-  background: var(--accent-success);
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 .cancelButton {
-  background: var(--text-secondary);
+  background: var(--accent-secondary);
   color: var(--text-on-primary);
+  box-shadow: var(--shadow-soft);
 }
 
 .cancelButton:hover:not(:disabled) {
-    background-color: var(--text-primary);
+  background: var(--secondary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
 }
 
 .cancelButton:disabled {
-  background: var(--text-secondary);
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
+/* Estados de error */
 .error {
   color: var(--accent-danger);
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  padding: 10px;
+  background: var(--danger-light);
+  border: 1px solid var(--accent-danger);
+  padding: 12px;
   border-radius: var(--border-radius-md);
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  font-size: 14px;
 }
 
+.errorMsg {
+  color: var(--accent-danger);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* Botón de cierre */
 .closeButton {
   position: absolute;
   top: 16px;
@@ -132,24 +149,19 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  transition: color var(--transition-fast);
 }
 
 .closeButton:hover {
   color: var(--text-primary);
 }
 
-.errorMsg {
-  color: var(--accent-danger);
-  font-weight: bold;
-  font-size: 1.1em;
-  font-family: monospace;
-  margin-bottom: 1em;
-  letter-spacing: 0.5px;
-}
-
+/* Suggestions List */
 .suggestionsList {
-  background: #fff;
-  border: 1px solid #ccc;
+  background: var(--white);
+  border: 2px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
   position: absolute;
   z-index: 10;
   max-height: 200px;
@@ -158,47 +170,53 @@
   list-style: none;
   margin: 0;
   padding: 0;
-}
-.suggestionsList li {
-  padding: 8px;
-  cursor: pointer;
-}
-.suggestionsList li:hover {
-  background: var(--bg-main);
+  box-shadow: var(--shadow-medium);
 }
 
-/* NUEVO: Contenedor para el mapa */
+.suggestionsList li {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color-light);
+  transition: background-color var(--transition-fast);
+}
+
+.suggestionsList li:hover {
+  background: var(--primary-lighter);
+}
+
+.suggestionsList li:last-child {
+  border-bottom: none;
+}
+
+/* Mapa */
 .mapContainer {
   height: 300px;
   width: 100%;
-  margin-bottom: 1em;
+  border: 2px solid var(--border-color);
   border-radius: var(--border-radius-md);
-  overflow: hidden; /* Asegura que el mapa respete el borde redondeado */
-  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+  overflow: hidden;
 }
 
-/* NUEVO: Media query para responsividad */
-@media (max-width: 900px) {
+/* Responsive */
+@media (max-width: 640px) {
   .formContainer {
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    max-width: 98vw;
-    min-width: unset;
-    box-sizing: border-box;
+    padding: 16px;
+    margin-top: 16px;
+    margin-bottom: 16px;
   }
-  .formContainer h2, .formContainer h3 {
-    font-size: 1.1rem;
-  }
+  
   .formActions {
-    flex-direction: column-reverse;
-    align-items: stretch;
+    flex-direction: column;
   }
+  
   .formActions button {
     width: 100%;
+    min-width: auto;
   }
+  
   .mapContainer {
-    height: 180px;
+    height: 200px;
   }
 }
 

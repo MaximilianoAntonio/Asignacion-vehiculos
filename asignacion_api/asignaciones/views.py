@@ -77,7 +77,7 @@ class ConductorViewSet(viewsets.ModelViewSet):
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['estado_disponibilidad']
-    search_fields = ['nombre', 'apellido', 'numero_licencia']
+    search_fields = ['run', 'nombre', 'apellido', 'numero_licencia']
     ordering_fields = ['apellido', 'nombre', 'estado_disponibilidad']
 
     @action(detail=True, methods=['post'], url_path='iniciar-turno')
