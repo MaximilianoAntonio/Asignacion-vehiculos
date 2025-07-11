@@ -8,23 +8,82 @@ import { getVehiculos } from '../../services/vehicleService';
 import { getConductores } from '../../services/conductorService';
 import { getAsignaciones } from '../../services/asignacionService';
 
-const container = {
-  hidden: { opacity: 0 }, // Simpler hidden state for the container
+// Animaciones más elegantes y profesionales
+const pageContainer = {
+  hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2, // Stagger for left and right panels
-      delayChildren: 0.1,
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+      duration: 0.8,
+      ease: "easeOut"
     }
   }
 };
-const itemVariant = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 }, // Slightly adjusted for panels
-  show:  {
+
+const heroVariants = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
     opacity: 1,
     y: 0,
+    transition: {
+      duration: 0.8,
+      ease: "easeOut",
+      staggerChildren: 0.2
+    }
+  }
+};
+
+const textReveal = {
+  hidden: { opacity: 0, y: 20 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" }
+  }
+};
+
+const imageFloat = {
+  hidden: { opacity: 0, scale: 0.8, rotateY: -20 },
+  show: {
+    opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: "easeOut" } // Smoother ease
+    rotateY: 0,
+    transition: { duration: 1, ease: "easeOut" }
+  }
+};
+
+const cardHover = {
+  rest: { scale: 1, y: 0, rotateX: 0 },
+  hover: {
+    scale: 1.03,
+    y: -8,
+    rotateX: 5,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut"
+    }
+  }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3
+    }
+  }
+};
+
+const slideUp = {
+  hidden: { opacity: 0, y: 40 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" }
   }
 };
 
@@ -32,192 +91,373 @@ const itemVariant = {
 
 export default function Home() {
   const [resumen, setResumen] = useState({ v:0, c:0, a:0 });
+  const [isLoading, setIsLoading] = useState(true);
   
   const features = [
     { 
       id: 1, 
-      title: 'Gestión de Vehículos',
-      description: 'Administra toda tu flota vehicular con seguimiento en tiempo real.',
-      color: 'var(--primary)'
+      title: 'Gestión Inteligente de Flota',
+      description: 'Sistema avanzado de administración vehicular con monitoreo en tiempo real, mantenimiento predictivo y optimización de recursos.',
+      color: 'var(--primary)',
+      icon: '🚗',
+      gradient: 'linear-gradient(135deg, #3B82F6, #1E40AF)'
     },
     { 
       id: 2, 
-      title: 'Control de Conductores',
-      description: 'Gestiona conductores, horarios y disponibilidad con sistema QR.',
-      color: 'var(--secondary)'
+      title: 'Control Biométrico de Acceso',
+      description: 'Tecnología QR de última generación con validación biométrica, control de horarios y gestión automatizada de conductores.',
+      color: 'var(--secondary)',
+      icon: '�',
+      gradient: 'linear-gradient(135deg, #10B981, #059669)'
     },
     { 
       id: 3, 
-      title: 'Asignaciones Inteligentes',
-      description: 'Automatiza la asignación de vehículos según disponibilidad.',
-      color: 'var(--warning)'
+      title: 'Asignaciones con IA',
+      description: 'Algoritmos inteligentes que optimizan la asignación de vehículos según disponibilidad, proximidad y eficiencia energética.',
+      color: 'var(--warning)',
+      icon: '🎯',
+      gradient: 'linear-gradient(135deg, #F59E0B, #D97706)'
     },
     { 
       id: 4, 
-      title: 'Acceso QR',
-      description: 'Control de acceso mediante códigos QR y cédulas de identidad.',
-      color: 'var(--success)'
+      title: 'Dashboard Analítico',
+      description: 'Reportes avanzados, métricas en tiempo real y análisis predictivo para la toma de decisiones estratégicas.',
+      color: 'var(--success)',
+      icon: '�',
+      gradient: 'linear-gradient(135deg, #8B5CF6, #7C3AED)'
     }
   ];
 
   const steps = [
-    { id: 1, text: 'Inicia sesión con tus credenciales de acceso.' },
-    { id: 2, text: 'Solicita un vehículo según tus necesidades.' },
-    { id: 3, text: 'Un administrador revisará y aprobará tu solicitud.' },
-    { id: 4, text: 'Recibe la confirmación y detalles del vehículo asignado.' },
+    { 
+      id: 1, 
+      text: 'Accede al portal con credenciales seguras y autenticación biométrica avanzada.', 
+      icon: '🔐',
+      detail: 'Sistema de autenticación multicapa'
+    },
+    { 
+      id: 2, 
+      text: 'Solicita un vehículo específico según tus necesidades operativas y de ruta.', 
+      icon: '📋',
+      detail: 'Interfaz intuitiva y personalizable'
+    },
+    { 
+      id: 3, 
+      text: 'El sistema evalúa automáticamente disponibilidad y asigna el recurso óptimo.', 
+      icon: '🤖',
+      detail: 'Inteligencia artificial integrada'
+    },
+    { 
+      id: 4, 
+      text: 'Recibe confirmación instantánea con detalles completos y códigos QR de acceso.', 
+      icon: '✅',
+      detail: 'Notificaciones en tiempo real'
+    },
   ];
 
   useEffect(() => {
-    (async () => {
-      try { // Added try-catch for robustness
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
         const [veh, con, asig] = await Promise.all([
           getVehiculos(), getConductores(), getAsignaciones()
         ]);
         setResumen({
-          v:  veh.filter(x=>x.estado==='disponible').length,
-          c:  con.filter(x=>x.estado_disponibilidad==='disponible').length,
-          a:  asig.filter(x=>x.estado.startsWith('en_')).length
+          v: veh.filter(x=>x.estado==='disponible').length,
+          c: con.filter(x=>x.estado_disponibilidad==='disponible').length,
+          a: asig.filter(x=>x.estado.startsWith('en_')).length
         });
       } catch (error) {
-        console.error("Error fetching initial data:", error);
-        // Optionally set some error state here
+        console.error("Error al cargar datos iniciales:", error);
+      } finally {
+        setIsLoading(false);
       }
-    })();
+    };
+    
+    loadData();
   }, []);
 
   return (
-    <div class={style.homeBg}>
-      {/* Hero Section */}
+    <motion.div 
+      class={style.homeBg}
+      variants={pageContainer}
+      initial="hidden"
+      animate="show"
+    >
+      {/* Hero Section Mejorado */}
       <motion.section
         class={style.heroSection}
-        variants={container}
-        initial="hidden"
-        animate="show"
+        variants={heroVariants}
       >
         <div class={style.heroContent}>
-          <motion.div class={style.heroText} variants={itemVariant}>
-            <motion.h1 class={style.heroTitle} variants={{ hidden: { opacity: 0, y: -20 }, show: { opacity: 1, y: 0, transition: { duration: 0.6 } } }}>
-               Sistema de Gestión de Flota Vehicular
+          <motion.div class={style.heroText} variants={textReveal}>
+            <motion.span 
+              class={style.heroTagline} 
+              variants={textReveal}
+              whileHover={{ scale: 1.05, color: "var(--accent-primary)" }}
+            >
+              🏥 Servicio de Salud Viña del Mar - Quillota
+            </motion.span>
+            <motion.h1 class={style.heroTitle} variants={textReveal}>
+               Sistema de <span class={style.gradientText}>Gestión Vehicular</span> Inteligente
             </motion.h1>
-            <motion.p class={style.heroSubtitle} variants={{ hidden: { opacity: 0, y: -10 }, show: { opacity: 1, y: 0, transition: { delay: 0.2, duration: 0.6 } } }}>
-              Servicio de Salud Viña del Mar - Quillota
+            <motion.p class={style.heroSubtitle} variants={textReveal}>
+              Plataforma de Nueva Generación
             </motion.p>
-            <motion.p class={style.heroDescription} variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { delay: 0.4, duration: 0.6 } } }}>
-               Plataforma integral para la gestión eficiente de vehículos, conductores y asignaciones 
-               con tecnología QR avanzada y control de acceso automatizado.
+            <motion.p class={style.heroDescription} variants={textReveal}>
+               Revoluciona la gestión de tu flota con inteligencia artificial, biometría avanzada 
+               y automatización de última generación. Optimiza recursos, reduce costos y 
+               maximiza la eficiencia operativa con la plataforma más avanzada del sector salud.
             </motion.p>
-             <div class={style.heroButtons}>
+             
+            <motion.div class={style.heroStats} variants={staggerContainer}>
+              <motion.div class={style.heroStat} variants={slideUp}>
+                <span class={style.statNumber}>24/7</span>
+                <span class={style.statLabel}>Disponibilidad</span>
+              </motion.div>
+              <motion.div class={style.heroStat} variants={slideUp}>
+                <span class={style.statNumber}>100%</span>
+                <span class={style.statLabel}>Seguro</span>
+              </motion.div>
+              <motion.div class={style.heroStat} variants={slideUp}>
+                <span class={style.statNumber}>IA</span>
+                <span class={style.statLabel}>Inteligente</span>
+              </motion.div>
+            </motion.div>
+
+             <motion.div class={style.heroButtons} variants={staggerContainer}>
               <motion.button
                 class={style.ctaPrimary}
-                variants={{ hidden: { opacity: 0, scale: 0.9 }, show: { opacity: 1, scale: 1, transition: { delay: 0.6, duration: 0.6 } } }}
+                variants={slideUp}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => window.location.href = '/asignaciones'}
               >
-                 🚗 Solicitar Vehículo
+                 🚗 Solicitar Vehículo Ahora
                </motion.button>
               <motion.button
                 class={style.ctaSecondary}
-                variants={{ hidden: { opacity: 0, scale: 0.9 }, show: { opacity: 1, scale: 1, transition: { delay: 0.8, duration: 0.6 } } }}
+                variants={slideUp}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => window.location.href = '/camara'}
               >
-                 Acceso QR
+                 📱 Acceso QR Rápido
                </motion.button>
-             </div>
+             </motion.div>
           </motion.div>
-          <motion.div class={style.heroImage} variants={itemVariant}>
-            <img src={logoSSVQ} alt="Logo SSVQ" class={style.heroLogo} />
+          
+          <motion.div class={style.heroImage} variants={imageFloat}>
+            <div class={style.logoContainer}>
+              <motion.img 
+                src={logoSSVQ} 
+                alt="Logo SSVQ" 
+                class={style.heroLogo}
+                whileHover={{ scale: 1.05, rotateY: 10 }}
+                transition={{ duration: 0.3 }}
+              />
+              <div class={style.logoGlow}></div>
+            </div>
           </motion.div>
         </div>
       </motion.section>
 
-      {/* Stats Section */}
-      <motion.section class={style.statsSection} variants={itemVariant}>
+      {/* Stats Section Mejorada */}
+      <motion.section class={style.statsSection} variants={staggerContainer}>
+        <motion.div class={style.statsHeader} variants={slideUp}>
+          <h2>Panel de Control en Tiempo Real</h2>
+          <p>Monitoreo continuo del estado operativo de la flota</p>
+        </motion.div>
         <div class={style.statsGrid}>
-          <div class={style.statCard}>
-            <div class={style.statNumber}>{resumen.v}</div>
+          <motion.div 
+            class={style.statCard}
+            variants={cardHover}
+            initial="rest"
+            whileHover="hover"
+            whileTap={{ scale: 0.98 }}
+          >
+            <div class={style.statIcon}>🚗</div>
+            <div class={style.statNumber}>{isLoading ? '...' : resumen.v}</div>
             <div class={style.statLabel}>Vehículos Disponibles</div>
-          </div>
-          <div class={style.statCard}>
-            <div class={style.statNumber}>{resumen.c}</div>
+            <div class={style.statTrend}>En tiempo real</div>
+          </motion.div>
+          <motion.div 
+            class={style.statCard}
+            variants={cardHover}
+            initial="rest"
+            whileHover="hover"
+            whileTap={{ scale: 0.98 }}
+          >
+            <div class={style.statIcon}>👨‍💼</div>
+            <div class={style.statNumber}>{isLoading ? '...' : resumen.c}</div>
             <div class={style.statLabel}>Conductores Activos</div>
-          </div>
-          <div class={style.statCard}>
-            <div class={style.statNumber}>{resumen.a}</div>
+            <div class={style.statTrend}>Conectados ahora</div>
+          </motion.div>
+          <motion.div 
+            class={style.statCard}
+            variants={cardHover}
+            initial="rest"
+            whileHover="hover"
+            whileTap={{ scale: 0.98 }}
+          >
+            <div class={style.statIcon}>📊</div>
+            <div class={style.statNumber}>{isLoading ? '...' : resumen.a}</div>
             <div class={style.statLabel}>Asignaciones en Curso</div>
-          </div>
+            <div class={style.statTrend}>Tiempo real</div>
+          </motion.div>
         </div>
       </motion.section>
 
-      {/* Features Section */}
-      <motion.section class={style.featuresSection} variants={container}>
-        <div class={style.sectionHeader}>
-          <h2 class={style.sectionTitle}>Características Principales</h2>
+      {/* Features Section Mejorada */}
+      <motion.section class={style.featuresSection} variants={staggerContainer}>
+        <motion.div class={style.sectionHeader} variants={slideUp}>
+          <h2 class={style.sectionTitle}>Tecnología de Vanguardia</h2>
           <p class={style.sectionSubtitle}>
-            Descubre todas las funcionalidades que hacen de nuestro sistema la solución perfecta
+            Soluciones innovadoras que transforman la gestión vehicular en el sector salud
           </p>
-        </div>
+        </motion.div>
         <div class={style.featuresGrid}>
           {features.map((feature, i) => (
             <motion.div
               key={feature.id}
               class={style.featureCard}
-              variants={itemVariant}
-              whileHover={{ scale: 1.05, y: -10 }}
-              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+              variants={slideUp}
+              whileHover={{ 
+                scale: 1.05, 
+                y: -10,
+                rotateY: 5,
+                transition: { duration: 0.3 }
+              }}
+              whileTap={{ scale: 0.98 }}
             >
-              <div class={style.featureIcon} style={{ backgroundColor: feature.color }}>
-                {/* Professional icon space */}
+              <div class={style.featureIconWrapper}>
+                <motion.div 
+                  class={style.featureIcon} 
+                  style={{ background: feature.gradient }}
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <span>{feature.icon}</span>
+                </motion.div>
               </div>
               <h3 class={style.featureTitle}>{feature.title}</h3>
               <p class={style.featureDescription}>{feature.description}</p>
+              <motion.div 
+                class={style.featureLearnMore}
+                whileHover={{ x: 5 }}
+              >
+                Explorar funcionalidad →
+              </motion.div>
             </motion.div>
           ))}
         </div>
       </motion.section>
 
-      {/* How it works Section */}
-      <motion.section class={style.howItWorksSection} variants={container}>
-        <div class={style.sectionHeader}>
-          <h2 class={style.sectionTitle}>¿Cómo Funciona?</h2>
+      {/* How it works Section Mejorada */}
+      <motion.section class={style.howItWorksSection} variants={staggerContainer}>
+        <motion.div class={style.sectionHeader} variants={slideUp}>
+          <h2 class={style.sectionTitle}>Proceso Simplificado</h2>
           <p class={style.sectionSubtitle}>
-            Sigue estos simples pasos para gestionar tu solicitud de vehículo
+            Cuatro pasos simples para acceder a la tecnología vehicular más avanzada
           </p>
-        </div>
+        </motion.div>
         <div class={style.stepsContainer}>
           {steps.map((step, i) => (
             <motion.div
               key={step.id}
               class={style.stepCard}
-              variants={itemVariant}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 + i * 0.15, duration: 0.5 }}
+              variants={slideUp}
+              whileHover={{ 
+                scale: 1.03, 
+                y: -8,
+                boxShadow: "0 20px 50px rgba(0,0,0,0.15)" 
+              }}
+              whileTap={{ scale: 0.98 }}
             >
               <div class={style.stepNumber}>{step.id}</div>
+              <motion.div 
+                class={style.stepIcon} 
+                whileHover={{ scale: 1.2, rotate: 10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {step.icon}
+              </motion.div>
+              <h4 class={style.stepTitle}>{step.detail}</h4>
               <p class={style.stepText}>{step.text}</p>
+              <div class={style.stepProgress}>
+                <div class={style.progressBar} style={{ width: `${(step.id / 4) * 100}%` }}></div>
+              </div>
             </motion.div>
           ))}
         </div>
       </motion.section>
 
-      {/* Footer */}
+      {/* Nueva sección CTA mejorada */}
+      <motion.section class={style.ctaSection} variants={staggerContainer}>
+        <motion.div class={style.ctaContent} variants={slideUp}>
+          <h2>Transforma la Gestión Vehicular de tu Organización</h2>
+          <p>Únete al futuro de la administración inteligente de flotas en el sector salud</p>
+          <div class={style.ctaButtons}>
+            <motion.button
+              class={style.ctaPrimary}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => window.location.href = '/asignaciones'}
+            >
+              🚀 Comenzar Ahora
+            </motion.button>
+            <motion.button
+              class={style.ctaSecondary}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              � Más Información
+            </motion.button>
+          </div>
+        </motion.div>
+      </motion.section>
+
+      {/* Footer Mejorado */}
       <motion.footer
         class={style.footer}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.7 }}
+        variants={slideUp}
       >
         <div class={style.footerContent}>
-          <div class={style.footerLogos}>
-            <img src={logoSSVQ} alt="Logo SSVQ" class={style.footerLogo} />
-            <img src={logoUV} alt="Logo Universidad de Valparaíso" class={style.footerLogo} />
-          </div>
-          <div class={style.footerText}>
-            <p>Desarrollado por la Escuela de Ingeniería Civil Biomédica UV</p>
-            <p>Servicio de Salud Viña del Mar - Quillota</p>
-            <p>&copy; 2025 Todos los derechos reservados</p>
-          </div>
+          <motion.div class={style.footerLogos} variants={staggerContainer}>
+            <motion.img 
+              src={logoSSVQ} 
+              alt="Logo SSVQ" 
+              class={style.footerLogo}
+              variants={slideUp}
+              whileHover={{ scale: 1.1, rotateY: 10 }}
+            />
+            <motion.img 
+              src={logoUV} 
+              alt="Logo Universidad de Valparaíso" 
+              class={style.footerLogo}
+              variants={slideUp}
+              whileHover={{ scale: 1.1, rotateY: 10 }}
+            />
+          </motion.div>
+          
+          <motion.div class={style.footerText} variants={slideUp}>
+            <p><strong>Desarrollo e Innovación:</strong> Escuela de Ingeniería Civil Biomédica UV</p>
+            <p><strong>Implementado por:</strong> Servicio de Salud Viña del Mar - Quillota</p>
+            <p>&copy; 2025 Todos los derechos reservados | Tecnología de vanguardia para el sector salud</p>
+          </motion.div>
+          
+          <motion.div class={style.footerLinks} variants={staggerContainer}>
+            <motion.a href="/" variants={slideUp} whileHover={{ scale: 1.05 }}>Inicio</motion.a>
+            <motion.a href="/asignaciones" variants={slideUp} whileHover={{ scale: 1.05 }}>Asignaciones</motion.a>
+            <motion.a href="/vehiculos" variants={slideUp} whileHover={{ scale: 1.05 }}>Vehículos</motion.a>
+            <motion.a href="/conductores" variants={slideUp} whileHover={{ scale: 1.05 }}>Conductores</motion.a>
+          </motion.div>
+          
+          <motion.div class={style.footerTech} variants={slideUp}>
+            <span>Powered by AI • Blockchain Security • IoT Integration</span>
+          </motion.div>
         </div>
       </motion.footer>
-    </div>
+    </motion.div>
   );
 }
