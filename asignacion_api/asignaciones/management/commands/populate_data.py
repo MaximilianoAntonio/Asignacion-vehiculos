@@ -3,26 +3,56 @@ import math
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from faker import Faker
-from asignaciones.models import Vehiculo, Conductor, Asignacion
+from asignaciones.models import Vehiculo, Conductor, Asignacion, RegistroTurno
 
 class Command(BaseCommand):
     help = 'Populate the database with synthetic data'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--shifts-only',
+            action='store_true',
+            help='Generate only shift records (not assignments)',
+        )
+        parser.add_argument(
+            '--days',
+            type=int,
+            default=90,
+            help='Number of days back to generate shift records (default: 90)',
+        )
+
     def handle(self, *args, **kwargs):
         fake = Faker('es_ES')
-        self.stdout.write('Cleaning old assignment data...')
-        Asignacion.objects.all().delete()
+        shifts_only = kwargs['shifts_only']
+        days = kwargs['days']
+        
+        if not shifts_only:
+            self.stdout.write('Cleaning old assignment data...')
+            Asignacion.objects.all().delete()
+        
+        self.stdout.write('Cleaning old shift records...')
+        RegistroTurno.objects.all().delete()
 
         self.stdout.write('Loading existing vehicles and drivers...')
         vehiculos = list(Vehiculo.objects.all())
         conductores = list(Conductor.objects.all())
 
-        if not vehiculos or not conductores:
-            self.stdout.write(self.style.ERROR('No vehicles or drivers found in the database. Please create some first.'))
+        if not conductores:
+            self.stdout.write(self.style.ERROR('No drivers found in the database. Please create some first.'))
+            return
+            
+        if not shifts_only and not vehiculos:
+            self.stdout.write(self.style.ERROR('No vehicles found in the database. Please create some first.'))
             return
 
         self.stdout.write(self.style.SUCCESS(f'{len(vehiculos)} vehicles and {len(conductores)} drivers loaded.'))
 
+        if not shifts_only:
+            self._create_assignments(fake, vehiculos, conductores)
+        
+        self._create_shift_records(fake, conductores, days)
+
+    def _create_assignments(self, fake, vehiculos, conductores):
         self.stdout.write('Creating synthetic assignments...')
 
         locations_valparaiso = [
@@ -127,4 +157,107 @@ class Command(BaseCommand):
             asignaciones.append(asignacion)
         self.stdout.write(self.style.SUCCESS(f'{len(asignaciones)} assignments created.'))
 
-        self.stdout.write(self.style.SUCCESS('Successfully populated the database with synthetic assignments.'))
+    def _create_shift_records(self, fake, conductores, days):
+        # Crear Registros de Turno
+        self.stdout.write(f'Creating synthetic shift records for the last {days} days...')
+        registros_turno = []
+        
+        # Generar registros de turno para los últimos X días
+        fecha_inicio_registros = timezone.now() - timezone.timedelta(days=days)
+        fecha_fin_registros = timezone.now()
+        
+        for conductor in conductores:
+            # Para cada conductor, generar registros de turno realistas
+            fecha_actual = fecha_inicio_registros
+            
+            while fecha_actual < fecha_fin_registros:
+                # Determinar si el conductor trabaja este día (80% de probabilidad)
+                if random.random() < 0.8:
+                    # Horarios de trabajo típicos
+                    horarios_trabajo = [
+                        ('mañana', 8, 16),  # 8:00 AM - 4:00 PM
+                        ('tarde', 14, 22),  # 2:00 PM - 10:00 PM
+                        ('noche', 22, 6),   # 10:00 PM - 6:00 AM (día siguiente)
+                    ]
+                    
+                    turno_tipo, hora_entrada, hora_salida = random.choice(horarios_trabajo)
+                    
+                    # Hora de entrada con variación de ±30 minutos
+                    variacion_entrada = random.randint(-30, 30)
+                    hora_entrada_real = hora_entrada + (variacion_entrada / 60)
+                    
+                    # Hora de salida con variación de ±45 minutos
+                    variacion_salida = random.randint(-45, 45)
+                    hora_salida_real = hora_salida + (variacion_salida / 60)
+                    
+                    # Crear fecha y hora de entrada
+                    fecha_entrada = fecha_actual.replace(
+                        hour=int(hora_entrada_real),
+                        minute=int((hora_entrada_real % 1) * 60),
+                        second=random.randint(0, 59)
+                    )
+                    
+                    # Crear fecha y hora de salida
+                    if turno_tipo == 'noche' and hora_salida < hora_entrada:
+                        # Turno nocturno que termina al día siguiente
+                        fecha_salida = (fecha_actual + timezone.timedelta(days=1)).replace(
+                            hour=int(hora_salida_real),
+                            minute=int((hora_salida_real % 1) * 60),
+                            second=random.randint(0, 59)
+                        )
+                    else:
+                        fecha_salida = fecha_actual.replace(
+                            hour=int(hora_salida_real),
+                            minute=int((hora_salida_real % 1) * 60),
+                            second=random.randint(0, 59)
+                        )
+                    
+                    # Generar notas ocasionales (20% de probabilidad)
+                    notas_entrada = ""
+                    notas_salida = ""
+                    
+                    if random.random() < 0.2:
+                        notas_posibles_entrada = [
+                            "Inicio de turno normal",
+                            "Vehículo revisado antes del turno",
+                            "Turno comenzado sin novedad",
+                            "Coordinación con turno anterior completada",
+                            "Documentación del vehículo verificada",
+                        ]
+                        notas_entrada = random.choice(notas_posibles_entrada)
+                    
+                    if random.random() < 0.2:
+                        notas_posibles_salida = [
+                            "Turno completado sin novedad",
+                            "Vehículo entregado en buen estado",
+                            "Fin de turno normal",
+                            "Combustible verificado al finalizar",
+                            "Reporte de kilometraje actualizado",
+                            "Vehículo limpio y ordenado",
+                        ]
+                        notas_salida = random.choice(notas_posibles_salida)
+                    
+                    # Crear registro de entrada
+                    registro_entrada = RegistroTurno.objects.create(
+                        conductor=conductor,
+                        fecha_hora=fecha_entrada,
+                        tipo='entrada',
+                        notas=notas_entrada
+                    )
+                    registros_turno.append(registro_entrada)
+                    
+                    # Crear registro de salida (95% de probabilidad - a veces olvidan marcar salida)
+                    if random.random() < 0.95:
+                        registro_salida = RegistroTurno.objects.create(
+                            conductor=conductor,
+                            fecha_hora=fecha_salida,
+                            tipo='salida',
+                            notas=notas_salida
+                        )
+                        registros_turno.append(registro_salida)
+                
+                # Avanzar al siguiente día
+                fecha_actual += timezone.timedelta(days=1)
+        
+        self.stdout.write(self.style.SUCCESS(f'{len(registros_turno)} shift records created.'))
+        self.stdout.write(self.style.SUCCESS('Successfully populated the database with synthetic shift records.'))
