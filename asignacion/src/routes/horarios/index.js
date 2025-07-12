@@ -47,48 +47,40 @@ class TurnoPairEditModal extends Component {
         const { start, end } = this.state;
 
         return (
-            <div class="modal-overlay" onClick={onCancel}>
-                <motion.div 
-                    class="modal-content card" 
-                    onClick={e => e.stopPropagation()}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                >
-                    <h3 class="modal-title">Editar Turno</h3>
-                    <form onSubmit={this.handleSave} class="form-container">
-                        <div class="form-group">
-                            {turnoPair.start && (
-                                <div class="input-group">
-                                    <label for="start_time">Inicio</label>
-                                    <input
-                                        type="datetime-local"
-                                        id="start_time"
-                                        class="form-control"
-                                        value={start}
-                                        onInput={e => this.setState({ start: e.target.value })}
-                                    />
-                                </div>
-                            )}
-                            {turnoPair.end && (
-                                <div class="input-group">
-                                    <label for="end_time">Fin</label>
-                                    <input
-                                        type="datetime-local"
-                                        id="end_time"
-                                        class="form-control"
-                                        value={end}
-                                        onInput={e => this.setState({ end: e.target.value })}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                        <div class="modal-actions">
-                            <button type="button" class="btn btn-secondary" onClick={onCancel}>Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                        </div>
-                    </form>
-                </motion.div>
+            <div>
+                <h3 class="modal-title">Editar Turno</h3>
+                <form onSubmit={this.handleSave} class="form-container">
+                    <div class="form-group">
+                        {turnoPair.start && (
+                            <div class="input-group">
+                                <label for="start_time">Inicio</label>
+                                <input
+                                    type="datetime-local"
+                                    id="start_time"
+                                    class="form-control"
+                                    value={start}
+                                    onInput={e => this.setState({ start: e.target.value })}
+                                />
+                            </div>
+                        )}
+                        {turnoPair.end && (
+                            <div class="input-group">
+                                <label for="end_time">Fin</label>
+                                <input
+                                    type="datetime-local"
+                                    id="end_time"
+                                    class="form-control"
+                                    value={end}
+                                    onInput={e => this.setState({ end: e.target.value })}
+                                />
+                            </div>
+                        )}
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onClick={onCancel}>Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
             </div>
         );
     }
@@ -100,6 +92,7 @@ class HorariosPage extends Component {
     loading: true,
     error: null,
     selectedConductor: null,
+    detailModalConductor: null,
     turnos: [],
     processedTurnos: [],
     loadingTurnos: false,
@@ -116,7 +109,7 @@ class HorariosPage extends Component {
     this.setState({ loading: true });
     getConductores()
       .then(conductores => this.setState({ conductores, loading: false, error: null }))
-      .catch(error => this.setState({ error: 'Error al cargar los conductores.', loading: false }));
+      .catch(() => this.setState({ error: 'Error al cargar los conductores.', loading: false }));
   };
 
   handleIniciarTurno = async (conductorId) => {
@@ -152,9 +145,17 @@ class HorariosPage extends Component {
   };
 
   handleSelectConductor = (conductor) => {
-    this.setState({ selectedConductor: conductor, weekOffset: 0 }, () => {
+    this.setState({ 
+      detailModalConductor: conductor, 
+      selectedConductor: conductor,
+      weekOffset: 0 
+    }, () => {
         this.fetchTurnosForWeek();
     });
+  };
+
+  handleHideDetails = () => {
+    this.setState({ detailModalConductor: null, selectedConductor: null, turnos: [], processedTurnos: [] });
   };
 
   _getWeekDateRange = (weekOffset) => {
@@ -398,12 +399,221 @@ class HorariosPage extends Component {
     }
   };
 
-  render(_, { conductores, loading, error, selectedConductor, loadingTurnos, processedTurnos, weekOffset, editingTurnoPair, loadingMonthlyReport }) {
+  renderDetailModal = () => {
+    const { detailModalConductor, loadingTurnos, processedTurnos, weekOffset, loadingMonthlyReport } = this.state;
+    
+    if (!detailModalConductor) return null;
+
     const { startOfWeek, endOfWeek } = this._getWeekDateRange(weekOffset);
     const weekRange = {
         start: startOfWeek.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }),
         end: endOfWeek.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })
     };
+
+    return (
+      <div class={style.modalOverlay} onClick={this.handleHideDetails}>
+        <div class={`${style.modalContent} card fade-in`} onClick={e => e.stopPropagation()}>
+          <button class={style.modalCloseButton} onClick={this.handleHideDetails}>×</button>
+          <div class="card-header">
+            <h2 class="card-title">Control de Horarios - {detailModalConductor.nombre} {detailModalConductor.apellido}</h2>
+          </div>
+          
+          <div class={style.modalBody}>
+            <div class={style.modalImageContainer}>
+              <img
+                src={detailModalConductor.foto_url ? `${detailModalConductor.foto_url}` : 'https://th.bing.com/th/id/OIP.5_RqTlUhvMdpCjGOhOmTdQHaHa?rs=1&pid=ImgDetMain'}
+                alt="Conductor"
+              />
+            </div>
+            <div class={style.modalDetails}>
+              <p><strong>RUN:</strong> {detailModalConductor.run || '—'}</p>
+              <p><strong>Nombre:</strong> {detailModalConductor.nombre} {detailModalConductor.apellido}</p>
+              <p><strong>N° Licencia:</strong> {detailModalConductor.numero_licencia}</p>
+              <p><strong>Teléfono:</strong> {detailModalConductor.telefono || '—'}</p>
+              <p><strong>Estado:</strong> 
+                <span class={`status-badge ${detailModalConductor.estado_disponibilidad}`}>
+                  {DISPONIBILIDAD_LABELS[detailModalConductor.estado_disponibilidad] || detailModalConductor.estado_disponibilidad}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div class={style.turnosSection}>
+            <div class={style.turnosHeader}>
+              <h4 class={style.turnosTitle}>Turnos de la Semana ({weekRange.start} - {weekRange.end})</h4>
+              <div class={style.weekNavigator}>
+                <button class="btn btn-outline" onClick={() => this.changeWeek(-1)}>‹ Ant</button>
+                <button class="btn btn-outline" onClick={() => this.changeWeek(1)}>Sig ›</button>
+              </div>
+            </div>
+            
+            <div class={style.turnosActions}>
+              <button class="btn btn-secondary" onClick={this.handleExport} title="Exportar a PDF Semanal">
+                Reporte Semanal
+              </button>
+              <button 
+                class="btn btn-success" 
+                onClick={this.handleExportMonthly} 
+                disabled={loadingMonthlyReport} 
+                title="Exportar Reporte Mensual"
+              >
+                {loadingMonthlyReport ? 'Generando...' : 'Reporte Mensual'}
+              </button>
+            </div>
+
+            {loadingTurnos && <p>Cargando turnos...</p>}
+            {!loadingTurnos && processedTurnos.length > 0 && (
+              <div class="table-container">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Día</th>
+                      <th>Inicio</th>
+                      <th>Fin</th>
+                      <th>Duración</th>
+                      <th class="text-center">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {processedTurnos.map(p => (
+                      <tr key={p.start?.id || p.end.id}>
+                        <td>{new Date(p.start?.fecha_hora || p.end.fecha_hora).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</td>
+                        <td>{this.formatTimeOnly(p.start?.fecha_hora)}</td>
+                        <td>{this.formatTimeOnly(p.end?.fecha_hora)}</td>
+                        <td>{p.duration || 'En curso'}</td>
+                        <td class="text-center">
+                          <div class={style.turnoActions}>
+                            <button title="Editar" class="btn-icon" onClick={() => this.handleEditPair(p)}>✏️</button>
+                            <button title="Eliminar" class="btn-icon btn-danger" onClick={() => this.handleDeletePair(p)}>🗑️</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {!loadingTurnos && processedTurnos.length === 0 && (
+              <div class={style.noTurnos}>No hay turnos registrados para esta semana.</div>
+            )}
+          </div>
+
+          <div class={style.modalActions}>
+            <button
+              class={`btn ${detailModalConductor.estado_disponibilidad === 'dia_libre' || detailModalConductor.estado_disponibilidad === 'no_disponible' ? 'btn-success' : 'btn-danger'}`}
+              onClick={e => this.handleTurnoActionClick(e, detailModalConductor)}
+              disabled={detailModalConductor.estado_disponibilidad === 'en_ruta'}
+            >
+              {detailModalConductor.estado_disponibilidad === 'en_ruta' ? 'En Ruta' :
+               detailModalConductor.estado_disponibilidad === 'dia_libre' || detailModalConductor.estado_disponibilidad === 'no_disponible' ? 'Iniciar Turno' : 'Finalizar Turno'}
+            </button>
+          </div>
+          
+          {/* Modal de edición dentro del modal de detalles */}
+          {this.state.editingTurnoPair && (
+            <div class="modal-overlay" style="z-index: 1001; position: absolute; top: 0; left: 0; right: 0; bottom: 0;" onClick={() => this.setState({ editingTurnoPair: null })}>
+              <motion.div 
+                class="modal-content card" 
+                onClick={e => e.stopPropagation()}
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                style="width: 500px; max-width: 90vw; margin: auto; position: relative; top: 50%; transform: translateY(-50%);"
+              >
+                {this.renderEditModal()}
+              </motion.div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  renderEditModal = () => {
+    const { editingTurnoPair } = this.state;
+    if (!editingTurnoPair) return null;
+
+    const formatForInput = (iso) => iso ? new Date(new Date(iso).getTime() - new Date(iso).getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '';
+    
+    const startValue = editingTurnoPair.start ? formatForInput(editingTurnoPair.start.fecha_hora) : '';
+    const endValue = editingTurnoPair.end ? formatForInput(editingTurnoPair.end.fecha_hora) : '';
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const start = formData.get('start_time');
+      const end = formData.get('end_time');
+
+      if (start && end && new Date(start) >= new Date(end)) {
+        alert('La hora de inicio debe ser anterior a la hora de fin.');
+        return;
+      }
+
+      const saveData = {
+        start: editingTurnoPair.start && start ? { id: editingTurnoPair.start.id, data: { fecha_hora: new Date(start).toISOString() } } : null,
+        end: editingTurnoPair.end && end ? { id: editingTurnoPair.end.id, data: { fecha_hora: new Date(end).toISOString() } } : null,
+      };
+
+      await this.handleSavePair(saveData);
+    };
+
+    return (
+      <div>
+        <div class="card-header">
+          <h3 class="card-title">Editar Turno</h3>
+        </div>
+        <form onSubmit={handleSubmit} style="padding: 1.5rem;">
+          <div class="form-group">
+            {editingTurnoPair.start && (
+              <div class="input-group" style="margin-bottom: 1rem;">
+                <label for="start_time" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Inicio</label>
+                <input
+                  type="datetime-local"
+                  id="start_time"
+                  name="start_time"
+                  class="form-control"
+                  defaultValue={startValue}
+                  style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-md);"
+                />
+              </div>
+            )}
+            {editingTurnoPair.end && (
+              <div class="input-group" style="margin-bottom: 1rem;">
+                <label for="end_time" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Fin</label>
+                <input
+                  type="datetime-local"
+                  id="end_time"
+                  name="end_time"
+                  class="form-control"
+                  defaultValue={endValue}
+                  style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-md);"
+                />
+              </div>
+            )}
+          </div>
+          <div class="modal-actions" style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            <button 
+              type="button" 
+              class="btn btn-secondary" 
+              onClick={() => this.setState({ editingTurnoPair: null })}
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  };
+
+  render(_, { conductores, loading, error, editingTurnoPair }) {
+    // Contar conductores por disponibilidad
+    const conductoresPorDisponibilidad = conductores.reduce((acc, c) => {
+      acc[c.estado_disponibilidad] = (acc[c.estado_disponibilidad] || 0) + 1;
+      return acc;
+    }, {});
 
     return (
       <motion.div 
@@ -416,120 +626,88 @@ class HorariosPage extends Component {
           <p class="page-subtitle">Gestiona los turnos de los conductores y genera reportes.</p>
         </div>
         
-        <div class={style.pageLayout}>
-          <motion.div class={`card ${style.leftColumn}`} layout>
-            <div class="card-header">
-              <h3>Lista de Conductores</h3>
-            </div>
-            {loading && <p>Cargando...</p>}
-            {error && <p class="error-message">{error}</p>}
-            {!loading && !error && (
-              <div class="table-container">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Conductor</th>
-                      <th>Estado</th>
-                      <th class="text-center">Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {conductores.length > 0 ? (
-                      conductores.map(c => (
-                        <tr
-                          key={c.id}
-                          onClick={() => this.handleSelectConductor(c)}
-                          class={selectedConductor?.id === c.id ? style.selectedRow : ''}
-                        >
-                          <td>{c.nombre} {c.apellido}</td>
-                          <td>
-                            <span class={`status-badge ${c.estado_disponibilidad}`}>
-                              {DISPONIBILIDAD_LABELS[c.estado_disponibilidad] || c.estado_disponible}
-                            </span>
-                          </td>
-                          <td class="text-center">
-                            {c.estado_disponibilidad === 'en_ruta' ? (
-                              <button class="btn btn-sm btn-disabled" disabled>En Ruta</button>
-                            ) : (
-                              <button
-                                class={`btn btn-sm ${c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible' ? 'btn-success' : 'btn-danger'}`}
-                                onClick={e => this.handleTurnoActionClick(e, c)}
-                              >
-                                {c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible' ? 'Iniciar' : 'Finalizar'}
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="3" class="text-center">No hay conductores disponibles.</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </motion.div>
-          <motion.div class={`card ${style.rightColumn}`} layout>
-            {selectedConductor ? (
-              <div>
-                <div class={`card-header ${style.dashboardHeader}`}>
-                  <div>
-                    <h3>Turnos de {selectedConductor.nombre}</h3>
-                    <p>Semana: {weekRange.start} - {weekRange.end}</p>
-                  </div>
-                  <div class={style.weekNavigator}>
-                    <button class="btn btn-outline" onClick={() => this.changeWeek(-1)}>‹ Ant</button>
-                    <button class="btn btn-outline" onClick={() => this.changeWeek(1)}>Sig ›</button>
-                  </div>
-                </div>
-                {loadingTurnos ? <p>Cargando turnos...</p> : (
-                  <div class={style.calendarView}>
-                    {processedTurnos.length > 0 ? processedTurnos.map(p => (
-                      <div key={p.start?.id || p.end.id} class={style.turnoEntry}>
-                        <div class={style.turnoDate}>
-                          <strong>{new Date(p.start?.fecha_hora || p.end.fecha_hora).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</strong>
-                        </div>
-                        <div class={style.turnoDetails}>
-                          <div class={style.turnoTimes}>
-                            <span><i class="icon-login"></i> {this.formatTimeOnly(p.start?.fecha_hora)}</span>
-                            <span><i class="icon-logout"></i> {this.formatTimeOnly(p.end?.fecha_hora)}</span>
-                          </div>
-                          <div class={style.turnoDuration}>
-                            <i class="icon-clock"></i> {p.duration || 'En curso'}
-                          </div>
-                        </div>
-                        <div class={style.turnoActions}>
-                          <button title="Editar" class="btn-icon" onClick={() => this.handleEditPair(p)}>✏️</button>
-                          <button title="Eliminar" class="btn-icon btn-danger" onClick={() => this.handleDeletePair(p)}>🗑️</button>
-                        </div>
-                      </div>
-                    )) : <div class={style.noTurnos}>No hay turnos registrados para esta semana.</div>}
-                  </div>
-                )}
-                <div class="card-footer">
-                  <button class="btn btn-secondary" onClick={this.handleExport} title="Exportar a PDF Semanal">Reporte Semanal</button>
-                  <button class="btn btn-success" onClick={this.handleExportMonthly} disabled={loadingMonthlyReport} title="Exportar Reporte Mensual">
-                    {loadingMonthlyReport ? 'Generando...' : 'Reporte Mensual'}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div class={style.dashboardPlaceholder}>
-                <i class="icon-user-check"></i>
-                <p>Seleccione un conductor para ver sus turnos.</p>
-              </div>
-            )}
-          </motion.div>
+        <div class={style.statsContainer}>
+          <div class={style.statCard}>
+            <h3>Disponibles</h3>
+            <p>{conductoresPorDisponibilidad['disponible'] || 0}</p>
+          </div>
+          <div class={style.statCard}>
+            <h3>En Ruta</h3>
+            <p>{conductoresPorDisponibilidad['en_ruta'] || 0}</p>
+          </div>
+          <div class={style.statCard}>
+            <h3>Día Libre</h3>
+            <p>{conductoresPorDisponibilidad['dia_libre'] || 0}</p>
+          </div>
+          <div class={style.statCard}>
+            <h3>No Disponibles</h3>
+            <p>{conductoresPorDisponibilidad['no_disponible'] || 0}</p>
+          </div>
         </div>
-        {editingTurnoPair && (
-          <TurnoPairEditModal
-            turnoPair={editingTurnoPair}
-            onSave={this.handleSavePair}
-            onCancel={() => this.setState({ editingTurnoPair: null })}
-          />
-        )}
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Lista de Conductores</h2>
+          </div>
+          {loading && <p>Cargando...</p>}
+          {error && <p class="error-message">{error}</p>}
+          {!loading && !error && (
+            <div class="table-container">
+              {/* Tip informativo */}
+              <div class={style.tableTip}>
+                <i class="fas fa-info-circle"></i>
+                <span>Haz clic en cualquier fila para ver los horarios del conductor</span>
+              </div>
+              
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Conductor</th>
+                    <th>Estado</th>
+                    <th class="text-center">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {conductores.length > 0 ? (
+                    conductores.map(c => (
+                      <tr
+                        key={c.id}
+                        onClick={() => this.handleSelectConductor(c)}
+                        class={`slide-in-up ${style.clickableRow}`}
+                        title="Haz clic para ver horarios del conductor"
+                      >
+                        <td>{c.nombre} {c.apellido}</td>
+                        <td>
+                          <span class={`status-badge ${c.estado_disponibilidad}`}>
+                            {DISPONIBILIDAD_LABELS[c.estado_disponibilidad] || c.estado_disponible}
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          {c.estado_disponibilidad === 'en_ruta' ? (
+                            <button class="btn btn-sm btn-disabled" disabled>En Ruta</button>
+                          ) : (
+                            <button
+                              class={`btn btn-sm ${c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible' ? 'btn-success' : 'btn-danger'}`}
+                              onClick={e => this.handleTurnoActionClick(e, c)}
+                            >
+                              {c.estado_disponibilidad === 'dia_libre' || c.estado_disponibilidad === 'no_disponible' ? 'Iniciar' : 'Finalizar'}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" class="text-center">No hay conductores disponibles.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {this.renderDetailModal()}
       </motion.div>
     );
   }

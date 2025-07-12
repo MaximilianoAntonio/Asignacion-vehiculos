@@ -1,0 +1,69 @@
+/* Tip informativo para tablas */
+.tableTip {
+    background: linear-gradient(135deg, var(--primary-lighter), var(--secondary-lighter));
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border-left: 4px solid var(--accent-primary);
+    box-shadow: var(--shadow-soft);
+    animation: slideInDown 0.5s ease-out;
+}
+
+.tableTip i {
+    color: var(--accent-primary);
+    font-size: 16px;
+}
+
+/* Mejorar estilos de filas clickeables */
+.clickableRow {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.clickableRow:hover {
+    background: var(--primary-lighter) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.clickableRow:active {
+    transform: translateY(0);
+}
+
+/* Fila seleccionada */
+.selectedRow {
+    background-color: var(--primary-light) !important;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+/* Animación para el tip */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tableTip {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .tableTip i {
+        font-size: 14px;
+    }
+}

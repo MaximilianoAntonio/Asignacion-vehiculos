@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import style from './style.css';
 import logoSSVQ from '../../assets/logo-ssvq.jpg';
 import logoUV from '../../assets/u-valparaiso.webp';
+import fachadaSSVQ from '../../assets/ssvqfachada.png';
 import { getVehiculos } from '../../services/vehicleService';
 import { getConductores } from '../../services/conductorService';
 import { getAsignaciones } from '../../services/asignacionService';
@@ -189,7 +190,7 @@ export default function Home() {
         class={style.heroSection}
         variants={heroVariants}
       >
-        <div class={style.heroContent}>
+        <div class={style.heroContainer}>
           <motion.div class={style.heroText} variants={textReveal}>
             <motion.span 
               class={style.heroTagline} 
@@ -248,15 +249,16 @@ export default function Home() {
           </motion.div>
           
           <motion.div class={style.heroImage} variants={imageFloat}>
-            <div class={style.logoContainer}>
+            <div class={style.heroFachadaContainer}>
               <motion.img 
-                src={logoSSVQ} 
-                alt="Logo SSVQ" 
-                class={style.heroLogo}
-                whileHover={{ scale: 1.05, rotateY: 10 }}
-                transition={{ duration: 0.3 }}
+                src={fachadaSSVQ} 
+                alt="Fachada Servicio de Salud Viña del Mar - Quillota" 
+                class={style.heroFachada}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.4 }}
               />
-              <div class={style.logoGlow}></div>
+              <div class={style.fachadaOverlay}>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -317,7 +319,7 @@ export default function Home() {
           </p>
         </motion.div>
         <div class={style.featuresGrid}>
-          {features.map((feature, i) => (
+          {features.map((feature) => (
             <motion.div
               key={feature.id}
               class={style.featureCard}
@@ -362,7 +364,7 @@ export default function Home() {
           </p>
         </motion.div>
         <div class={style.stepsContainer}>
-          {steps.map((step, i) => (
+          {steps.map((step) => (
             <motion.div
               key={step.id}
               class={style.stepCard}
@@ -385,7 +387,7 @@ export default function Home() {
               <h4 class={style.stepTitle}>{step.detail}</h4>
               <p class={style.stepText}>{step.text}</p>
               <div class={style.stepProgress}>
-                <div class={style.progressBar} style={{ width: `${(step.id / 4) * 100}%` }}></div>
+                <div class={style.progressBar} style={{ width: `${(step.id / 4) * 100}%` }} />
               </div>
             </motion.div>
           ))}
@@ -410,8 +412,9 @@ export default function Home() {
               class={style.ctaSecondary}
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => window.location.href = '/mas-informacion'}
             >
-              � Más Información
+              ❔ Más Información
             </motion.button>
           </div>
         </motion.div>
@@ -423,38 +426,76 @@ export default function Home() {
         variants={slideUp}
       >
         <div class={style.footerContent}>
-          <motion.div class={style.footerLogos} variants={staggerContainer}>
-            <motion.img 
-              src={logoSSVQ} 
-              alt="Logo SSVQ" 
-              class={style.footerLogo}
-              variants={slideUp}
-              whileHover={{ scale: 1.1, rotateY: 10 }}
-            />
-            <motion.img 
-              src={logoUV} 
-              alt="Logo Universidad de Valparaíso" 
-              class={style.footerLogo}
-              variants={slideUp}
-              whileHover={{ scale: 1.1, rotateY: 10 }}
-            />
-          </motion.div>
-          
-          <motion.div class={style.footerText} variants={slideUp}>
-            <p><strong>Desarrollo e Innovación:</strong> Escuela de Ingeniería Civil Biomédica UV</p>
-            <p><strong>Implementado por:</strong> Servicio de Salud Viña del Mar - Quillota</p>
-            <p>&copy; 2025 Todos los derechos reservados | Tecnología de vanguardia para el sector salud</p>
-          </motion.div>
-          
-          <motion.div class={style.footerLinks} variants={staggerContainer}>
-            <motion.a href="/" variants={slideUp} whileHover={{ scale: 1.05 }}>Inicio</motion.a>
-            <motion.a href="/asignaciones" variants={slideUp} whileHover={{ scale: 1.05 }}>Asignaciones</motion.a>
-            <motion.a href="/vehiculos" variants={slideUp} whileHover={{ scale: 1.05 }}>Vehículos</motion.a>
-            <motion.a href="/conductores" variants={slideUp} whileHover={{ scale: 1.05 }}>Conductores</motion.a>
-          </motion.div>
-          
-          <motion.div class={style.footerTech} variants={slideUp}>
-            <span>Powered by AI • Blockchain Security • IoT Integration</span>
+          <motion.div class={style.footerMainGrid} variants={staggerContainer}>
+            {/* Columna Izquierda */}
+            <motion.div class={style.footerLeftColumn} variants={slideUp}>
+              <div class={style.footerLogos}>
+                <motion.img 
+                  src={logoSSVQ} 
+                  alt="Logo SSVQ" 
+                  class={style.footerLogo}
+                  variants={slideUp}
+                  whileHover={{ scale: 1.05 }}
+                />
+                <motion.img 
+                  src={logoUV} 
+                  alt="Logo Universidad de Valparaíso" 
+                  class={style.footerLogo}
+                  variants={slideUp}
+                  whileHover={{ scale: 1.05 }}
+                />
+              </div>
+              
+              <div class={style.footerText}>
+                <p>Escuela de Ingeniería Civil Biomédica UV</p>
+                <p>Servicio de Salud Viña del Mar - Quillota</p>
+                <p>&copy; 2025 Todos los derechos reservados</p>
+              </div>
+              
+              <div class={style.footerContact}>
+                <h4 class={style.contactTitle}>Soporte Técnico</h4>
+                <a href="mailto:maximilianogaetepizza@gmail.com" class={style.contactEmail}>
+                  maximilianogaetepizza@gmail.com
+                </a>
+              </div>
+            </motion.div>
+
+            {/* Columna Derecha */}
+            <motion.div class={style.footerRightColumn} variants={slideUp}>
+              <div class={style.footerTeam}>
+                <h4 class={style.teamTitle}>Equipo de Desarrollo</h4>
+                <div class={style.teamGrid}>
+                  <motion.div class={style.teamMember} variants={slideUp} whileHover={{ scale: 1.05, y: -5 }}>
+                    <span class={style.memberName}>Jorge Alcaino</span>
+                  </motion.div>
+                  <motion.div class={style.teamMember} variants={slideUp} whileHover={{ scale: 1.05, y: -5 }}>
+                    <span class={style.memberName}>Alexis Arriola</span>
+                  </motion.div>
+                  <motion.div class={style.teamMember} variants={slideUp} whileHover={{ scale: 1.05, y: -5 }}>
+                    <span class={style.memberName}>Luis Caneo</span>
+                  </motion.div>
+                  <motion.div class={style.teamMember} variants={slideUp} whileHover={{ scale: 1.05, y: -5 }}>
+                    <span class={style.memberName}>Maximiliano Gaete</span>
+                  </motion.div>
+                  <motion.div class={style.teamMember} variants={slideUp} whileHover={{ scale: 1.05, y: -5 }}>
+                    <span class={style.memberName}>Josefa Rebolledo</span>
+                  </motion.div>
+                  <motion.div class={style.teamMember} variants={slideUp} whileHover={{ scale: 1.05, y: -5 }}>
+                    <span class={style.memberName}>María Ignacia Rojas</span>
+                  </motion.div>
+                  <motion.div class={style.teamMember} variants={slideUp} whileHover={{ scale: 1.05, y: -5 }}>
+                    <span class={style.memberName}>Andrés Vega</span>
+                  </motion.div>
+                </div>
+              </div>
+              
+              <div class={style.footerLinks}>
+                <motion.a href="/" variants={slideUp} whileHover={{ scale: 1.05 }}>Inicio</motion.a>
+                <motion.a href="/asignaciones" variants={slideUp} whileHover={{ scale: 1.05 }}>Asignaciones</motion.a>
+                <motion.a href="/vehiculos" variants={slideUp} whileHover={{ scale: 1.05 }}>Vehículos</motion.a>
+                <motion.a href="/conductores" variants={slideUp} whileHover={{ scale: 1.05 }}>Conductores</motion.a>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </motion.footer>

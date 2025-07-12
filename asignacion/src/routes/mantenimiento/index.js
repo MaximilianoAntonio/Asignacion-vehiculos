@@ -23,7 +23,7 @@ const MantenimientoPage = () => {
                   4. Pega ese código aquí debajo, reemplazando este comentario.
                 */}
                 <div class={style.placeholderContent}>
-                    <i class="icon-powerbi"></i>
+                    <i class="icon-powerbi" />
                     <h3>Dashboard de Power BI</h3>
                     <p>
                         Aquí se mostrará el dashboard interactivo. Pega el código <strong>&lt;iframe&gt;</strong> proporcionado por Power BI para activarlo.

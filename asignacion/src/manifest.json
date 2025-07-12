@@ -1,6 +1,6 @@
 {
-	"name": "Unidad de flota",
-	"short_name": "SSVQ",
+	"name": "Sistema de Gestión Vehicular",
+	"short_name": "SGV SSVQ",
 	"start_url": "/",
 	"display": "standalone",
 	"orientation": "portrait",
@@ -8,13 +8,13 @@
 	"theme_color": "#673ab8",
 	"icons": [
 		{
-			"src": "www.ssvq.cl/ssvq/site/artic/20191009/imag/foto_0000006220191009104305.jpg",
-			"type": "image/jpg",
+			"src": "assets/LOGOSSVQ.png",
+			"type": "image/png",
 			"sizes": "192x192"
 		},
 		{
-			"src": "www.ssvq.cl/ssvq/site/artic/20191009/imag/foto_0000006220191009104305.jpg",
-			"type": "image/jpg",
+			"src": "assets/LOGOSSVQ.png",
+			"type": "image/png",
 			"sizes": "512x512"
 		}
 	]

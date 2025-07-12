@@ -1,0 +1,28 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .logo-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        fill: #6B7280;
+      }
+    </style>
+  </defs>
+  
+  <!-- Círculo exterior azul -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#3B82F6" stroke-width="10"/>
+  
+  <!-- Círculo interior rojo -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#EF4444" stroke-width="10"/>
+  
+  <!-- Círculo de fondo blanco -->
+  <circle cx="100" cy="100" r="70" fill="white"/>
+  
+  <!-- Texto del logo -->
+  <text x="100" y="85" class="logo-text" font-size="14">Servicio de</text>
+  <text x="100" y="100" class="logo-text" font-size="14">Salud</text>
+  <text x="100" y="115" class="logo-text" font-size="13">Viña del Mar</text>
+  <text x="100" y="130" class="logo-text" font-size="13">Quillota</text>
+</svg>

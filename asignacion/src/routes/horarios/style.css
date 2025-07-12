@@ -5,14 +5,171 @@
     gap: 2rem;
 }
 
-.pageLayout {
+/* Stats Cards Container */
+.statsContainer {
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
 }
 
-.leftColumn, .rightColumn {
-    min-width: 0; /* Prevents overflow issues in grid children */
+.statCard {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-medium);
+    border: 1px solid var(--border-color);
+    text-align: center;
+    transition: transform var(--transition-fast);
+}
+
+.statCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-large);
+}
+
+.statCard h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.statCard p {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--accent-primary);
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.modalContent {
+    background: var(--bg-card);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-large);
+    width: 90vw;
+    max-width: 900px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.modalCloseButton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 10;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-fast);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalCloseButton:hover {
+    background: var(--neutral-200);
+    color: var(--text-primary);
+}
+
+.modalBody {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modalImageContainer {
+    display: flex;
+    align-items: flex-start;
+}
+
+.modalImageContainer img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--border-radius-lg);
+    border: 3px solid var(--border-color);
+}
+
+.modalDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.modalDetails p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modalDetails strong {
+    min-width: 120px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Turnos Section */
+.turnosSection {
+    padding: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.turnosHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.turnosTitle {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+}
+
+.turnosActions {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.modalActions {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
 }
 
 .selectedRow {
@@ -21,81 +178,13 @@
     color: var(--primary-dark);
 }
 
-.dashboard {
-    background: var(--bg-card);
-    padding: 20px;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-medium);
-    border: 1px solid var(--border-color);
-}
-
-.dashboardHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem; /* From card-header */
-}
-
-.dashboardHeader h3 {
-    margin: 0;
-}
-
-.dashboardHeader p {
-    margin: 0;
-    color: var(--text-muted);
-}
-
-.weekNavigator {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.weekNavigator button, .exportButton {
-    background: var(--accent-primary);
-    color: var(--text-on-primary);
-    border: none;
-    padding: 10px 16px;
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
-    margin: 0;
-    font-size: 0.9rem;
-}
-.weekNavigator button:hover, .exportButton:hover {
-    background: var(--accent-primary-darker);
-}
-.exportButton {
-    background-color: var(--accent-success);
-}
-.exportButton:hover {
-    background-color: #15803d;
-}
-
-.dashboardPlaceholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    min-height: 300px;
-    color: var(--text-muted);
-    text-align: center;
-}
-
-.dashboardPlaceholder .icon-user-check {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    color: var(--primary);
-}
-
 .calendarView {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    max-height: 500px; /* Or adjust as needed */
+    max-height: 400px;
     overflow-y: auto;
-    padding-right: 0.5rem; /* For scrollbar */
+    padding-right: 0.5rem;
 }
 
 .turnoEntry {
@@ -132,6 +221,7 @@
 .turnoActions {
     display: flex;
     gap: 0.5rem;
+    justify-content: center;
 }
 
 .noTurnos {
@@ -141,10 +231,122 @@
     font-style: italic;
 }
 
+/* Tip informativo para tablas */
+.tableTip {
+    background: linear-gradient(135deg, var(--primary-lighter), var(--secondary-lighter));
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border-left: 4px solid var(--accent-primary);
+    box-shadow: var(--shadow-soft);
+    animation: slideInDown 0.5s ease-out;
+}
+
+.tableTip i {
+    color: var(--accent-primary);
+    font-size: 16px;
+}
+
+/* Mejorar estilos de filas clickeables */
+.clickableRow {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.clickableRow:hover {
+    background: var(--primary-lighter) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.clickableRow:active {
+    transform: translateY(0);
+}
+
+/* Animación para el tip */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Week Navigator */
+.weekNavigator {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.weekNavigator button {
+    background: var(--accent-primary);
+    color: var(--text-on-primary);
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+}
+
+.weekNavigator button:hover {
+    background: var(--accent-primary-darker);
+}
+
+/* Tabla de turnos en modal */
+.turnosSection .table-container {
+    margin-top: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.turnosSection .table {
+    margin-bottom: 0;
+}
+
+.turnosSection .table th {
+    background-color: var(--neutral-100);
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-color);
+    padding: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.turnosSection .table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.turnosSection .table tbody tr:hover {
+    background-color: var(--neutral-50);
+}
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
-    .pageLayout {
+    .modalContent {
+        width: 95vw;
+    }
+    
+    .modalBody {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .modalImageContainer {
+        justify-content: center;
     }
 }
 
@@ -152,22 +354,72 @@
     .horariosPage {
         padding: 1rem;
     }
-    .pageLayout {
-        gap: 1rem;
-    }
-    .dashboardHeader {
-        flex-direction: column;
-        align-items: flex-start;
+    
+    .statsContainer {
+        grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
     }
-    .turnoEntry {
+    
+    .statCard {
+        padding: 1rem;
+    }
+    
+    .statCard h3 {
+        font-size: 0.8rem;
+    }
+    
+    .statCard p {
+        font-size: 1.5rem;
+    }
+    
+    .modalContent {
+        width: 95vw;
+        max-height: 95vh;
+    }
+    
+    .modalBody {
+        padding: 1rem;
         grid-template-columns: 1fr;
+    }
+    
+    .turnosSection {
+        padding: 1rem;
+    }
+    
+    .turnosHeader {
+        flex-direction: column;
+        align-items: stretch;
         gap: 1rem;
     }
-    .turnoDetails {
+    
+    .turnosActions {
         flex-direction: column;
-        align-items: flex-start;
         gap: 0.5rem;
+    }
+    
+    .turnosActions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    /* Tabla responsive en mobile */
+    .turnosSection .table {
+        font-size: 0.85rem;
+    }
+    
+    .turnosSection .table th,
+    .turnosSection .table td {
+        padding: 0.5rem;
+    }
+    
+    .turnosSection .table th:nth-child(1) { width: 25%; }
+    .turnosSection .table th:nth-child(2) { width: 20%; }
+    .turnosSection .table th:nth-child(3) { width: 20%; }
+    .turnosSection .table th:nth-child(4) { width: 20%; }
+    .turnosSection .table th:nth-child(5) { width: 15%; }
+    
+    .modalActions {
+        flex-direction: column;
     }
 }
 

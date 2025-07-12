@@ -52,8 +52,17 @@ class ConductorSerializer(serializers.ModelSerializer):
             'estado_disponibilidad_display',
         ]
         extra_kwargs = { # NUEVO
-            'foto': {'write_only': True, 'required': False}
+            'foto': {'write_only': True, 'required': False},
+            'run': {'required': False, 'allow_null': True, 'allow_blank': True}
         }
+    
+    def validate_run(self, value):
+        """
+        Convierte cadenas vacías a None para evitar problemas de unicidad
+        """
+        if value == '' or value is None:
+            return None
+        return value.strip() if value else None
 
 
 class AsignacionSerializer(serializers.ModelSerializer):

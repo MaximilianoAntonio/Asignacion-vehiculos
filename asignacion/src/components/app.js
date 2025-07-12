@@ -2,25 +2,51 @@
 import { h, Component } from 'preact';
 import { Router, route } from 'preact-router'; // Importa route
 import { getToken, logoutUser } from '../services/authService'; // Importa funciones de auth
+import { lazy, Suspense } from 'preact/compat';
 
 import Header from './header';
 import Home from '../routes/home';
-import VehiculosPage from '../routes/vehiculos';
-import ConductoresPage from '../routes/conductores';
-import LoginPage from '../routes/login'; // Nueva importación
-import AsignacionesPage from '../routes/asignaciones'; // Nueva importación
-import HorariosPage from '../routes/horarios'; // Importa la ruta de horarios
-import MantenimientoPage from '../routes/mantenimiento'; // 1. Importar la nueva página
-import CamaraPage from '../routes/camara/index'; // Nueva importación
+import LoginPage from '../routes/login'; // Mantener login cargado inmediatamente
+
+// Lazy loading para rutas pesadas
+const AsignacionesPage = lazy(() => import('../routes/asignaciones'));
+const VehiculosPage = lazy(() => import('../routes/vehiculos'));
+const ConductoresPage = lazy(() => import('../routes/conductores'));
+const MantenimientoPage = lazy(() => import('../routes/mantenimiento'));
+const CamaraPage = lazy(() => import('../routes/camara/index'));
+const MasInformacionPage = lazy(() => import('../routes/mas-informacion'));
+
+// Componente de loading
+const Loading = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '200px',
+    fontSize: '1.1rem',
+    color: '#6c757d'
+  }}>
+    Cargando...
+  </div>
+);
 
 
-// Componente para rutas protegidas (ejemplo básico)
+// Componente wrapper para la página de Más Información
+const MasInformacionRoute = () => (
+    <Suspense fallback={<Loading />}>
+        <MasInformacionPage />
+    </Suspense>
+);
 const PrivateRoute = ({ component: Comp, ...props }) => {
     if (!getToken()) {
         route('/login', true); // Redirige a login si no hay token
         return null; // Evita renderizar el componente protegido
     }
-    return <Comp {...props} />;
+    return (
+        <Suspense fallback={<Loading />}>
+            <Comp {...props} />
+        </Suspense>
+    );
 };
 
 
@@ -32,11 +58,8 @@ export default class App extends Component {
     };
 
     componentDidMount() {
-        this.setState({ 
-            isLoggedIn: !!getToken(),
-            userGroup: JSON.parse(localStorage.getItem('userGroup') || '[]'), // <-- SIEMPRE array
-        });
-
+        // Establecer el título de la página
+        document.title = 'Sistema de Gestión Vehicular - SSVQ';
     }
 
     handleRoute = e => {
@@ -70,9 +93,9 @@ export default class App extends Component {
                         <PrivateRoute component={VehiculosPage} path="/vehiculos" />
                         <PrivateRoute component={ConductoresPage} path="/conductores" />
                         <PrivateRoute component={AsignacionesPage} path="/asignaciones" userGroup={this.state.userGroup} />
-                        <PrivateRoute component={HorariosPage} path="/horarios" />
                         <PrivateRoute component={MantenimientoPage} path="/mantenimiento" />
                         <PrivateRoute component={CamaraPage} path="/camara" />
+                        <MasInformacionRoute path="/mas-informacion" />
                     </Router>
                 </main>
             </div>

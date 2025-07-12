@@ -152,11 +152,18 @@
 /* Tabla */
 .clickableRow {
     cursor: pointer;
-    transition: background-color var(--transition-fast);
+    transition: all var(--transition-fast);
+    position: relative;
 }
 
 .clickableRow:hover {
-    background: var(--primary-lighter);
+    background: var(--primary-lighter) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.clickableRow:active {
+    transform: translateY(0);
 }
 
 /* Estados en tabla - Badges normalizados */
@@ -204,7 +211,154 @@
     text-transform: uppercase;
 }
 
-/* Container for the stats cards */
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modalCloseButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  z-index: 1001;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modalCloseButton:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.modalBody {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+  align-items: start;
+}
+
+.modalImageContainer {
+  width: 150px;
+  height: 150px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 3px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.modalImageContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modalDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modalDetails p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.modalDetails strong {
+  font-weight: 600;
+  color: var(--text-color-strong);
+  margin-right: 0.5rem;
+}
+
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+/* Turnos Section */
+.turnosSection {
+  border-top: 1px solid var(--border-color);
+  padding: 1.5rem;
+}
+
+.turnosHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.turnosTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color-strong);
+  margin: 0;
+}
+
+.weekNavigator {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.turnosActions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.turnoActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.noTurnos {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-color-muted);
+  font-style: italic;
+}
+
+/* Stats Container */
 .statsContainer {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -243,245 +397,118 @@
 /* Color coding for stat cards */
 .statCard:nth-child(1) { border-color: var(--success); }
 .statCard:nth-child(2) { border-color: var(--primary); }
-.statCard:nth-child(3) { border-color: var(--warning); }
+.statCard:nth-child(3) { border-color: var(--secondary); }
 .statCard:nth-child(4) { border-color: var(--danger); }
 
-
-/* Status Badges for table */
+/* Status badges */
 .statusBadge {
-  padding: 0.3rem 0.75rem;
-  border-radius: 50px; /* pill shape */
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: capitalize;
 }
 
 .statusBadge.disponible {
-  background-color: var(--success-light);
-  color: var(--success-dark);
+  background-color: #d4edda;
+  color: #155724;
 }
+
 .statusBadge.en_ruta {
-  background-color: var(--primary-light);
-  color: var(--primary-dark);
+  background-color: #fff3cd;
+  color: #856404;
 }
+
 .statusBadge.dia_libre {
-  background-color: var(--warning-light);
-  color: var(--warning-dark);
+  background-color: #d1ecf1;
+  color: #0c5460;
 }
+
 .statusBadge.no_disponible {
-  background-color: var(--danger-light);
-  color: var(--danger-dark);
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
-
-/* Modales */
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  -webkit-backdrop-filter: blur(5px);
-  backdrop-filter: blur(5px);
-}
-
-.modalContent {
-  max-width: 800px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
-
-.modalCloseButton {
-  position: absolute;
-  top: 1rem;
-  right: 1.5rem;
-  background: none;
-  border: none;
-  font-size: 2rem;
+/* Clickable row styles */
+.clickableRow {
   cursor: pointer;
-  color: var(--text-muted);
-  transition: color var(--transition-fast);
-  line-height: 1;
+  transition: background-color 0.2s ease;
 }
 
-.modalCloseButton:hover {
-  color: var(--text-primary);
+.clickableRow:hover {
+  background-color: #f8f9fa;
 }
 
-.modalBody {
+/* Table tip */
+.tableTip {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.modalImageContainer {
-  flex-shrink: 0;
-}
-
-.modalImageContainer img {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 50%;
-  box-shadow: var(--shadow-medium);
-}
-
-.modalDetails p {
-  margin: 0.5rem 0;
-  font-size: 1rem;
-  line-height: 1.6;
-}
-.modalDetails p strong {
-  color: var(--text-secondary);
-  margin-right: 0.5rem;
-}
-
-.turnosSection {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color-light);
-}
-
-.turnosTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.turnosActions {
-  display: flex;
-  gap: 1rem;
   align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: #1976d2;
+  font-size: 0.9rem;
 }
 
-.modalActions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color-light);
+.tableTip i {
+  font-size: 1.1rem;
 }
 
-/* Responsive tabla: formato tipo card en móviles */
-@media (max-width: 900px) {
-  .responsiveTableWrapper {
-    overflow-x: auto;
-    width: 100vw;
-    margin-left: -20px;
-    padding-left: 0;
-    box-sizing: border-box;
-  }
-  .table {
-    min-width: 600px;
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 600px) {
-  .responsiveTableWrapper {
-    overflow-x: visible;
-    width: 100vw;
-    margin-left: -10vw;
-    padding-left: 0;
-    box-sizing: border-box;
-  }
-  .table, .table thead, .table tbody, .table th, .table td, .table tr {
-    display: block;
-  }
-  
-  .table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-  
-  .table tr {
-    border: 1px solid var(--border-color-light);
-    border-radius: var(--border-radius-md);
-    padding: 16px;
-    margin-bottom: 16px;
-    background: var(--white);
-    box-shadow: var(--shadow-soft);
-  }
-  
-  .table td {
-    border: none;
-    position: relative;
-    padding: 8px 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .table td:before {
-    content: attr(data-label) ": ";
-    font-weight: 600;
-    color: var(--text-secondary);
-    flex-shrink: 0;
-    margin-right: 8px;
-  }
-  
-  .estadoCounters {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .estadoCounters span {
-    min-width: auto;
-    text-align: left;
-  }
-  
-  .pageLayout {
-    flex-direction: column;
-    gap: 24px;
-  }
-  
-  .rightColumn {
-    position: static;
-    top: auto;
-  }
-  
-  .modalContent {
-    flex-direction: column;
-    gap: 24px;
+/* Responsive design for modals */
+@media (max-width: 768px) {
+  .modalBody {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    text-align: center;
   }
   
   .modalImageContainer {
-    width: 100%;
-    justify-content: center;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
   }
   
   .modalActions {
     flex-direction: column;
-    gap: 12px;
   }
   
-  .editButton,
-  .deleteButton {
-    width: 100%;
+  .turnosHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .turnosActions {
+    flex-direction: column;
+  }
+  
+  .statsContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .statCard {
+    padding: 1rem;
+  }
+  
+  .statCard p {
+    font-size: 1.5rem;
   }
 }
 
-@media (max-width: 768px) {
-  .modalBody {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+@media (max-width: 480px) {
+  .statsContainer {
+    grid-template-columns: 1fr;
   }
-
-  .modalActions {
-    flex-direction: column;
+  
+  .modalOverlay {
+    padding: 0.5rem;
   }
-  .modalActions .button {
-    width: 100%;
+  
+  .modalContent {
+    border-radius: 8px;
   }
 }

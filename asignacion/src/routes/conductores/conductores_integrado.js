@@ -73,12 +73,7 @@ class ConductoresPage extends Component {
       this.cargarConductores();
       this.resetFormState();
     } catch (error) {
-      const errorMessage = error.response?.data?.detail || 
-                          error.response?.data?.message || 
-                          error.response?.data || 
-                          'Error desconocido al crear el conductor';
-      
-      alert(`Error al guardar el conductor: ${errorMessage}`);
+      alert('Error al guardar el conductor.');
     }
   };
 
@@ -88,12 +83,7 @@ class ConductoresPage extends Component {
       this.cargarConductores();
       this.resetFormState();
     } catch (error) {
-      const errorMessage = error.response?.data?.detail || 
-                          error.response?.data?.message || 
-                          error.response?.data || 
-                          'Error desconocido al actualizar el conductor';
-      
-      alert(`Error al actualizar el conductor: ${errorMessage}`);
+      alert('Error al actualizar el conductor.');
     }
   };
 
@@ -457,61 +447,33 @@ class ConductoresPage extends Component {
     };
 
     return (
-      <div class="modal-overlay" onClick={this.handleHideDetails}>
-        <div class="modal-content card" onClick={e => e.stopPropagation()}>
+      <div class={style.modalOverlay} onClick={this.handleHideDetails}>
+        <div class={`${style.modalContent} card fade-in`} onClick={e => e.stopPropagation()}>
+          <button class={style.modalCloseButton} onClick={this.handleHideDetails}>×</button>
           <div class="card-header">
             <h2 class="card-title">Información del Conductor</h2>
-            <button class="modal-close-btn" onClick={this.handleHideDetails}>×</button>
           </div>
           
-          <div class="modal-body">
-            <div class="modal-sections">
-              <div class="modal-image-section">
-                <img
-                  src={detailModalConductor.foto_url ? `${detailModalConductor.foto_url}` : '/assets/no-camera.png'}
-                  alt="Conductor"
-                  class="conductor-image"
-                />
-              </div>
-              
-              <div class="modal-info-section">
-                <div class="info-grid">
-                  <div class="info-item">
-                    <span class="info-label">RUN:</span>
-                    <span class="info-value">{detailModalConductor.run || '—'}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Nombre:</span>
-                    <span class="info-value">{detailModalConductor.nombre} {detailModalConductor.apellido}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">N° Licencia:</span>
-                    <span class="info-value">{detailModalConductor.numero_licencia}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Vencimiento:</span>
-                    <span class="info-value">{detailModalConductor.fecha_vencimiento_licencia}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Teléfono:</span>
-                    <span class="info-value">{detailModalConductor.telefono || '—'}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Email:</span>
-                    <span class="info-value">{detailModalConductor.email || '—'}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Disponibilidad:</span>
-                    <span class={`status-badge ${detailModalConductor.estado_disponibilidad}`}>
-                      {DISPONIBILIDAD_LABELS[detailModalConductor.estado_disponibilidad] || detailModalConductor.estado_disponibilidad}
-                    </span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Tipos Vehículo:</span>
-                    <span class="info-value">{detailModalConductor.tipos_vehiculo_habilitados}</span>
-                  </div>
-                </div>
-              </div>
+          <div class={style.modalBody}>
+            <div class={style.modalImageContainer}>
+              <img
+                src={detailModalConductor.foto_url ? `${detailModalConductor.foto_url}` : 'https://th.bing.com/th/id/OIP.5_RqTlUhvMdpCjGOhOmTdQHaHa?rs=1&pid=ImgDetMain'}
+                alt="Conductor"
+              />
+            </div>
+            <div class={style.modalDetails}>
+              <p><strong>RUN:</strong> {detailModalConductor.run || '—'}</p>
+              <p><strong>Nombre:</strong> {detailModalConductor.nombre} {detailModalConductor.apellido}</p>
+              <p><strong>N° Licencia:</strong> {detailModalConductor.numero_licencia}</p>
+              <p><strong>Vencimiento:</strong> {detailModalConductor.fecha_vencimiento_licencia}</p>
+              <p><strong>Teléfono:</strong> {detailModalConductor.telefono || '—'}</p>
+              <p><strong>Email:</strong> {detailModalConductor.email || '—'}</p>
+              <p><strong>Disponibilidad:</strong> 
+                <span class={`status-badge ${detailModalConductor.estado_disponibilidad}`}>
+                  {DISPONIBILIDAD_LABELS[detailModalConductor.estado_disponibilidad] || detailModalConductor.estado_disponibilidad}
+                </span>
+              </p>
+              <p><strong>Tipos Vehículo:</strong> {detailModalConductor.tipos_vehiculo_habilitados}</p>
             </div>
           </div>
 
@@ -560,8 +522,8 @@ class ConductoresPage extends Component {
                         <td>{p.duration || 'En curso'}</td>
                         <td class="text-center">
                           <div class={style.turnoActions}>
-                            <button title="Eliminar" class="btn-icon btn-danger" onClick={() => this.handleDeletePair(p)}>🗑️</button>
                             <button title="Editar" class="btn-icon" onClick={() => this.handleEditPair(p)}>✏️</button>
+                            <button title="Eliminar" class="btn-icon btn-danger" onClick={() => this.handleDeletePair(p)}>🗑️</button>
                           </div>
                         </td>
                       </tr>
@@ -575,31 +537,29 @@ class ConductoresPage extends Component {
             )}
           </div>
 
-          <div class={style.modalActions} style="display: flex; justify-content: space-between;">
+          <div class={style.modalActions}>
+            <button onClick={() => this.handleEdit(detailModalConductor)} class="button button-primary">Editar</button>
             <button onClick={() => this.handleDelete(detailModalConductor.id)} class="button button-danger">Eliminar</button>
-            <div style="display: flex; gap: 0.5rem;">
-              <button onClick={() => this.handleEdit(detailModalConductor)} class="button button-primary">Editar</button>
-              <button
-                class={`btn ${detailModalConductor.estado_disponibilidad === 'dia_libre' || detailModalConductor.estado_disponibilidad === 'no_disponible' ? 'btn-success' : 'btn-danger'}`}
-                onClick={e => this.handleTurnoActionClick(e, detailModalConductor)}
-                disabled={detailModalConductor.estado_disponibilidad === 'en_ruta'}
-              >
-                {detailModalConductor.estado_disponibilidad === 'en_ruta' ? 'En Ruta' :
-                 detailModalConductor.estado_disponibilidad === 'dia_libre' || detailModalConductor.estado_disponibilidad === 'no_disponible' ? 'Iniciar Turno' : 'Finalizar Turno'}
-              </button>
-            </div>
+            <button
+              class={`btn ${detailModalConductor.estado_disponibilidad === 'dia_libre' || detailModalConductor.estado_disponibilidad === 'no_disponible' ? 'btn-success' : 'btn-danger'}`}
+              onClick={e => this.handleTurnoActionClick(e, detailModalConductor)}
+              disabled={detailModalConductor.estado_disponibilidad === 'en_ruta'}
+            >
+              {detailModalConductor.estado_disponibilidad === 'en_ruta' ? 'En Ruta' :
+               detailModalConductor.estado_disponibilidad === 'dia_libre' || detailModalConductor.estado_disponibilidad === 'no_disponible' ? 'Iniciar Turno' : 'Finalizar Turno'}
+            </button>
           </div>
 
           {/* Modal de edición de turnos */}
           {this.state.editingTurnoPair && (
-            <div class="modal-overlay" style={{zIndex: 1001, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}} onClick={() => this.setState({ editingTurnoPair: null })}>
+            <div class="modal-overlay" style="z-index: 1001; position: absolute; top: 0; left: 0; right: 0; bottom: 0;" onClick={() => this.setState({ editingTurnoPair: null })}>
               <motion.div 
                 class="modal-content card" 
                 onClick={e => e.stopPropagation()}
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                style={{width: '500px', maxWidth: '90vw', margin: 'auto', position: 'relative', top: '50%', transform: 'translateY(-50%)'}}
+                style="width: 500px; max-width: 90vw; margin: auto; position: relative; top: 50%; transform: translateY(-50%);"
               >
                 {this.renderEditModal()}
               </motion.div>

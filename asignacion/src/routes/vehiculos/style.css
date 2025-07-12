@@ -747,7 +747,7 @@
 }
 
 
-/* Modal Styles */
+/* Modal Styles - Improved */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -769,6 +769,10 @@
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-color-light);
 }
 
 .modalCloseButton {
@@ -777,66 +781,177 @@
   right: 1.5rem;
   background: none;
   border: none;
-  font-size: 2rem;
+  font-size: 1.5rem;
   cursor: pointer;
   color: var(--text-muted);
   transition: color var(--transition-fast);
   line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  z-index: 10;
 }
 
 .modalCloseButton:hover {
   color: var(--text-primary);
+  background: var(--neutral-100);
 }
 
 .modalBody {
   display: flex;
   gap: 2rem;
   margin-bottom: 1.5rem;
+  padding: 2rem;
+  padding-top: 3rem;
 }
 
 .modalImageContainer {
   flex-shrink: 0;
+  width: 200px;
 }
 
 .modalImageContainer img {
-  width: 150px;
-  height: 150px;
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-soft);
   object-fit: cover;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-medium);
+}
+
+.modalDetails {
+  flex: 1;
 }
 
 .modalDetails p {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
   font-size: 1rem;
-  line-height: 1.6;
-}
-.modalDetails p strong {
   color: var(--text-secondary);
-  margin-right: 0.5rem;
+  line-height: 1.5;
+}
+
+.modalDetails p strong {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .modalActions {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border-color-light);
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color-light);
+  background: var(--neutral-50);
+  border-bottom-left-radius: var(--border-radius-lg);
+  border-bottom-right-radius: var(--border-radius-lg);
 }
 
-/* Responsive adjustments */
+/* Mobile responsiveness for modal */
 @media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    margin: 1rem;
+  }
+  
   .modalBody {
     flex-direction: column;
-    align-items: center;
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+  
+  .modalImageContainer {
+    width: 100%;
     text-align: center;
   }
-
+  
+  .modalImageContainer img {
+    max-width: 200px;
+  }
+  
   .modalActions {
+    padding: 1rem 1.5rem;
     flex-direction: column;
   }
-  .modalActions .button {
-    width: 100%;
+  
+  .modalCloseButton {
+    top: 0.5rem;
+    right: 1rem;
   }
+}
+
+/* Additional mobile improvements */
+@media (max-width: 640px) {
+  .vehiculosPage {
+    padding: 1rem;
+  }
+  
+  .statsContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .statCard {
+    padding: 1rem;
+  }
+  
+  .statCard h3 {
+    font-size: 0.8rem;
+  }
+  
+  .statCard p {
+    font-size: 1.5rem;
+  }
+}
+
+/* Tip informativo para tablas */
+.tableTip {
+    background: linear-gradient(135deg, var(--primary-lighter), var(--secondary-lighter));
+    color: var(--text-primary);
+    padding: 12px 16px;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border-left: 4px solid var(--accent-primary);
+    box-shadow: var(--shadow-soft);
+    animation: slideInDown 0.5s ease-out;
+}
+
+.tableTip i {
+    color: var(--accent-primary);
+    font-size: 16px;
+}
+
+/* Mejorar estilos de filas clickeables */
+.clickableRow {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.clickableRow:hover {
+    background: var(--primary-lighter) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.clickableRow:active {
+    transform: translateY(0);
+}
+
+/* Animación para el tip */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

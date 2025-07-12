@@ -76,7 +76,7 @@ const CamaraPage = () => {
                     };
                 }
             })
-            .catch(err => setError('No se pudo acceder a la cámara: ' + err.message));
+            .catch(err => setError(`No se pudo acceder a la cámara: ${  err.message}`));
 
         function scan() {
             if (!isMounted || registroEnCurso || scanLockRef.current) return;
@@ -103,15 +103,13 @@ const CamaraPage = () => {
                         setRegistroEnCurso(true);
                         handleQR(code.data);
                     }
-                } else {
-                    if (qrResult !== '') {
+                } else if (qrResult !== '') {
                         setTimeout(() => {
                             setQrResult('');
                             setRegistroEnCurso(false);
                             scanLockRef.current = false; // DESBLOQUEA para nuevo escaneo
                         }, 300);
                     }
-                }
             }
             animationId = requestAnimationFrame(scan);
         }
@@ -265,7 +263,7 @@ const CamaraPage = () => {
                         class={style.camaraVideo}
                         style={registroEnCurso ? { filter: 'grayscale(1)', opacity: 0.5 } : {}}
                     />
-                    <div class={style.scanOverlay}></div>
+                    <div class={style.scanOverlay} />
                 </div>
                 <canvas ref={canvasRef} style={{ display: 'none' }} />
                 

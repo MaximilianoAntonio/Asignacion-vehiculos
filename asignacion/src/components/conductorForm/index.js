@@ -32,18 +32,33 @@ const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('run', run);
-    formData.append('nombre', nombre);
-    formData.append('apellido', apellido);
-    formData.append('numero_licencia', numeroLicencia);
+    
+    // Campo RUN - solo agregar si tiene valor, para evitar conflicto de unicidad con cadenas vacías
+    if (run && run.trim()) {
+      formData.append('run', run.trim());
+    }
+    
+    // Campos requeridos
+    formData.append('nombre', nombre.trim());
+    formData.append('apellido', apellido.trim());
+    formData.append('numero_licencia', numeroLicencia.trim());
     formData.append('fecha_vencimiento_licencia', fechaVencimiento);
-    formData.append('telefono', telefono);
-    formData.append('email', email);
-    formData.append('tipos_vehiculo_habilitados', tiposVehiculo);
     formData.append('estado_disponibilidad', estadoDisponibilidad);
+    
+    // Campos opcionales - solo agregar si tienen valor
+    if (telefono && telefono.trim()) {
+      formData.append('telefono', telefono.trim());
+    }
+    if (email && email.trim()) {
+      formData.append('email', email.trim());
+    }
+    if (tiposVehiculo && tiposVehiculo.trim()) {
+      formData.append('tipos_vehiculo_habilitados', tiposVehiculo.trim());
+    }
     if (foto) {
       formData.append('foto', foto);
     }
+    
     try {
       if (conductor) {
         await onUpdate(conductor.id, formData);
@@ -66,79 +81,160 @@ const ConductorForm = ({ conductor, onSave, onUpdate, onCancel }) => {
 
   // Modal flotante centrado y responsivo
   return (
-    <div class={style['modal-overlay']} onClick={onCancel}>
-      <div class={style['modal-content']} onClick={e => e.stopPropagation()}>
-        <form onSubmit={handleSubmit} class={style.formContainer} style={{ width: '100%' }}>
-          <h3>{conductor ? 'Editar Conductor' : 'Nuevo Conductor'}</h3>
-          <div class={style.formGroup}>
-            <label>RUN</label>
-            <input type="text" value={run} onInput={e => setRun(e.target.value)} placeholder="Ej: 12345678-9" />
+    <div>
+      <div class="card-header">
+        <h3 class="card-title">{conductor ? 'Editar Conductor' : 'Nuevo Conductor'}</h3>
+      </div>
+      
+      <form onSubmit={handleSubmit} style="padding: 1.5rem;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="run">RUN</label>
+            <input 
+              id="run"
+              type="text" 
+              class="form-control"
+              value={run} 
+              onInput={e => setRun(e.target.value)} 
+              placeholder="Ej: 12345678-9" 
+            />
           </div>
-          <div class={style.formGroup}>
-            <label>Nombre</label>
-            <input type="text" value={nombre} onInput={e => setNombre(e.target.value)} required />
+          
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input 
+              id="nombre"
+              type="text" 
+              class="form-control"
+              value={nombre} 
+              onInput={e => setNombre(e.target.value)} 
+              required 
+            />
           </div>
-          <div class={style.formGroup}>
-            <label>Apellido</label>
-            <input type="text" value={apellido} onInput={e => setApellido(e.target.value)} required />
+          
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+            <input 
+              id="apellido"
+              type="text" 
+              class="form-control"
+              value={apellido} 
+              onInput={e => setApellido(e.target.value)} 
+              required 
+            />
           </div>
-          <div class={style.formGroup}>
-            <label>Número de Licencia</label>
-            <input type="text" value={numeroLicencia} onInput={e => setNumeroLicencia(e.target.value)} required />
+          
+          <div class="form-group">
+            <label for="numeroLicencia">Número de Licencia</label>
+            <input 
+              id="numeroLicencia"
+              type="text" 
+              class="form-control"
+              value={numeroLicencia} 
+              onInput={e => setNumeroLicencia(e.target.value)} 
+              required 
+            />
           </div>
-          <div class={style.formGroup}>
-            <label>Fecha de Vencimiento Licencia</label>
-            <input type="date" value={fechaVencimiento} onInput={e => setFechaVencimiento(e.target.value)} required />
+          
+          <div class="form-group">
+            <label for="fechaVencimiento">Fecha de Vencimiento Licencia</label>
+            <input 
+              id="fechaVencimiento"
+              type="date" 
+              class="form-control"
+              value={fechaVencimiento} 
+              onInput={e => setFechaVencimiento(e.target.value)} 
+              required 
+            />
           </div>
-          <div class={style.formGroup}>
-            <label>Teléfono</label>
-            <input type="tel" value={telefono} onInput={e => setTelefono(e.target.value)} />
+          
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input 
+              id="telefono"
+              type="tel" 
+              class="form-control"
+              value={telefono} 
+              onInput={e => setTelefono(e.target.value)} 
+            />
           </div>
-          <div class={style.formGroup}>
-            <label>Email</label>
-            <input type="email" value={email} onInput={e => setEmail(e.target.value)} />
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              id="email"
+              type="email" 
+              class="form-control"
+              value={email} 
+              onInput={e => setEmail(e.target.value)} 
+            />
           </div>
-          <div class={style.formGroup}>
-            <label>Tipos de Vehículo Habilitados</label>
-            <input type="text" value={tiposVehiculo} onInput={e => setTiposVehiculo(e.target.value)} placeholder="Station Wagon, Automóvil, Minibús, Camioneta, etc" />
-          </div>
-          <div class={style.formGroup}>
-            <label>Estado de Disponibilidad</label>
-            <select value={estadoDisponibilidad} onInput={e => setEstadoDisponibilidad(e.target.value)}>
+          
+          <div class="form-group">
+            <label for="estadoDisponibilidad">Estado de Disponibilidad</label>
+            <select 
+              id="estadoDisponibilidad"
+              class="form-control"
+              value={estadoDisponibilidad} 
+              onInput={e => setEstadoDisponibilidad(e.target.value)}
+            >
               <option value="disponible">Disponible</option>
               <option value="en_ruta">En Ruta</option>
               <option value="dia_libre">Día Libre</option>
               <option value="no_disponible">No Disponible</option>
             </select>
           </div>
-          <div class={style.formGroup}>
+          
+          <div class="form-group full-width">
+            <label for="tiposVehiculo">Tipos de Vehículo Habilitados</label>
+            <input 
+              id="tiposVehiculo"
+              type="text" 
+              class="form-control"
+              value={tiposVehiculo} 
+              onInput={e => setTiposVehiculo(e.target.value)} 
+              placeholder="Station Wagon, Automóvil, Minibús, Camioneta, etc" 
+            />
+          </div>
+          
+          <div class="form-group full-width">
             <label for="foto">Foto del Conductor</label>
             <input
               id="foto"
               type="file"
+              class="form-control"
               accept="image/*"
               onChange={e => setFoto(e.target.files[0])}
             />
           </div>
-          {errores && (
-            <div class={style.errorMsg}>
-              {Object.entries(errores).map(([campo, mensajes]) =>
-                mensajes.map(msg => (
-                  <div>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
-                ))
-              )}
-            </div>
-          )}
-          <div class={style.formActions}>
-            <button type="submit" class={style.submitButton}>
-              {conductor ? 'Actualizar' : 'Guardar'}
-            </button>
-            <button type="button" onClick={onCancel} class={style.cancelButton}>
-              Cancelar
-            </button>
+        </div>
+        
+        {errores && (
+          <div class="alert alert-danger" style="margin-top: 1rem;">
+            {Object.entries(errores).map(([campo, mensajes]) =>
+              mensajes.map((msg, index) => (
+                <div key={`${campo}-${index}`}>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+              ))
+            )}
           </div>
-        </form>
-      </div>
+        )}
+        
+        <div class="modal-actions" style="display: flex; gap: 1rem; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid var(--border-color); margin-top: 1.5rem;">
+          <button 
+            type="button" 
+            onClick={onCancel} 
+            class="btn btn-secondary"
+          >
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-primary"
+          >
+            {conductor ? 'Actualizar' : 'Guardar'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

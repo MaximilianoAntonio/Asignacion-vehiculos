@@ -1,25 +1,40 @@
 import { h, Component } from 'preact';
-import formStyle from './style.css';
-import { createAsignacion, updateAsignacion } from '../../services/asignacionService';
-import { getVehiculoById, updateVehiculo } from '../../services/vehicleService';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-window.L = L;
+import { createAsignacion, updateAsignacion, normalizeEstado } from '../../services/asignacionService';
 
-const origenIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="blue" /></svg>',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-  popupAnchor: [0, -8]
-});
-const destinoIcon = new L.Icon({
-  iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="red" /></svg>',
-  iconSize: [16, 16],
-  iconAnchor: [8, 8],
-  popupAnchor: [0, -8]
-});
+// Lazy loading de Leaflet
+const loadLeaflet = async () => {
+  const [leafletCSS, L] = await Promise.all([
+    import('leaflet/dist/leaflet.css'),
+    import('leaflet')
+  ]);
+  
+  window.L = L.default;
+  return L.default;
+};
 
-const REGION_VALPARAISO = "Región de Valparaíso";
+let origenIcon, destinoIcon;
+
+const getIcons = async () => {
+  if (origenIcon && destinoIcon) return { origenIcon, destinoIcon };
+  
+  const L = await loadLeaflet();
+  
+  origenIcon = new L.Icon({
+    iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="blue" /></svg>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    popupAnchor: [0, -8]
+  });
+  
+  destinoIcon = new L.Icon({
+    iconUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><circle cx="8" cy="8" r="7" fill="red" /></svg>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    popupAnchor: [0, -8]
+  });
+  
+  return { origenIcon, destinoIcon };
+};
 
 function debounce(func, delay) {
   let timeout;
@@ -31,556 +46,685 @@ function debounce(func, delay) {
 }
 
 class AsignacionForm extends Component {
-  initialState = {
-    // --- REFACTOR: Usamos 'vehiculo' y 'conductor' para consistencia con la API ---
-    vehiculo: '',
-    conductor: '',
-    destino_descripcion: 'Destino pendiente',
-    origen_descripcion: '',
-    fecha_hora_solicitud: '',
-    fecha_hora_requerida_inicio: '',
-    req_pasajeros: 1,
-    req_tipo_vehiculo_preferente: '',
-    req_caracteristicas_especiales: '',
-    observaciones: '',
-    origen_lat: null,
-    origen_lon: null,
-    destino_lat: null,
-    destino_lon: null,
-    fecha_hora_fin_prevista: '',
-    fecha_hora_fin_real: '',
-    estado: 'pendiente_auto',
-    solicitante_jerarquia: 0,
-    solicitante_nombre: '',
-    solicitante_telefono: '',
-    responsable_nombre: '',
-    responsable_telefono: '',
-    origen_calle_sugerencias: [],
-    destino_calle_sugerencias: [],
-    ruta: null,
-    distancia: null,
-    distancia_km: null,
-    errores: null,
-    submitting: false,
-  };
-
-  map = null;
-  routeLayer = null;
-
   constructor(props) {
     super(props);
     this.state = {
-      ...this.initialState,
-      ...(props.asignacion ? {
-        // --- REFACTOR: Inicializamos el estado con 'vehiculo' y 'conductor' ---
-        vehiculo: props.asignacion.vehiculo?.id || '',
-        conductor: props.asignacion.conductor?.id || '',
-        origen_descripcion: props.asignacion.origen_descripcion || '',
-        destino_descripcion: props.asignacion.destino_descripcion || 'Destino pendiente',
-        fecha_hora_requerida_inicio: props.asignacion.fecha_hora_requerida_inicio ? props.asignacion.fecha_hora_requerida_inicio.slice(0, 16) : '',
-        req_pasajeros: (typeof props.asignacion.req_pasajeros === 'number') ? props.asignacion.req_pasajeros : 1,
-        req_tipo_vehiculo_preferente: props.asignacion.req_tipo_vehiculo_preferente || '',
-        req_caracteristicas_especiales: props.asignacion.req_caracteristicas_especiales || '',
-        observaciones: props.asignacion.observaciones || '',
-        origen_lat: props.asignacion.origen_lat || null,
-        origen_lon: props.asignacion.origen_lon || null,
-        destino_lat: props.asignacion.destino_lat || null,
-        destino_lon: props.asignacion.destino_lon || null,
-        distancia_km:props.asignacion.distancia_recorrida_km || null,
-        distancia: props.asignacion.distancia_recorrida_km ? `${props.asignacion.distancia_recorrida_km} km` : null,
-        fecha_hora_fin_prevista: props.asignacion.fecha_hora_fin_prevista ? props.asignacion.fecha_hora_fin_prevista.slice(0,16) : '',
-        fecha_hora_fin_real: props.asignacion.fecha_hora_fin_real ? props.asignacion.fecha_hora_fin_real.slice(0,16) : '',
-        estado: props.asignacion.estado || 'pendiente_auto',
-        solicitante_jerarquia: typeof props.asignacion.solicitante_jerarquia === 'number' ? props.asignacion.solicitante_jerarquia : 0,
-        solicitante_nombre: props.asignacion.solicitante_nombre || '',
-        solicitante_telefono: props.asignacion.solicitante_telefono || '',
-        responsable_nombre: props.asignacion.responsable_nombre || '',
-        responsable_telefono: props.asignacion.responsable_telefono || '',
-      } : {})
+      // Campos principales
+      req_tipo_vehiculo_preferente: '',
+      vehiculo: '',
+      conductor: '',
+      fecha_hora_requerida_inicio: '',
+      fecha_hora_fin_prevista: '',
+      req_pasajeros: 1,
+      estado: 'pendiente_auto',
+      
+      // Información del solicitante
+      solicitante_jerarquia: '0',
+      solicitante_nombre: '',
+      solicitante_telefono: '',
+      responsable_nombre: '',
+      responsable_telefono: '',
+      
+      // Ubicaciones
+      origen_descripcion: '',
+      destino_descripcion: '',
+      req_caracteristicas_especiales: '',
+      
+      // Estado del formulario
+      submitting: false,
+      error: null,
+      errores: null,
+      
+      // Mapa y sugerencias
+      origen_calle_sugerencias: [],
+      destino_calle_sugerencias: [],
+      distancia: null
     };
-
-    this.debouncedBuscarSugerenciasCalle = debounce(this.buscarSugerenciasCalleApi.bind(this), 500);
+    
+    this.map = null;
+    this.origenMarker = null;
+    this.destinoMarker = null;
+    this.routeControl = null;
+    
+    this.handleCalleInputChange = debounce(this.handleCalleInputChange.bind(this), 300);
   }
-
-  tryCalcularRuta = () => {
-    const { origen_lat, origen_lon, destino_lat, destino_lon } = this.state;
-    if (origen_lat && origen_lon && destino_lat && destino_lon) {
-      const url = 'https://router.project-osrm.org/route/v1/driving/' + origen_lon + ',' + origen_lat + ';' + destino_lon + ',' + destino_lat + '?overview=full&geometries=geojson';
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          if (data.routes && data.routes.length > 0) {
-            const route = data.routes[0];
-            const distanciaNumerica = parseFloat((route.distance / 1000).toFixed(2));
-            this.setState({
-              ruta: route.geometry,
-              distancia: distanciaNumerica + ' km', // Para mostrar en la UI
-              distancia_km: distanciaNumerica // Para enviar a la API
-            });
-          } else {
-            this.setState({ ruta: null, distancia: null, distancia_km: null });
-          }
-        })
-        .catch(() => {
-          this.setState({ ruta: null, distancia: null, distancia_km: null });
-        });
-    }
-  };
 
   componentDidMount() {
-    if (typeof window !== 'undefined' && window.L && !this.map) {
-      this.map = window.L.map('map').setView([-33.45, -70.65], 7);
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(this.map);
-    }
-    if (this.origenMarker) {
-      this.map.removeLayer(this.origenMarker);
-      this.origenMarker = null;
-    }
-    if (this.destinoMarker) {
-      this.map.removeLayer(this.destinoMarker);
-      this.destinoMarker = null;
-    }
-    if (this.state.origen_lat && this.state.origen_lon) {
-      this.origenMarker = L.marker([this.state.origen_lat, this.state.origen_lon], { icon: origenIcon })
-        .addTo(this.map)
-        .bindPopup('Origen');
-    }
-    if (this.state.destino_lat && this.state.destino_lon) {
-      this.destinoMarker = L.marker([this.state.destino_lat, this.state.destino_lon], { icon: destinoIcon })
-        .addTo(this.map)
-        .bindPopup('Destino');
-    }
-    this.tryCalcularRuta();
+    this.initializeForm();
+    // Delay map initialization to ensure DOM is ready
+    setTimeout(() => {
+      this.initializeMap();
+    }, 100);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.props.asignacion && prevProps.asignacion?.id !== this.props.asignacion.id) {
+  initializeForm() {
+    const { asignacion } = this.props;
+    if (asignacion) {
       this.setState({
-        ...this.initialState,
-        // --- REFACTOR: Actualizamos el estado con 'vehiculo' y 'conductor' ---
-        vehiculo: this.props.asignacion.vehiculo?.id || '',
-        conductor: this.props.asignacion.conductor?.id || '',
-        origen_descripcion: this.props.asignacion.origen_descripcion || '',
-        destino_descripcion: this.props.asignacion.destino_descripcion || 'Destino pendiente',
-        fecha_hora_requerida_inicio: this.props.asignacion.fecha_hora_requerida_inicio ? this.props.asignacion.fecha_hora_requerida_inicio.slice(0, 16) : '',
-        req_pasajeros: (typeof this.props.asignacion.req_pasajeros === 'number') ? this.props.asignacion.req_pasajeros : 1,
-        req_tipo_vehiculo_preferente: this.props.asignacion.req_tipo_vehiculo_preferente || '',
-        req_caracteristicas_especiales: this.props.asignacion.req_caracteristicas_especiales || '',
-        observaciones: this.props.asignacion.observaciones || '',
-        origen_lat: this.props.asignacion.origen_lat || null,
-        origen_lon: this.props.asignacion.origen_lon || null,
-        destino_lat: this.props.asignacion.destino_lat || null,
-        destino_lon: this.props.asignacion.destino_lon || null,
-        distancia_km: this.props.asignacion.distancia_recorrida_km || null,
-        distancia: this.props.asignacion.distancia_recorrida_km ? `${this.props.asignacion.distancia_recorrida_km} km` : null,
-        fecha_hora_fin_prevista: this.props.asignacion.fecha_hora_fin_prevista ? this.props.asignacion.fecha_hora_fin_prevista.slice(0,16) : '',
-        fecha_hora_fin_real: this.props.asignacion.fecha_hora_fin_real ? this.props.asignacion.fecha_hora_fin_real.slice(0,16) : '',
-        estado: this.props.asignacion.estado || 'pendiente_auto',
-        solicitante_jerarquia: typeof this.props.asignacion.solicitante_jerarquia === 'number' ? this.props.asignacion.solicitante_jerarquia : 0,
-        solicitante_nombre: this.props.asignacion.solicitante_nombre || '',
-        solicitante_telefono: this.props.asignacion.solicitante_telefono || '',
+        req_tipo_vehiculo_preferente: asignacion.req_tipo_vehiculo_preferente || '',
+        vehiculo: asignacion.vehiculo?.id || '',
+        conductor: asignacion.conductor?.id || '',
+        fecha_hora_requerida_inicio: asignacion.fecha_hora_requerida_inicio ? 
+          new Date(asignacion.fecha_hora_requerida_inicio).toISOString().slice(0, 16) : '',
+        fecha_hora_fin_prevista: asignacion.fecha_hora_fin_prevista ? 
+          new Date(asignacion.fecha_hora_fin_prevista).toISOString().slice(0, 16) : '',
+        req_pasajeros: asignacion.req_pasajeros || 1,
+        estado: asignacion ? normalizeEstado(asignacion.estado) : 'pendiente_auto',
+        solicitante_jerarquia: asignacion.solicitante_jerarquia?.toString() || '0',
+        solicitante_nombre: asignacion.solicitante_nombre || '',
+        solicitante_telefono: asignacion.solicitante_telefono || '',
+        responsable_nombre: asignacion.responsable_nombre || '',
+        responsable_telefono: asignacion.responsable_telefono || '',
+        origen_descripcion: asignacion.origen_descripcion || '',
+        destino_descripcion: asignacion.destino_descripcion || '',
+        req_caracteristicas_especiales: asignacion.req_caracteristicas_especiales || ''
       });
-    }
-
-    if (this.state.ruta && this.state.ruta !== prevState.ruta && typeof window !== 'undefined' && window.L && this.map) {
-      if (this.routeLayer) {
-        this.map.removeLayer(this.routeLayer);
-      }
-      const geojson = { type: "Feature", geometry: this.state.ruta };
-      this.routeLayer = window.L.geoJSON(geojson, { style: { color: 'blue', weight: 5 } }).addTo(this.map);
-      try {
-        const coords = this.state.ruta.coordinates.map(coord => [coord[1], coord[0]]);
-        if (coords && coords.length > 0) {
-          this.map.fitBounds(coords);
-        }
-      } catch (e) {
-        console.error("Error procesando coordenadas de ruta para límites de mapa:", e);
-      }
-    }
-    if ((!this.state.origen_descripcion && !this.state.destino_descripcion) && (prevState.origen_descripcion || prevState.destino_descripcion)) {
-      if (this.routeLayer && this.map) {
-        this.map.removeLayer(this.routeLayer);
-        this.routeLayer = null;
-        this.setState({ distancia: null, ruta: null });
-      }
-    }
-    if ((this.state.origen_lat !== prevState.origen_lat || this.state.origen_lon !== prevState.origen_lon) || (this.state.destino_lat !== prevState.destino_lat || this.state.destino_lon !== prevState.destino_lon)) {
-      if (this.origenMarker) {
-        this.map.removeLayer(this.origenMarker);
-        this.origenMarker = null;
-      }
-      if (this.destinoMarker) {
-        this.map.removeLayer(this.destinoMarker);
-        this.destinoMarker = null;
-      }
-      if (this.state.origen_lat && this.state.origen_lon) {
-        this.origenMarker = L.marker([this.state.origen_lat, this.state.origen_lon], { icon: origenIcon }).addTo(this.map).bindPopup('Origen');
-      }
-      if (this.state.destino_lat && this.state.destino_lon) {
-        this.destinoMarker = L.marker([this.state.destino_lat, this.state.destino_lon], { icon: destinoIcon }).addTo(this.map).bindPopup('Destino');
-      }
     }
   }
 
-  handleSuggestionClick = (campo, sugerencia) => {
-    this.setState({
-      [campo + '_descripcion']: sugerencia.display_name,
-      [campo + '_lat']: parseFloat(sugerencia.lat),
-      [campo + '_lon']: parseFloat(sugerencia.lon),
-      [campo + '_calle_sugerencias']: []
-    }, this.tryCalcularRuta);
-  };
-
-  handleCalleInputChange = (campo, e) => {
-    const valor = e.target.value;
-    this.setState({ [campo + '_descripcion']: valor, [campo + '_calle_sugerencias']: [], error: null });
-    if (valor.length >= 3) {
-      this.debouncedBuscarSugerenciasCalle(campo, valor);
-    } else {
-      this.setState({ [campo + '_calle_sugerencias']: [] });
+  async initializeMap() {
+    try {
+      const L = await loadLeaflet();
+      
+      if (this.map) {
+        this.map.remove();
+      }
+      
+      // Wait for DOM element to be available
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        console.warn('Map element not found, retrying...');
+        setTimeout(() => this.initializeMap(), 200);
+        return;
+      }
+      
+      this.map = L.map('map').setView([-33.047, -71.617], 12);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(this.map);
+      
+      // Force map to invalidate size after initialization
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize();
+        }
+      }, 250);
+      
+    } catch (error) {
+      console.error('Error initializing map:', error);
     }
-  };
-
-  buscarSugerenciasCalleApi = (campo, valorDescripcion) => {
-    fetch('https://nominatim.openstreetmap.org/search?format=json&countrycodes=cl&addressdetails=1&limit=15&state=Región%20de%20Valparaíso&street=' + encodeURIComponent(valorDescripcion))
-      .then(res => {
-        if (!res.ok) throw new Error('Error ' + res.status + ' de Nominatim (Descripción)');
-        return res.json();
-      })
-      .then(data => {
-        const calles = data.filter(d =>
-          (['residential', 'road', 'street', 'tertiary', 'secondary', 'primary', 'footway', 'path', 'cycleway', 'service'].includes(d.type)) &&
-          d.address &&
-          (d.address.road || d.address.street || d.address.footway || d.address.path || d.address.cycleway || d.address.service) &&
-          ((d.address.city && d.address.city.toLowerCase().includes('valparaíso')) || (d.address.town && d.address.town.toLowerCase().includes('valparaíso')) || (d.address.village && d.address.village.toLowerCase().includes('valparaíso')) || (d.display_name && d.display_name.toLowerCase().includes('valparaíso')))
-        );
-        this.setState({ [campo + '_calle_sugerencias']: calles });
-      })
-      .catch(error => {
-        console.error("Error buscando sugerencias de descripción:", error);
-        this.setState({ [campo + '_calle_sugerencias']: [], error: 'Error al buscar ubicaciones.' });
-      });
-  };
+  }
 
   handleChange = (e) => {
-    const { name, value, type } = e.target;
-    let newValue = value;
-    if (type === 'number') {
-      newValue = value === "" ? "" : parseInt(value, 10);
+    const { name, value } = e.target;
+    
+    // Si es el campo estado, normalizar el valor
+    if (name === 'estado') {
+      this.setState({ [name]: normalizeEstado(value) });
+    } else {
+      this.setState({ [name]: value });
     }
-    this.setState({ [name]: newValue, error: null }, () => {
-      // --- REFACTOR: Usamos 'vehiculo' para la lógica de filtrado ---
-      if (name === 'req_tipo_vehiculo_preferente') {
-        const { vehiculo } = this.state;
-        const { vehiculosDisponibles } = this.props;
-        if (vehiculo && vehiculosDisponibles) {
-          const vehiculoSeleccionado = vehiculosDisponibles.find(v => v.id === vehiculo);
-          if (vehiculoSeleccionado && vehiculoSeleccionado.tipo_vehiculo !== this.state.req_tipo_vehiculo_preferente) {
-            this.setState({ vehiculo: '' });
-          }
-        }
-      }
+  }
+
+  handleCalleInputChange = async (tipo, e) => {
+    const query = e.target.value;
+    this.setState({ [`${tipo}_descripcion`]: query });
+    
+    if (query.length < 3) {
+      this.setState({ [`${tipo}_calle_sugerencias`]: [] });
+      return;
+    }
+    
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Valparaíso, Chile')}&limit=5`
+      );
+      const data = await response.json();
+      this.setState({ [`${tipo}_calle_sugerencias`]: data });
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  }
+
+  handleSuggestionClick = async (tipo, suggestion) => {
+    this.setState({
+      [`${tipo}_descripcion`]: suggestion.display_name,
+      [`${tipo}_calle_sugerencias`]: []
     });
-  };
+    
+    if (!this.map) return;
+    
+    const lat = parseFloat(suggestion.lat);
+    const lon = parseFloat(suggestion.lon);
+    
+    const L = await loadLeaflet();
+    const { origenIcon, destinoIcon } = await getIcons();
+    
+    if (tipo === 'origen') {
+      if (this.origenMarker) {
+        this.map.removeLayer(this.origenMarker);
+      }
+      this.origenMarker = L.marker([lat, lon], { icon: origenIcon }).addTo(this.map);
+    } else {
+      if (this.destinoMarker) {
+        this.map.removeLayer(this.destinoMarker);
+      }
+      this.destinoMarker = L.marker([lat, lon], { icon: destinoIcon }).addTo(this.map);
+    }
+    
+    this.calculateRoute();
+  }
+
+  calculateRoute = async () => {
+    if (!this.origenMarker || !this.destinoMarker || !this.map) return;
+    
+    try {
+      const origenLatLng = this.origenMarker.getLatLng();
+      const destinoLatLng = this.destinoMarker.getLatLng();
+      
+      const response = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${origenLatLng.lng},${origenLatLng.lat};${destinoLatLng.lng},${destinoLatLng.lat}?overview=full&geometries=geojson`
+      );
+      
+      const data = await response.json();
+      
+      if (data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        const distanceKm = (route.distance / 1000).toFixed(2);
+        this.setState({ distancia: `${distanceKm} km` });
+        
+        const L = await loadLeaflet();
+        
+        if (this.routeControl) {
+          this.map.removeLayer(this.routeControl);
+        }
+        
+        const coordinates = route.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+        this.routeControl = L.polyline(coordinates, { color: 'blue', weight: 4 }).addTo(this.map);
+        
+        const group = new L.featureGroup([this.origenMarker, this.destinoMarker, this.routeControl]);
+        this.map.fitBounds(group.getBounds().pad(0.1));
+      }
+    } catch (error) {
+      console.error('Error calculating route:', error);
+    }
+  }
 
   handleSubmit = async (e) => {
     e.preventDefault();
-    this.setState({ submitting: true, error: null });
-
-    const {
-      vehiculo, conductor, origen_descripcion, destino_descripcion,
-      fecha_hora_requerida_inicio, req_pasajeros, req_tipo_vehiculo_preferente,
-      req_caracteristicas_especiales, observaciones, solicitante_jerarquia,
-      solicitante_nombre, solicitante_telefono,
-      responsable_nombre, responsable_telefono,
-      estado,
-      origen_lat, origen_lon, destino_lat, destino_lon,
-      fecha_hora_fin_prevista, fecha_hora_fin_real,
-      distancia_km,
-    } = this.state;
-
-    // ... (La lógica de validación permanece igual)
-    if (!fecha_hora_requerida_inicio) {
-      this.setState({ error: "La fecha y hora de inicio son requeridas.", submitting: false });
-      return;
-    }
-    if (req_pasajeros < 1) {
-      this.setState({ error: "El número de pasajeros debe ser al menos 1.", submitting: false });
-      return;
-    }
-
-    const fecha_hora_solicitud = new Date().toISOString();
-    const asignacionData = {
-      vehiculo_id: vehiculo ? parseInt(vehiculo, 10) : null,
-      conductor_id: conductor ? parseInt(conductor, 10) : null,
-      origen_descripcion,
-      destino_descripcion,
-      fecha_hora_solicitud,
-      fecha_hora_requerida_inicio,
-      req_pasajeros,
-      req_tipo_vehiculo_preferente: req_tipo_vehiculo_preferente || null,
-      req_caracteristicas_especiales: req_caracteristicas_especiales || "",
-      observaciones: observaciones || null,
-      solicitante_jerarquia,
-      solicitante_nombre,
-      solicitante_telefono,
-      responsable_nombre,
-      responsable_telefono,
-      estado,
-      origen_lat: origen_lat || null,
-      origen_lon: origen_lon || null,
-      destino_lat: destino_lat || null,
-      destino_lon: destino_lon || null,
-      fecha_hora_fin_prevista: fecha_hora_fin_prevista || null,
-      fecha_hora_fin_real: fecha_hora_fin_real || null,
-      distancia_recorrida_km: distancia_km || null,
-    };
-
+    
+    this.setState({ submitting: true, error: null, errores: null });
+    
     try {
-      // 1. Crear o actualizar la asignación. El backend se encargará del kilometraje.
-      const promise = this.props.asignacion
-        ? updateAsignacion(this.props.asignacion.id, asignacionData)
-        : createAsignacion(asignacionData);
+      const formData = {
+        req_tipo_vehiculo_preferente: this.state.req_tipo_vehiculo_preferente,
+        vehiculo: this.state.vehiculo || null,
+        conductor: this.state.conductor || null,
+        fecha_hora_requerida_inicio: this.state.fecha_hora_requerida_inicio,
+        fecha_hora_fin_prevista: this.state.fecha_hora_fin_prevista || null,
+        req_pasajeros: parseInt(this.state.req_pasajeros),
+        estado: normalizeEstado(this.state.estado), // Normalizar estado antes de enviar
+        solicitante_jerarquia: parseInt(this.state.solicitante_jerarquia),
+        solicitante_nombre: this.state.solicitante_nombre,
+        solicitante_telefono: this.state.solicitante_telefono,
+        responsable_nombre: this.state.responsable_nombre,
+        responsable_telefono: this.state.responsable_telefono,
+        origen_descripcion: this.state.origen_descripcion,
+        destino_descripcion: this.state.destino_descripcion,
+        req_caracteristicas_especiales: this.state.req_caracteristicas_especiales
+      };
       
-      await promise;
-
-      // 2. Limpiar el formulario y notificar al componente padre
-      this.setState({ ...this.initialState, submitting: false });
-      if (this.map && this.routeLayer) {
-        this.map.removeLayer(this.routeLayer);
-        this.routeLayer = null;
+      if (this.props.asignacion) {
+        await updateAsignacion(this.props.asignacion.id, formData);
+      } else {
+        await createAsignacion(formData);
       }
+      
       if (this.props.onAsignacionCreada) {
         this.props.onAsignacionCreada();
       }
-
+      
     } catch (error) {
-      let errores = null;
-      if (error && error.response && error.response.data) {
-        errores = error.response.data;
-      } else if (error && error.message) {
-        errores = { general: [error.message] };
+      if (error.response && error.response.data) {
+        this.setState({ errores: error.response.data });
       } else {
-        errores = { general: ['Error al crear o actualizar la asignación.'] };
+        this.setState({ error: error.message || 'Error al procesar la asignación' });
       }
-      this.setState({ errores, submitting: false });
+    } finally {
+      this.setState({ submitting: false });
     }
-  };
+  }
 
-
-  render(props, state) {
-    const {
-      vehiculo, conductor,
-      origen_descripcion, destino_descripcion,
-      fecha_hora_requerida_inicio, req_pasajeros,
-      req_tipo_vehiculo_preferente, req_caracteristicas_especiales,
-      observaciones, solicitante_jerarquia,
-      solicitante_nombre, solicitante_telefono,
-      responsable_nombre, responsable_telefono,
-      estado, error, submitting
-    } = state;
-
-    const { vehiculosDisponibles, conductoresDisponibles, userGroup } = props;
-
-    const isFuncionario = Array.isArray(userGroup)
-      ? userGroup.some(g => g && g.toLowerCase().includes('funcionario'))
-      : (userGroup && userGroup.toLowerCase().includes('funcionario'));
-
+  render() {
+    const { props } = this;
+    const { 
+      vehiculosDisponibles = [], 
+      conductoresDisponibles = [],
+      userGroup 
+    } = props;
+    
+    const isFuncionario = userGroup === 'funcionario';
+    
     const tipoVehiculoChoices = [
-      { value: '', label: 'Cualquiera (opcional)' },
+      { value: '', label: '-- Seleccionar --' },
       { value: 'automovil', label: 'Automóvil' },
       { value: 'camioneta', label: 'Camioneta' },
       { value: 'minibus', label: 'Minibús' },
-      { value: 'station_wagon', label: 'Station Wagon' },
+      { value: 'station_wagon', label: 'Station Wagon' }
     ];
+    
     const estadoChoices = [
-      { value: 'pendiente_auto', label: 'Pendiente de Asignación Automática' },
-      { value: 'programada', label: 'Programada (Auto/Manual)' },
-      { value: 'activa', label: 'Activa' },
-      { value: 'completada', label: 'Completada' },
-      { value: 'cancelada', label: 'Cancelada' },
-      { value: 'fallo_auto', label: 'Falló Asignación Automática' },
+      { value: 'pendiente_auto', label: 'Pendiente' },
+      { value: 'programada', label: 'Programada' },
+      { value: 'activa', label: 'En Curso' },
+      { value: 'completada', label: 'Finalizada' },
+      { value: 'cancelada', label: 'Cancelada' }
     ];
-
-    let vehiculosFiltrados = vehiculosDisponibles || [];
-    if (req_tipo_vehiculo_preferente) {
-      vehiculosFiltrados = vehiculosFiltrados.filter(v => v.tipo_vehiculo === req_tipo_vehiculo_preferente);
+    
+    let vehiculosFiltrados = vehiculosDisponibles;
+    if (this.state.req_tipo_vehiculo_preferente) {
+      vehiculosFiltrados = vehiculosDisponibles.filter(v => 
+        v.tipo_vehiculo === this.state.req_tipo_vehiculo_preferente
+      );
     }
 
     return (
-      <div class={formStyle.formContainer}>
-        <h2>{props.asignacion ? 'Editar Asignación' : 'Agregar Asignación'}</h2>
-        {error && <p class={formStyle.error}>{error}</p>}
-        {state.errores && (
-          <div class={formStyle.errorMsg}>
-            {Object.entries(state.errores).map(([campo, mensajes]) =>
+      <div>
+        <div class="card-header">
+          <h3 class="card-title">
+            {props.asignacion ? 'Editar Asignación' : 'Nueva Asignación'}
+          </h3>
+        </div>
+        
+        {this.state.error && (
+          <div style="background: var(--danger-light); color: var(--danger-dark); padding: 1rem; border-radius: var(--border-radius); margin: 1.5rem 1.5rem 0;">
+            {this.state.error}
+          </div>
+        )}
+        
+        {this.state.errores && (
+          <div style="background: var(--danger-light); color: var(--danger-dark); padding: 1rem; border-radius: var(--border-radius); margin: 1.5rem 1.5rem 0;">
+            {Object.entries(this.state.errores).map(([campo, mensajes]) =>
               mensajes.map(msg => (
-                <div key={`${campo}-${msg}`}>{campo !== 'general' ? `${campo}: ` : ''}{msg}</div>
+                <div key={`${campo}-${msg}`}>
+                  {campo !== 'general' ? `${campo}: ` : ''}{msg}
+                </div>
               ))
             )}
           </div>
         )}
-        <form onSubmit={this.handleSubmit}>
+        
+        <form onSubmit={this.handleSubmit} style="padding: 1.5rem;">
           {!isFuncionario && (
-            <>
-              <div class={formStyle.formGroup}>
-                <label htmlFor="req_tipo_vehiculo_preferente">Tipo Vehículo Preferente (opcional):</label>
-                <select name="req_tipo_vehiculo_preferente" id="req_tipo_vehiculo_preferente" value={req_tipo_vehiculo_preferente} onInput={this.handleChange}>
-                  {tipoVehiculoChoices.map(choice => (
-                    <option key={choice.value} value={choice.value}>{choice.label}</option>
-                  ))}
-                </select>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+              {/* Columna Izquierda */}
+              <div>
+                {/* Sección de Vehículo y Conductor */}
+                <div class="form-section">
+                  <h4>Información del Vehículo y Conductor</h4>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="req_tipo_vehiculo_preferente">Tipo Vehículo Preferente (opcional)</label>
+                    <select 
+                      name="req_tipo_vehiculo_preferente" 
+                      id="req_tipo_vehiculo_preferente" 
+                      class="form-control"
+                      value={this.state.req_tipo_vehiculo_preferente} 
+                      onInput={this.handleChange}
+                    >
+                      {tipoVehiculoChoices.map(choice => (
+                        <option key={choice.value} value={choice.value}>
+                          {choice.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="vehiculo">Vehículo (Opcional)</label>
+                    <select 
+                      name="vehiculo" 
+                      id="vehiculo" 
+                      class="form-control"
+                      value={this.state.vehiculo} 
+                      onInput={this.handleChange}
+                    >
+                      <option value="">-- Seleccionar Vehículo --</option>
+                      {vehiculosFiltrados.map(v => (
+                        <option key={v.id} value={v.id}>
+                          {v.marca} {v.modelo} ({v.patente}) - {v.estado}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="conductor">Conductor (Opcional)</label>
+                    <select 
+                      name="conductor" 
+                      id="conductor" 
+                      class="form-control"
+                      value={this.state.conductor} 
+                      onInput={this.handleChange}
+                    >
+                      <option value="">-- Seleccionar Conductor --</option>
+                      {conductoresDisponibles.map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.nombre} {c.apellido} ({c.estado_disponibilidad})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="estado">Estado</label>
+                    <select 
+                      name="estado" 
+                      id="estado" 
+                      class="form-control"
+                      value={this.state.estado} 
+                      onInput={this.handleChange}
+                    >
+                      {estadoChoices.map(choice => (
+                        <option key={choice.value} value={choice.value}>
+                          {choice.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Sección de Fechas y Pasajeros */}
+                <div class="form-section">
+                  <h4>Información de Fechas y Pasajeros</h4>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="fecha_hora_requerida_inicio">Fecha y Hora Requerida Inicio *</label>
+                    <input 
+                      type="datetime-local" 
+                      name="fecha_hora_requerida_inicio" 
+                      id="fecha_hora_requerida_inicio"
+                      class="form-control"
+                      value={this.state.fecha_hora_requerida_inicio} 
+                      onInput={this.handleChange} 
+                      required 
+                    />
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="fecha_hora_fin_prevista">Fecha y Hora Fin Prevista (opcional)</label>
+                    <input 
+                      type="datetime-local" 
+                      name="fecha_hora_fin_prevista" 
+                      id="fecha_hora_fin_prevista"
+                      class="form-control"
+                      value={this.state.fecha_hora_fin_prevista} 
+                      onInput={this.handleChange} 
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="req_pasajeros">Nº Pasajeros *</label>
+                    <input 
+                      type="number" 
+                      name="req_pasajeros" 
+                      id="req_pasajeros" 
+                      class="form-control"
+                      value={this.state.req_pasajeros}
+                      onInput={this.handleChange} 
+                      min="1" 
+                      required 
+                    />
+                  </div>
+                </div>
+
+                {/* Sección del Solicitante */}
+                <div class="form-section">
+                  <h4>Información del Solicitante</h4>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="solicitante_jerarquia">Jerarquía del Solicitante</label>
+                    <select 
+                      name="solicitante_jerarquia" 
+                      id="solicitante_jerarquia" 
+                      class="form-control"
+                      value={this.state.solicitante_jerarquia}
+                      onInput={this.handleChange}
+                    >
+                      <option value="0">Otro/No especificado</option>
+                      <option value="1">Funcionario</option>
+                      <option value="2">Coordinación/Referente</option>
+                      <option value="3">Jefatura/Subdirección</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="solicitante_nombre">Nombre del Solicitante</label>
+                    <input 
+                      type="text" 
+                      name="solicitante_nombre" 
+                      id="solicitante_nombre" 
+                      class="form-control"
+                      value={this.state.solicitante_nombre}
+                      onInput={this.handleChange} 
+                    />
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="solicitante_telefono">Teléfono del Solicitante</label>
+                    <input 
+                      type="text" 
+                      name="solicitante_telefono" 
+                      id="solicitante_telefono" 
+                      class="form-control"
+                      value={this.state.solicitante_telefono}
+                      onInput={this.handleChange} 
+                    />
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="responsable_nombre">Nombre del Responsable</label>
+                    <input 
+                      type="text" 
+                      name="responsable_nombre" 
+                      id="responsable_nombre" 
+                      class="form-control"
+                      value={this.state.responsable_nombre}
+                      onInput={this.handleChange} 
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="responsable_telefono">Teléfono del Responsable</label>
+                    <input 
+                      type="text" 
+                      name="responsable_telefono" 
+                      id="responsable_telefono" 
+                      class="form-control"
+                      value={this.state.responsable_telefono}
+                      onInput={this.handleChange} 
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div class={formStyle.formGroup}>
-                <label htmlFor="vehiculo">Vehículo (Opcional):</label>
-                {/* --- REFACTOR: El select ahora usa 'vehiculo' en name, id, y value --- */}
-                <select name="vehiculo" id="vehiculo" value={vehiculo} onInput={this.handleChange}>
-                  <option value="">-- Seleccionar Vehículo --</option>
-                  {vehiculosFiltrados.map(v => (
-                    <option key={v.id} value={v.id}>
-                      {v.marca} {v.modelo} ({v.patente}) - {v.estado}
-                    </option>
-                  ))}
-                </select>
+              {/* Columna Derecha */}
+              <div>
+                {/* Sección de Ubicaciones */}
+                <div class="form-section">
+                  <h4>Ubicaciones del Viaje</h4>
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="origen_descripcion">Origen (Región: Valparaíso) *</label>
+                    <input 
+                      type="text" 
+                      name="origen_descripcion" 
+                      id="origen_descripcion"
+                      class="form-control"
+                      value={this.state.origen_descripcion}
+                      onInput={e => this.handleCalleInputChange('origen', e)}
+                      autoComplete="off" 
+                      placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." 
+                    />
+                    {this.state.origen_calle_sugerencias.length > 0 && (
+                      <ul class="suggestions-list">
+                        {this.state.origen_calle_sugerencias.map(sug => (
+                          <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('origen', sug)}>
+                            {sug.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="destino_descripcion">Destino (Región: Valparaíso) *</label>
+                    <input 
+                      type="text" 
+                      name="destino_descripcion" 
+                      id="destino_descripcion"
+                      class="form-control"
+                      value={this.state.destino_descripcion}
+                      onInput={e => this.handleCalleInputChange('destino', e)}
+                      autoComplete="off" 
+                      placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." 
+                    />
+                    {this.state.destino_calle_sugerencias.length > 0 && (
+                      <ul class="suggestions-list">
+                        {this.state.destino_calle_sugerencias.map(sug => (
+                          <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('destino', sug)}>
+                            {sug.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {this.state.distancia && (
+                    <div style="margin-bottom: 1rem; padding: 0.75rem; background: var(--primary-light); border-radius: var(--border-radius); color: var(--primary-dark);">
+                      <strong>Distancia estimada: {this.state.distancia}</strong>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sección del Mapa */}
+                <div class="form-section">
+                  <h4>Mapa de Ruta</h4>
+                  <div class="mapContainer">
+                    <div id="map" style="height: 100%; width: 100%;" />
+                  </div>
+                </div>
+
+                {/* Sección de Requerimientos Especiales */}
+                <div class="form-section">
+                  <h4>Requerimientos Especiales</h4>
+                  <div class="form-group">
+                    <label for="req_caracteristicas_especiales">Características Especiales (opcional)</label>
+                    <textarea 
+                      name="req_caracteristicas_especiales" 
+                      id="req_caracteristicas_especiales"
+                      class="form-control"
+                      value={this.state.req_caracteristicas_especiales} 
+                      onInput={this.handleChange} 
+                      rows="3"
+                      placeholder="Describa cualquier requerimiento especial para el viaje..."
+                    />
+                  </div>
+                </div>
               </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="conductor">Conductor (Opcional):</label>
-                {/* --- REFACTOR: El select ahora usa 'conductor' en name, id, y value --- */}
-                <select name="conductor" id="conductor" value={conductor} onInput={this.handleChange}>
-                  <option value="">-- Seleccionar Conductor --</option>
-                  {conductoresDisponibles && conductoresDisponibles.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre} {c.apellido} ({c.estado_disponibilidad})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="fecha_hora_fin_prevista">Fecha y Hora Fin Prevista (opcional):</label>
-                <input type="datetime-local" name="fecha_hora_fin_prevista" id="fecha_hora_fin_prevista"
-                  value={state.fecha_hora_fin_prevista || ''} onInput={this.handleChange} />
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="fecha_hora_requerida_inicio">Fecha y Hora Requerida Inicio:</label>
-                <input type="datetime-local" name="fecha_hora_requerida_inicio" id="fecha_hora_requerida_inicio"
-                  value={fecha_hora_requerida_inicio} onInput={this.handleChange} required />
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="req_pasajeros">Nº Pasajeros:</label>
-                <input type="number" name="req_pasajeros" id="req_pasajeros" value={req_pasajeros}
-                  onInput={this.handleChange} min="1" required />
-              </div>
-
-              <div class={formStyle.formGroup}>
-                <label htmlFor="estado">Estado:</label>
-                <select name="estado" id="estado" value={estado} onInput={this.handleChange}>
-                  {estadoChoices.map(choice => (
-                    <option key={choice.value} value={choice.value}>{choice.label}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
-
-          <div class={formStyle.mapContainer}>
-            <div id="map" style="height: 100%; width: 100%;"></div>
-            {state.distancia && <p>Distancia estimada: {state.distancia}</p>}
-          </div>
-
-          <fieldset class={formStyle.formGroup}>
-            <legend>Origen (Región: Valparaíso)</legend>
-            <label htmlFor="origen_descripcion">Descripción:</label>
-            <input type="text" name="origen_descripcion" id="origen_descripcion"
-              value={origen_descripcion}
-              onInput={e => this.handleCalleInputChange('origen', e)}
-              autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
-            {this.state.origen_calle_sugerencias && this.state.origen_calle_sugerencias.length > 0 && (
-              <ul class={formStyle.suggestionsList}>
-                {this.state.origen_calle_sugerencias.map(sug => (
-                  <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('origen', sug)}>
-                    {sug.display_name}
-                  </li>
-                ))}
-              </ul>
+            </div>
             )}
-          </fieldset>
 
-          <fieldset class={formStyle.formGroup}>
-            <legend>Destino (Región: Valparaíso)</legend>
-            <label htmlFor="destino_descripcion">Descripción:</label>
-            <input type="text" name="destino_descripcion" id="destino_descripcion"
-              value={destino_descripcion}
-              onInput={e => this.handleCalleInputChange('destino', e)}
-              autoComplete="off" placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." />
-            {this.state.destino_calle_sugerencias && this.state.destino_calle_sugerencias.length > 0 && (
-              <ul class={formStyle.suggestionsList}>
-                {this.state.destino_calle_sugerencias.map(sug => (
-                  <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('destino', sug)}>
-                    {sug.display_name}
-                  </li>
-                ))}
-              </ul>
+            {isFuncionario && (
+              <div class="form-section two-column">
+                <h4>Ubicaciones del Viaje y Mapa de Ruta</h4>
+                
+                {/* Columna izquierda - Formularios */}
+                <div>
+                  <div class="form-group">
+                    <label for="origen_descripcion">Origen (Región: Valparaíso) *</label>
+                    <input 
+                      type="text" 
+                      name="origen_descripcion" 
+                      id="origen_descripcion"
+                      class="form-control"
+                      value={this.state.origen_descripcion}
+                      onInput={e => this.handleCalleInputChange('origen', e)}
+                      autoComplete="off" 
+                      placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." 
+                    />
+                    {this.state.origen_calle_sugerencias.length > 0 && (
+                      <ul class="suggestions-list">
+                        {this.state.origen_calle_sugerencias.map(sug => (
+                          <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('origen', sug)}>
+                            {sug.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div class="form-group" style="margin-top: 1rem;">
+                    <label for="destino_descripcion">Destino (Región: Valparaíso) *</label>
+                    <input 
+                      type="text" 
+                      name="destino_descripcion" 
+                      id="destino_descripcion"
+                      class="form-control"
+                      value={this.state.destino_descripcion}
+                      onInput={e => this.handleCalleInputChange('destino', e)}
+                      autoComplete="off" 
+                      placeholder="Ej: Avenida Argentina, Pedro Montt, Esmeralda, etc." 
+                    />
+                    {this.state.destino_calle_sugerencias.length > 0 && (
+                      <ul class="suggestions-list">
+                        {this.state.destino_calle_sugerencias.map(sug => (
+                          <li key={sug.place_id || sug.osm_id} onClick={() => this.handleSuggestionClick('destino', sug)}>
+                            {sug.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {this.state.distancia && (
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: var(--primary-light); border-radius: var(--border-radius); color: var(--primary-dark);">
+                      <strong>Distancia estimada: {this.state.distancia}</strong>
+                    </div>
+                  )}
+                </div>
+
+                {/* Columna derecha - Mapa */}
+                <div>
+                  <div class="mapContainer">
+                    <div id="map" style="height: 100%; width: 100%;" />
+                  </div>
+                </div>
+              </div>
             )}
-          </fieldset>
 
-          <div class={formStyle.formGroup}>
-            <label htmlFor="req_caracteristicas_especiales">Requerimientos Especiales (opcional):</label>
-            <textarea name="req_caracteristicas_especiales" id="req_caracteristicas_especiales"
-              value={req_caracteristicas_especiales} onInput={this.handleChange} />
-          </div>
-
-          <div class={formStyle.formGroup}>
-            <label htmlFor="solicitante_jerarquia">Jerarquía del Solicitante:</label>
-            <select name="solicitante_jerarquia" id="solicitante_jerarquia" value={solicitante_jerarquia}
-              onInput={this.handleChange}>
-              <option value="0">Otro/No especificado</option>
-              <option value="1">Funcionario</option>
-              <option value="2">Coordinación/Referente</option>
-              <option value="3">Jefatura/Subdirección</option>
-            </select>
-          </div>
-
-          <div class={formStyle.formGroup}>
-            <label htmlFor="solicitante_nombre">Nombre del Solicitante:</label>
-            <input type="text" name="solicitante_nombre" id="solicitante_nombre" value={solicitante_nombre}
-              onInput={this.handleChange} />
-          </div>
-          <div class={formStyle.formGroup}>
-            <label htmlFor="solicitante_telefono">Teléfono del Solicitante:</label>
-            <input type="text" name="solicitante_telefono" id="solicitante_telefono" value={solicitante_telefono}
-              onInput={this.handleChange} />
-          </div>
-          <div class={formStyle.formGroup}>
-            <label htmlFor="responsable_nombre">Nombre del Responsable:</label>
-            <input type="text" name="responsable_nombre" id="responsable_nombre" value={responsable_nombre}
-              onInput={this.handleChange} />
-          </div>
-          <div class={formStyle.formGroup}>
-            <label htmlFor="responsable_telefono">Teléfono del Responsable:</label>
-            <input type="text" name="responsable_telefono" id="responsable_telefono" value={responsable_telefono}
-              onInput={this.handleChange} />
-          </div>
-
-          <div class={formStyle.formActions}>
-            <button type="submit" disabled={submitting} class={formStyle.submitButton}>
-              {submitting ? (props.asignacion ? 'Actualizando...' : 'Creando...') : (props.asignacion ? 'Actualizar Asignación' : 'Guardar')}
-            </button>
-            <button type="button" onClick={props.onCancel} class={formStyle.cancelButton} disabled={submitting}>
-              Cancelar
-            </button>
-          </div>
-      </form>
-    </div>
+            {/* Botones de acción */}
+            <div class="card-footer">
+              <button 
+                type="button" 
+                onClick={props.onCancel} 
+                class="btn btn-secondary" 
+                disabled={this.state.submitting}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                disabled={this.state.submitting} 
+                class="btn btn-primary"
+              >
+                {this.state.submitting ? 
+                  (props.asignacion ? 'Actualizando...' : 'Creando...') : 
+                  (props.asignacion ? 'Actualizar Asignación' : 'Guardar')
+                }
+              </button>
+            </div>
+        </form>
+      </div>
     );
   }
 }
 
-// AÑADE ESTA LÍNEA AL FINAL DEL ARCHIVO
 export default AsignacionForm;

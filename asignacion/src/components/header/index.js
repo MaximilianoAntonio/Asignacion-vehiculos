@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { Link } from 'preact-router/match';
 import style from './style.css';
+import logoSSVQ from '../../assets/LOGOSSVQ.png';
 
 const Header = ({ isLoggedIn, onLogout, userGroup }) => {
     const isFuncionario = Array.isArray(userGroup)
@@ -10,15 +11,15 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
     return (
         <header class={style.header}>
             <div class={style.logoContainer}>
-                <img src="/assets/logo-ssvq.jpg" alt="Logo" class={style.logo} />
-                <span class={style.title}>Gestión de Flota</span>
+                <img src={logoSSVQ} alt="Logo SSVQ" class={style.logo} />
+                <span class={style.title}>Sistema de Gestión Vehicular</span>
             </div>
             <nav class={style.nav}>
                 <Link activeClassName={style.active} href="/">
                     Inicio
                 </Link>
                 <Link activeClassName={style.active} href="/camara">
-                    Cámara QR
+                    Acceso QR
                 </Link>
                 {isLoggedIn && (
                     <>
@@ -28,35 +29,21 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                             </Link>
                         ) : (
                             <>
-                                <div class={style.dropdown}>
-                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>
-                                        Gestión
-                                    </a>
-                                    <div class={style.dropdownContent}>
-                                        <Link activeClassName={style.active} href="/vehiculos">
-                                            Vehículos
-                                        </Link>
-                                        <Link activeClassName={style.active} href="/conductores">
-                                            Conductores
-                                        </Link>
-                                        <Link activeClassName={style.active} href="/asignaciones">
-                                            Asignaciones
-                                        </Link>
-                                    </div>
-                                </div>
-                                <div class={style.dropdown}>
-                                    <a onClick={e => e.preventDefault()} href="#" class={style.dropbtn}>
-                                        Planificación
-                                    </a>
-                                    <div class={style.dropdownContent}>
-                                        <Link activeClassName={style.active} href="/horarios">
-                                            Horarios
-                                        </Link>
-                                        <Link activeClassName={style.active} href="/mantenimiento">
-                                            Mantenimiento
-                                        </Link>
-                                    </div>
-                                </div>
+                                <Link activeClassName={style.active} href="/vehiculos">
+                                    Vehículos
+                                </Link>
+                                <Link activeClassName={style.active} href="/conductores">
+                                    Conductores
+                                </Link>
+                                <Link activeClassName={style.active} href="/asignaciones">
+                                    Asignaciones
+                                </Link>
+                                <Link activeClassName={style.active} href="/mantenimiento">
+                                    Mantenimiento
+                                </Link>
+                                <Link activeClassName={style.active} href="/mas-informacion">
+                                    Más Información
+                                </Link>
                             </>
                         )}
                     </>
