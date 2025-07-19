@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import { getAsignaciones, deleteAsignacion, procesarAsignaciones } from '../../services/asignacionService';
+import { getAsignaciones, deleteAsignacion, procesarAsignaciones, verificarRecursosDisponibles, verificarConectividad } from '../../services/asignacionService';
 import style from './style.css';
 import { lazy, Suspense } from 'preact/compat';
 
@@ -187,17 +187,138 @@ class AsignacionesPage extends Component {
     }, this.cargarAsignaciones);
   };
 
-  handleProcesarAsignaciones = () => {
+  handleProcesarAsignaciones = async () => {
+    // Asegurar que los datos estén cargados antes de procesar
+    if (this.state.vehiculos.length === 0 || this.state.conductores.length === 0) {
+      await this.cargarVehiculosYConductores();
+    }
+    
+    // Verificar si hay asignaciones pendientes para procesar
+    const asignacionesPendientes = this.state.asignaciones.filter(a => 
+      a.estado === 'pendiente_auto' && (!a.vehiculo || !a.conductor)
+    );
+    
+    if (asignacionesPendientes.length === 0) {
+      alert('No hay asignaciones pendientes de procesamiento automático para esta fecha.');
+      return;
+    }
+    
+    // Verificar recursos disponibles
+    const vehiculosDisponibles = this.state.vehiculos.filter(v => v.estado === 'disponible').length;
+    const conductoresDisponibles = this.state.conductores.filter(c => c.estado_disponibilidad === 'disponible').length;
+    
+    if (vehiculosDisponibles === 0 && conductoresDisponibles === 0) {
+      alert(`No hay vehículos ni conductores disponibles para asignar.`);
+      return;
+    }
+    
+    if (vehiculosDisponibles === 0) {
+      alert(`No hay vehículos disponibles para asignar.`);
+      return;
+    }
+    
+    if (conductoresDisponibles === 0) {
+      alert(`No hay conductores disponibles para asignar.`);
+      return;
+    }
+    
+    // Confirmación antes de procesar
+    const confirmacion = window.confirm(
+      `Se van a procesar automáticamente ${asignacionesPendientes.length} asignaciones pendientes.\n\n` +
+      `Recursos disponibles:\n` +
+      `• Vehículos: ${vehiculosDisponibles}\n` +
+      `• Conductores: ${conductoresDisponibles}\n\n` +
+      '¿Desea continuar?'
+    );
+    
+    if (!confirmacion) {
+      return;
+    }
+    
     this.setState({ loading: true });
-    procesarAsignaciones()
-      .then(() => {
-        this.cargarAsignaciones();
-        alert('Asignaciones procesadas correctamente.');
-      })
-      .catch(() => {
-        alert('Ocurrió un error al procesar las asignaciones.');
-        this.setState({ loading: false });
-      });
+    
+    try {
+      const fechaFormateada = this.formatDateForInput(this.state.currentDate);
+      const resultado = await procesarAsignaciones(fechaFormateada);
+      
+      await this.cargarAsignaciones();
+      
+      // Mostrar resultados detallados
+      if (resultado && resultado.resultados && Array.isArray(resultado.resultados)) {
+        const resultados = resultado.resultados;
+        const exitosas = resultados.filter(r => r.vehiculo_asignado !== null).length;
+        const fallidas = resultados.filter(r => r.vehiculo_asignado === null).length;
+        
+        let mensaje = `Procesamiento completado.\n\n`;
+        mensaje += `📊 Resumen:\n`;
+        mensaje += `• Exitosas: ${exitosas}\n`;
+        mensaje += `• Fallidas: ${fallidas}\n\n`;
+        
+        if (exitosas > 0) {
+          mensaje += `✅ Asignaciones exitosas:\n`;
+          resultados.forEach(r => {
+            if (r.vehiculo_asignado !== null) {
+              mensaje += `  • Asignación ${r.asignacion_id}: Vehículo ${r.vehiculo_asignado}\n`;
+            }
+          });
+          mensaje += `\n`;
+        }
+        
+        if (fallidas > 0) {
+          mensaje += `❌ Asignaciones fallidas:\n`;
+          resultados.forEach(r => {
+            if (r.vehiculo_asignado === null) {
+              const motivo = r.motivo || r.error || 'Sin vehículo disponible compatible';
+              mensaje += `  • Asignación ${r.asignacion_id}: ${motivo}\n`;
+            }
+          });
+        }
+        
+        alert(mensaje);
+      } else {
+        alert('Procesamiento completado exitosamente.');
+      }
+    } catch (error) {
+      let mensajeError = `Error al procesar las asignaciones:\n\n${error.message}`;
+      alert(mensajeError);
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
+  // Función de diagnóstico simplificada
+  diagnosticarRecursos = async () => {
+    const { vehiculos, conductores, asignaciones } = this.state;
+    
+    // Verificar conectividad con el backend
+    const conectividad = await verificarConectividad();
+    
+    // Analizar asignaciones pendientes
+    const asignacionesPendientes = asignaciones.filter(a => 
+      a.estado === 'pendiente_auto' && (!a.vehiculo || !a.conductor)
+    );
+    
+    const vehiculosDisponibles = vehiculos.filter(v => v.estado === 'disponible').length;
+    const conductoresDisponibles = conductores.filter(c => c.estado_disponibilidad === 'disponible').length;
+    
+    // Mostrar resumen en un alert para el usuario
+    const resumen = `DIAGNÓSTICO DEL SISTEMA\n\n` +
+      `🚗 Vehículos: ${vehiculosDisponibles} de ${vehiculos.length} disponibles\n` +
+      `👨‍💼 Conductores: ${conductoresDisponibles} de ${conductores.length} disponibles\n` +
+      `📋 Asignaciones pendientes: ${asignacionesPendientes.length}\n\n` +
+      `🌐 Conectividad: ${conectividad.conectado ? '✅ Conectado' : '❌ Sin conexión'}\n` +
+      `${conectividad.mensaje ? `• ${conectividad.mensaje}` : ''}`;
+    
+    alert(resumen);
+    
+    return {
+      vehiculos_total: vehiculos.length,
+      vehiculos_disponibles: vehiculosDisponibles,
+      conductores_total: conductores.length,
+      conductores_disponibles: conductoresDisponibles,
+      asignaciones_pendientes: asignacionesPendientes.length,
+      conectividad: conectividad
+    };
   };
 
   formatearFecha(fechaStr) {
@@ -390,6 +511,11 @@ class AsignacionesPage extends Component {
       return acc;
     }, {});
 
+    // Contar asignaciones pendientes sin vehículo o conductor asignado
+    const asignacionesPendientesAutomaticas = asignaciones.filter(a => 
+      a.estado === 'pendiente_auto' && (!a.vehiculo || !a.conductor)
+    ).length;
+
     return (
       <div class="page-container">
         <div class="page-header">
@@ -465,8 +591,20 @@ class AsignacionesPage extends Component {
               Asignaciones para {this.state.currentDate.toLocaleDateString('es-ES', { month: 'long', day: 'numeric' })}
             </h2>
             <div class={style.tableActions}>
-              <button class="button button-secondary" onClick={this.handleProcesarAsignaciones} disabled={loading}>
-                Procesar
+              <button 
+                class={`button ${asignacionesPendientesAutomaticas > 0 ? 'button-warning' : 'button-secondary'}`}
+                onClick={this.handleProcesarAsignaciones} 
+                disabled={loading}
+                title={`Procesar asignaciones automáticamente para ${this.state.currentDate.toLocaleDateString('es-ES')}`}
+              >
+                {loading ? 'Procesando...' : `Procesar Automáticamente${asignacionesPendientesAutomaticas > 0 ? ` (${asignacionesPendientesAutomaticas})` : ''}`}
+              </button>
+              <button 
+                class="button button-outline" 
+                onClick={this.diagnosticarRecursos}
+                title="Ejecutar diagnóstico de recursos disponibles"
+              >
+                Diagnóstico
               </button>
               <button class="button button-outline" onClick={() => exportPDF(asignaciones)} disabled={loading || asignaciones.length === 0}>
                 Exportar PDF

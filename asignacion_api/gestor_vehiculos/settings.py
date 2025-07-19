@@ -10,7 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+# Intentar cargar variables de entorno desde archivo .env
+try:
+    from decouple import config
+except ImportError:
+    # Si no está instalado python-decouple, usar os.environ directamente
+    def config(key, default=None, cast=str):
+        value = os.environ.get(key, default)
+        if cast == bool:
+            return value.lower() in ('true', '1', 'yes', 'on') if isinstance(value, str) else bool(value)
+        return cast(value) if value is not None else default
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,14 +32,41 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)i$w*5mx^2esaf$)+oarmvtbf@)-15q(#3#avi@zbw%bqewr5k'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-)i$w*5mx^2esaf$)+oarmvtbf@)-15q(#3#avi@zbw%bqewr5k')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
+# Para Railway, permitir el host dinámico
+RAILWAY_STATIC_URL = config('RAILWAY_STATIC_URL', default='')
+if RAILWAY_STATIC_URL:
+    ALLOWED_HOSTS.append(RAILWAY_STATIC_URL)
+
+# Force HTTPS in production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    USE_TZ = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-5e000.up.railway.app',
+    'https://frontflota-ofjx-qu4vu5qi3-maximilianoantonios-projects.vercel.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
 # CORS
+CORS_ALLOWED_ORIGINS = [
+    'https://web-production-5e000.up.railway.app',
+    'https://frontflota-ofjx-qu4vu5qi3-maximilianoantonios-projects.vercel.app',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 # en lugar de CORS_ALLOWED_ORIGINS = [...], usa un regex que acepte cualquier IP en el puerto 8080
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https?://\d+\.\d+\.\d+\.\d+:8000$",
@@ -55,13 +94,14 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'gestor_vehiculos.urls'
@@ -103,25 +143,32 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# Configuración para PostgreSQL en la nube (ej. ElephantSQL)
-# Reemplaza los valores de abajo con las credenciales de tu base de datos.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'ssvq_flota_db',
-        'USER': 'ssvq',
-        'PASSWORD': 'sMDi7Kbsdr9D6AQxnDkqlJztnQtFZPjt',
-        'HOST': 'dpg-d1jpeh7diees73cdqhag-a.oregon-postgres.render.com',
-        'PORT': '5432', # El puerto por defecto de PostgreSQL es 5432
+# Configuración de base de datos
+if config('USE_LOCAL_DB', default=True, cast=bool):
+    # Base de datos local SQLite para desarrollo
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # Base de datos Azure SQL Server para producción
+    DATABASES = {
+        'default': {
+            'ENGINE': 'mssql',
+            'NAME': config('AZURE_SQL_NAME', default='ssvq'),
+            'USER': config('AZURE_SQL_USER', default='ssvqdb@ssvq'),
+            'PASSWORD': config('AZURE_SQL_PASSWORD', default='ssvq1!flota'),
+            'HOST': config('AZURE_SQL_HOST', default='ssvq.database.windows.net'),
+            'PORT': config('AZURE_SQL_PORT', default='1433'),
+            'OPTIONS': {
+                'driver': 'ODBC Driver 18 for SQL Server',
+                'extra_params': 'TrustServerCertificate=yes;Encrypt=yes',
+            },
+        }
+    } 
+
 
 
 # Password validation
@@ -152,13 +199,18 @@ USE_I18N = True
 USE_TZ = True 
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Whitenoise configuration for serving static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

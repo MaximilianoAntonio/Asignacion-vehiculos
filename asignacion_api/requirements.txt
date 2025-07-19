@@ -11,8 +11,12 @@ djangorestframework-simplejwt==5.3.1
 gunicorn==22.0.0
 packaging==24.0
 psycopg2-binary
+dj-database-url==2.1.0
+mssql-django
+pyodbc
 PyJWT==2.8.0
 pytz==2024.1
 sqlparse==0.5.0
 whitenoise==6.7.0
 Faker==25.2.0
+python-decouple==3.8

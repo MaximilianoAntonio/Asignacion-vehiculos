@@ -39,7 +39,7 @@ const Header = ({ isLoggedIn, onLogout, userGroup }) => {
                                     Asignaciones
                                 </Link>
                                 <Link activeClassName={style.active} href="/mantenimiento">
-                                    Mantenimiento
+                                    Dashboard
                                 </Link>
                                 <Link activeClassName={style.active} href="/mas-informacion">
                                     Más Información

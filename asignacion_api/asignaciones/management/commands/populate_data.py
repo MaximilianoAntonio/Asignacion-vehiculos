@@ -99,7 +99,7 @@ class Command(BaseCommand):
 
         # Crear Asignaciones
         asignaciones = []
-        for _ in range(2000):
+        for _ in range(2442):
             fecha_inicio = fake.date_time_between(start_date='-365d', end_date='-1d', tzinfo=timezone.get_current_timezone()) - timezone.timedelta(days=1)
             fecha_fin = fecha_inicio + timezone.timedelta(hours=random.randint(1, 5))
 
@@ -132,13 +132,108 @@ class Command(BaseCommand):
 
             distancia_viaje = round(R * c, 2)
 
-            vehiculo_asignado = random.choice(vehiculos)
-            vehiculo_asignado.kilometraje += distancia_viaje
-            vehiculo_asignado.save()
+            # Asignar estado de manera realista basado en la fecha
+            estados_posibles = [
+                'pendiente_auto', 'programada', 'activa', 
+                'completada', 'cancelada', 'fallo_auto'
+            ]
+            
+            # Determinar estado basado en la antigüedad de la asignación
+            dias_pasados = (timezone.now() - fecha_inicio).days
+            
+            if dias_pasados > 30:
+                # Asignaciones muy antiguas: mayormente completadas o canceladas
+                estado = random.choices(
+                    ['completada', 'cancelada', 'fallo_auto'],
+                    weights=[85, 10, 5]
+                )[0]
+            elif dias_pasados > 7:
+                # Asignaciones de la semana pasada: mix realista
+                estado = random.choices(
+                    ['completada', 'cancelada', 'programada', 'fallo_auto'],
+                    weights=[70, 15, 10, 5]
+                )[0]
+            elif dias_pasados > 1:
+                # Asignaciones recientes: más variedad
+                estado = random.choices(
+                    ['completada', 'activa', 'programada', 'cancelada', 'pendiente_auto'],
+                    weights=[40, 25, 20, 10, 5]
+                )[0]
+            else:
+                # Asignaciones de hoy: mayormente activas o programadas
+                estado = random.choices(
+                    ['activa', 'programada', 'pendiente_auto', 'completada'],
+                    weights=[40, 35, 15, 10]
+                )[0]
+
+            # Asignar vehículo y conductor basado en el estado
+            conductor_asignado = None
+            vehiculo_asignado = None
+            
+            if estado in ['programada', 'activa', 'completada']:
+                # Estados que requieren vehículo y conductor asignado
+                vehiculo_asignado = random.choice(vehiculos)
+                conductor_asignado = random.choice(conductores)
+                vehiculo_asignado.kilometraje += distancia_viaje if estado == 'completada' else 0
+                vehiculo_asignado.save()
+            elif estado in ['cancelada', 'fallo_auto']:
+                # Estados que pueden no tener asignaciones
+                if random.random() < 0.3:  # 30% de probabilidad de tener asignación previa
+                    vehiculo_asignado = random.choice(vehiculos)
+                    conductor_asignado = random.choice(conductores)
+            elif estado == 'pendiente_auto':
+                # Pendientes generalmente no tienen asignación aún
+                if random.random() < 0.1:  # 10% de probabilidad de tener asignación previa
+                    vehiculo_asignado = random.choice(vehiculos)
+                    conductor_asignado = random.choice(conductores)
+
+            # Generar observaciones basadas en el estado
+            observaciones = ""
+            if estado == 'cancelada':
+                observaciones_canceladas = [
+                    "Cancelada por el solicitante",
+                    "Cambio de planes del área solicitante",
+                    "Vehículo no disponible por mantenimiento",
+                    "Conductor no disponible por enfermedad",
+                    "Condiciones climáticas adversas",
+                    "Reunión cancelada"
+                ]
+                observaciones = random.choice(observaciones_canceladas)
+            elif estado == 'fallo_auto':
+                observaciones_fallo = [
+                    "No hay vehículos disponibles en el horario solicitado",
+                    "No hay conductores disponibles",
+                    "Tipo de vehículo requerido no disponible",
+                    "Conflicto de horarios con otras asignaciones"
+                ]
+                observaciones = random.choice(observaciones_fallo)
+            elif estado == 'activa':
+                observaciones_activa = [
+                    "Viaje en curso",
+                    "Conductor confirmó inicio del traslado",
+                    "En ruta al destino",
+                    "Pasajeros recogidos, dirigiéndose al destino"
+                ]
+                observaciones = random.choice(observaciones_activa)
+            elif estado == 'completada':
+                observaciones_completada = [
+                    "Viaje completado exitosamente",
+                    "Traslado realizado sin novedad",
+                    "Servicio completado según lo programado",
+                    "Pasajeros trasladados correctamente"
+                ]
+                observaciones = random.choice(observaciones_completada)
+
+            # Asignar jerarquía del solicitante de manera realista
+            # 3: Jefatura/Subdirección, 2: Coordinación/Referente, 1: Funcionario, 0: Otro
+            jerarquia_solicitante = random.choices(
+                [3, 2, 1, 0],
+                weights=[15, 25, 50, 10]  # Más funcionarios, menos jefatura
+            )[0]
 
             asignacion = Asignacion.objects.create(
                 vehiculo=vehiculo_asignado,
-                conductor=random.choice(conductores),
+                conductor=conductor_asignado,
                 destino_descripcion=destino_descripcion,
                 origen_descripcion=origen_descripcion,
                 origen_lat=origen_lat,
@@ -149,10 +244,12 @@ class Command(BaseCommand):
                 fecha_hora_fin_prevista=fecha_fin,
                 req_pasajeros=random.randint(1, 10),
                 solicitante_nombre=fake.name(),
+                solicitante_jerarquia=jerarquia_solicitante,
                 responsable_nombre=fake.name(),
                 responsable_telefono=fake.phone_number(),
-                estado='completada',
-                distancia_recorrida_km=distancia_viaje
+                estado=estado,
+                observaciones=observaciones,
+                distancia_recorrida_km=distancia_viaje if estado == 'completada' else None
             )
             asignaciones.append(asignacion)
         self.stdout.write(self.style.SUCCESS(f'{len(asignaciones)} assignments created.'))
